@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Commands.PathPlannerAlignmentCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -163,16 +164,9 @@ public class RobotContainer {
     //joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(1, 5, new Rotation2d(180))));
 
     LimelightHelpers.SetFidcuial3DOffset(limeLightName, 1, 1, 1);
-    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
-    double ID = LimelightHelpers.getFiducialID(limeLightName);    
+ 
 
-    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() ,
-        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY(),
-        fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
-        )
-        ).withTimeout(5)
-    );
+    joystick.x().onTrue(new PathPlannerAlignmentCommand(swerve).withTimeout(5));
   }
 
   /**

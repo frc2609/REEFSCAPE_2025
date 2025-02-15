@@ -44,7 +44,7 @@ public final class Constants {
     public static final PIDConstants rotationConstants = new PIDConstants(5.0, 0.0, 0.0);
 
 
-
+  }
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
@@ -101,5 +101,4 @@ public final class Constants {
     }
   }
 
-}
 }

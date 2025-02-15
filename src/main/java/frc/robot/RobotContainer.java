@@ -143,7 +143,6 @@ public class RobotContainer {
         //if(controller_HID.getXButton()){
         //    new PathToAprilTagCommand(drivetrain, seaweed);
         //}
-        buttonX.onTrue(new PathToAprilTagCommand(drivetrain, seaweed));
         //joystick.x().whileTrue(new PathToAprilTagCommand(drivetrain, seaweed));
         //joystick.y().whileTrue(new PathToAprilTagCommand(drivetrain, "limelight-seaweed"));
         joystick.b().onTrue(Commands.runOnce(() -> {
@@ -156,7 +155,8 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(() -> arm.Move())
         );
-    }
+        joystick.x(resetGyro.withTimeout(0.75));
+        }
 
     public void robotInit() {
         for (int port = 5800; port <= 5810; port++) {

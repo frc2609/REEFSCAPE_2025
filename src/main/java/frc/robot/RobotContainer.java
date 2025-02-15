@@ -137,16 +137,15 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystick.x().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(0.75).andThen(new AlignCommand(drivetrain, seaweed, pidgey)).withTimeout(2));
+
+
+        //This line should do the same as the one below but I do not have a way to try it
+        //It aims and positions the robot towards the limelight at the same time
+        joystick.x().onTrue(new FullAlignCommand(drivetrain, seaweed, pidgey).withTimeout(2));        
+
+        //This line works but it's not efficient in terms of running
+        //joystick.x().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(0.75).andThen(new AlignCommand(drivetrain, seaweed, pidgey)).withTimeout(2));
         
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-        // pressed,
-        // cancelling on release.
-        //if(controller_HID.getXButton()){
-        //    new PathToAprilTagCommand(drivetrain, seaweed);
-        //}
-        //joystick.x().whileTrue(new PathToAprilTagCommand(drivetrain, seaweed));
-        //joystick.y().whileTrue(new PathToAprilTagCommand(drivetrain, "limelight-seaweed"));
         joystick.b().onTrue(Commands.runOnce(() -> {
             Command currentCommand = drivetrain.getCurrentCommand();
             if (currentCommand instanceof PathToAprilTagCommand) {

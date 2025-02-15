@@ -58,8 +58,6 @@ public class ResetGyro extends Command {
         // Convert to radians per second for the drivetrain
         targetingAngularVelocity *= 0.75;
     
-        // Invert since tx is positive when the target is to the right of the crosshair
-        // targetingAngularVelocity *= 1.0;
     
         return targetingAngularVelocity;
     }
@@ -83,24 +81,6 @@ public class ResetGyro extends Command {
     
         return targetingForwardSpeed;
     }
-    // private double limelightRotProportional() {
-    //     double kP = 0.06;
-    
-    //     // Get the "ty" value from the Limelight
-    //     // double targetingForwardSpeed = m_Vision.getTY() * kP;
-    //     double targetingForwardSpeed = m_limelight.get_tl() * kP;
-
-    //     //SmartDashboard.putNumber("limelightX", LimelightHelpers.getTY("limelight"));
-    
-    //     // Convert to meters per second for the drivetrain
-    //     targetingForwardSpeed *= TunerConstants.kSpeedAt12Volts.magnitude();
-    
-    //     // Invert the direction for proper control
-    //     // targetingForwardSpeed *= 1.0;
-    
-    //     return targetingForwardSpeed;
-    // }
-
     private double LimelightRoation(){
         double kP = 0.06;
         double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
@@ -108,9 +88,6 @@ public class ResetGyro extends Command {
         return angle;
 
     }
-
-
-
 
     public void execute(){
 
@@ -121,6 +98,5 @@ public class ResetGyro extends Command {
                 .withRotationalRate(-tagYaw * 0.06)
         );
         SmartDashboard.putNumber("Angle",m_Pigeon2.getAccumGyroY().getValueAsDouble());
-        //m_Swerve.applyRequest(()->m_driveRequest.withVelocityX(xSpeed));
     }
 }

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.List;
 import static edu.wpi.first.units.Units.*;
@@ -24,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,6 +68,7 @@ public class RobotContainer {
   private final CommandXboxController joystick = new CommandXboxController(0);
   private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
   private final String limeLightName = "limelight-seaweed";
+  private Field2d m_field = new Field2d();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -77,11 +80,12 @@ public class RobotContainer {
     // Use event markers as triggers
     new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
     pidgey.clearStickyFault_BootDuringEnable();
-    // Configure the trigger bindings
+    // Configure the trigger b indings
     configureBindings();
 
     autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
     SmartDashboard.putData("Auto Mode", autoChooser);
+    swerve.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
   }
 
   /**
@@ -154,10 +158,11 @@ public class RobotContainer {
       ), 
       0
     ));
-    double ID = LimelightHelpers.getFiducialID(limeLightName);
-    double[] transform = Constants.VisionConstants.aprilTagMap.get(18);
 
-    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(LimelightHelpers.getTargetPose3d_RobotSpace(limeLightName).toPose2d()));
+    //joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(1, 5, new Rotation2d(180))));
+
+    LimelightHelpers.SetFidcuial3DOffset(limeLightName, 1, 1, 1);
+    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(LimelightHelpers.getTargetPose3d_CameraSpace(limeLightName).toPose2d()));
   }
 
   /**

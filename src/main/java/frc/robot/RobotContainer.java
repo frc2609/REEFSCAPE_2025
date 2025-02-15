@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.nio.file.Path;
 import java.util.List;
 import static edu.wpi.first.units.Units.*;
 
@@ -29,11 +30,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.OnFlyPathCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -64,6 +65,7 @@ public class RobotContainer {
 
   private final CommandXboxController joystick = new CommandXboxController(0);
   private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
+  private final String limeLightName = "limelight-seaweed";
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -152,11 +154,10 @@ public class RobotContainer {
       ), 
       0
     ));
+    double ID = LimelightHelpers.getFiducialID(limeLightName);
     double[] transform = Constants.VisionConstants.aprilTagMap.get(18);
-    // Add a button to SmartDashboard that will create and follow an on-the-fly path
-    // This example will simply move the robot 2m in the +X field direction
-    SmartDashboard.putData("On-the-fly path", swerve.getPathPlannerCommandToAprilTag(new Pose2d(new Translation2d(transform[3], transform[3]), new Rotation2d(transform[2]))));
-    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(new Translation2d(transform[11], transform[7]), new Rotation2d(transform[5]))));
+
+    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(LimelightHelpers.getTargetPose3d_RobotSpace(limeLightName).toPose2d()));
   }
 
   /**

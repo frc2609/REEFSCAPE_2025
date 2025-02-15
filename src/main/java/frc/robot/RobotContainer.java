@@ -37,6 +37,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -162,7 +163,16 @@ public class RobotContainer {
     //joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(1, 5, new Rotation2d(180))));
 
     LimelightHelpers.SetFidcuial3DOffset(limeLightName, 1, 1, 1);
-    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(LimelightHelpers.getTargetPose3d_CameraSpace(limeLightName).toPose2d()));
+    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    double ID = LimelightHelpers.getFiducialID(limeLightName);    
+
+    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
+        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() ,
+        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY(),
+        fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
+        )
+        ).withTimeout(5)
+    );
   }
 
   /**

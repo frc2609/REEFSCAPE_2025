@@ -9,11 +9,15 @@ import java.util.HashMap;
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.geometry.Translation2d;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import java.util.HashMap;
+
+import edu.wpi.first.units.measure.*; 
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -38,9 +42,15 @@ public final class Constants {
 
     public static final PIDConstants translationConstants = new PIDConstants(5.0, 0.0, 0.0);
     public static final PIDConstants rotationConstants = new PIDConstants(5.0, 0.0, 0.0);
+
+
+
+
+  public static class OperatorConstants {
+    public static final int kDriverControllerPort = 0;
   }
 
-  public static class VisionConstants {
+    public static class VisionConstants {
     public static final String LIMELIGHT_NAME = "limelight";
     public static final Distance LIMELIGHT_LENS_HEIGHT = Distance.ofBaseUnits(31, Inches);
     public static final Angle LIMELIGHT_ANGLE = Angle.ofBaseUnits(45, Degrees);
@@ -91,4 +101,5 @@ public final class Constants {
     }
   }
 
+}
 }

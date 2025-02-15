@@ -79,7 +79,7 @@ public class AlignCommand extends Command {
 
     
         // Convert to radians per second for the drivetrain
-        targetingAngularVelocity *= -TunerConstants.kSpeedAt12Volts.magnitude();
+        targetingAngularVelocity *= TunerConstants.kSpeedAt12Volts.magnitude();
     
         // Invert since tx is positive when the target is to the right of the crosshair
         // targetingAngularVelocity *= 1.0;
@@ -99,7 +99,7 @@ public class AlignCommand extends Command {
 
     
         // Convert to meters per second for the drivetrain
-        targetingForwardSpeed *= -TunerConstants.kSpeedAt12Volts.magnitude();
+        targetingForwardSpeed *= TunerConstants.kSpeedAt12Volts.magnitude();
     
         // Invert the direction for proper control
         // targetingForwardSpeed *= 1.0;
@@ -138,8 +138,8 @@ public class AlignCommand extends Command {
 
         // Store the ID of the AprilTag the Limelight is seeing
         // double tagID = LimelightHelpers.getFiducialID("limelight-seaweed");
-        // double xSpeed = limelightRangeProportional(); 
-        // double yspeed = limelightAimProportional();
+         double xSpeed = limelightRangeProportional(); 
+         double yspeed = limelightAimProportional();
 
 
         
@@ -150,12 +150,12 @@ public class AlignCommand extends Command {
 
 
 
-        /*m_Swerve.setControl(
+        m_Swerve.setControl(
             m_driveRequest
                 .withVelocityX(xSpeed)  
                 .withVelocityY(yspeed)
-                
-        );*/
+            
+        );
 
         //m_Swerve.applyRequest(()->m_driveRequest.withVelocityX(xSpeed));
     }

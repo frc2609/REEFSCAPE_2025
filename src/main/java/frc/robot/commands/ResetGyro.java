@@ -118,8 +118,6 @@ public class ResetGyro extends Command {
 
         m_Swerve.setControl(
             m_driveRequest
-                //.withVelocityX(xSpeed * 0.06)
-                //.withVelocityY(yspeed)
                 .withRotationalRate(-tagYaw * 0.06)
         );
         SmartDashboard.putNumber("Angle",m_Pigeon2.getAccumGyroY().getValueAsDouble());

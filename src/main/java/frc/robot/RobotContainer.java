@@ -68,7 +68,7 @@ public class RobotContainer {
 
     private final CommandXboxController joystick = new CommandXboxController(0);
     private final XboxController controller_HID = joystick.getHID();
-    private final JoystickButton buttonX = new JoystickButton(controller_HID, XboxController.Button.kX.value);
+
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -105,11 +105,11 @@ public class RobotContainer {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-controller_HID.getLeftY() * MaxSpeed) // Drive forward with
+                drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
                                                                                                    // negative Y
                                                                                                    // (forward)
-                        .withVelocityY(-controller_HID.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-controller_HID.getRightX() * MaxAngularRate) // Drive counterclockwise with
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
                                                                                     // negative X (left)
                 ));
                 
@@ -137,6 +137,8 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        joystick.x().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(0.75).andThen(new AlignCommand(drivetrain, seaweed, pidgey)).withTimeout(2));
+        
         // Schedule `exampleMethodCommand` when the Xbox controller's B button is
         // pressed,
         // cancelling on release.
@@ -155,7 +157,7 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(() -> arm.Move())
         );
-        joystick.x(resetGyro.withTimeout(0.75));
+
         }
 
     public void robotInit() {

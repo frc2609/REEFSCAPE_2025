@@ -22,11 +22,18 @@ public class PathPlannerAlignmentCommand extends Command {
 
     public void execute(){
         
-        double ID = LimelightHelpers.getFiducialID(limeLightName);    
+        //double ID = LimelightHelpers.getFiducialID(limeLightName);
+        double ID = 21;
+        double offset = 1;
+        LimelightHelpers.setFiducial3DOffset(limeLightName, 1, 1, 0);
+
         m_Swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() ,
-        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY(),
+        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
+        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
         fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
         ));
+
+
+        System.out.println(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d());
     }
 }

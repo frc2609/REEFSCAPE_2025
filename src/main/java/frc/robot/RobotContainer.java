@@ -161,12 +161,23 @@ public class RobotContainer {
       0
     ));
 
-    //joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(1, 5, new Rotation2d(180))));
+    double ID = 22;
+    double offset = 1;
+
+    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+
+
+    joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
+      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
+      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
+      fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
+      )));
+
 
     LimelightHelpers.SetFidcuial3DOffset(limeLightName, 1, 1, 1);
  
 
-    joystick.x().onTrue(new PathPlannerAlignmentCommand(swerve).withTimeout(5));
+    //joystick.x().onTrue(new PathPlannerAlignmentCommand(swerve).withTimeout(5));
   }
 
   /**

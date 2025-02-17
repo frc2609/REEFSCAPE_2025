@@ -4,6 +4,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.utils.Constants.VisionConstants;
 import pabeles.concurrency.ConcurrencyOps.Reset;
 
 import static edu.wpi.first.units.Units.*;
@@ -27,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.units.measure.*;
 import frc.robot.LimelightHelpers;
-import frc.robot.Constants.VisionConstants;
 
 public class FullAlignCommand extends ParallelCommandGroup {
 

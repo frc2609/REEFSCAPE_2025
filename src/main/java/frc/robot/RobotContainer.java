@@ -23,9 +23,11 @@ import frc.robot.commands.AlignCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.arm.MoveArm;
+import frc.robot.commands.elevator.MoveElevator;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.Telemetry;
 
@@ -56,6 +58,7 @@ public class RobotContainer {
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
     private final Arm arm = new Arm();
+    private final Elevator elevator = new Elevator();
 
     public RobotContainer() {
 
@@ -83,7 +86,8 @@ public class RobotContainer {
 
        joystick.y()
         .onTrue(
-            new MoveArm(arm)
+            // new MoveArm(arm)
+            new MoveElevator(elevator)
         );
 
     }

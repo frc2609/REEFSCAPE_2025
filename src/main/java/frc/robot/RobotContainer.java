@@ -22,7 +22,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
+import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.Telemetry;
@@ -53,7 +55,7 @@ public class RobotContainer {
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
-    // private final Arm arm = new Arm();
+    private final Arm arm = new Arm();
 
     public RobotContainer() {
 
@@ -79,10 +81,10 @@ public class RobotContainer {
             }
         }));
 
-    //    joystick.y()
-    //     .whileTrue(
-    //         new MoveArmToPosition(arm, 0.1)
-    //     );
+       joystick.y()
+        .whileTrue(
+            new MoveArmToPosition(arm, 0.1)
+        );
 
     }
 

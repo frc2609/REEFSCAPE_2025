@@ -19,8 +19,8 @@ public class PathPlannerAlignmentCommand extends Command {
         addRequirements(swerve);
     }
 
-
-    public void execute(){
+    @Override
+    public void initialize(){
         
         //double ID = LimelightHelpers.getFiducialID(limeLightName);
         double ID = 21;

@@ -170,7 +170,7 @@ public class RobotContainer {
     joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
       fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
       fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
-      fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
+      new Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians() - Math.PI)
       )));
 
 

@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.Utils;
-
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -16,7 +13,7 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
-  private final boolean kUseLimelight = false;
+  // private final boolean kUseLimelight = false;
 
   public Robot() {
     m_robotContainer = new RobotContainer();

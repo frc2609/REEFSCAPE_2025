@@ -162,7 +162,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void setTargetState(SwerveModuleState targetState) {
       // Optimize the state
-      currentState = SwerveModuleState.optimize(targetState, currentState.angle);
+      // currentState = SwerveModuleState.optimize(targetState, currentState.angle);
+      currentState.optimize(targetState.angle);
 
       currentPosition = new SwerveModulePosition(currentPosition.distanceMeters + (currentState.speedMetersPerSecond * 0.02), currentState.angle);
     }

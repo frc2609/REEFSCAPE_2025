@@ -15,9 +15,7 @@ import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
-import java.util.HashMap;
 
-import edu.wpi.first.units.measure.*; 
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide

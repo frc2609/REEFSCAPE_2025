@@ -1,16 +1,10 @@
 package frc.robot.subsystems;
-import com.revrobotics.AbsoluteEncoder;
-
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.Constants;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 public class Arm extends SubsystemBase{
     /**

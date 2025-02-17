@@ -3,35 +3,14 @@ package frc.robot.commands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.utils.Constants.VisionConstants;
-
-import static edu.wpi.first.units.Units.*;
-
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.configs.jni.ConfigJNI;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.units.measure.*;
-import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
 import org.json.simple.JSONObject;
 
-import java.io.Console;
 import java.io.FileReader;
 import java.io.IOException;
 import org.json.simple.parser.JSONParser;
@@ -40,8 +19,7 @@ import org.json.simple.parser.ParseException;
 public class AlignCommand extends Command {
     private final CommandSwerveDrivetrain m_Swerve;
     private final Limelight m_limelight;
-    private final Pigeon2 m_Pigeon2;
-    private Pose2d taPose2d;
+    // private final Pigeon2 m_Pigeon2;
     private JSONObject map;
 
     private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
@@ -53,7 +31,7 @@ public class AlignCommand extends Command {
     public AlignCommand(CommandSwerveDrivetrain swerve, Limelight limelight, Pigeon2 pidgey) {
         m_Swerve = swerve;
         m_limelight = limelight;
-        m_Pigeon2 = pidgey;
+        // m_Pigeon2 = pidgey;
         String fileLocation =  String.format("%s%s", Filesystem.getDeployDirectory(), "/frc2025r2.json");
         SmartDashboard.putString("print", fileLocation);
         try (FileReader reader = new FileReader(fileLocation)) {
@@ -125,13 +103,13 @@ public class AlignCommand extends Command {
     //     return targetingForwardSpeed;
     // }
 
-    private double LimelightRoation(){
-        double kP = 0.06;
-        double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
-        SmartDashboard.putNumber("Angle",angle);
-        return angle;
+    // private double LimelightRoation(){
+    //     double kP = 0.06;
+    //     double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
+    //     SmartDashboard.putNumber("Angle",angle);
+    //     return angle;
 
-    }
+    // }
 
     public void execute(){
         // double rot = limelightAimProportional();

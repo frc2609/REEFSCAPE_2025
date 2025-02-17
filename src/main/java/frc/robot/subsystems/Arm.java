@@ -9,31 +9,18 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import frc.robot.utils.PositionControlledMotor;
+import frc.robot.utils.Constants;
 
 public class Arm extends SubsystemBase{
-    /**
-     * The motor controller for the robot's arm subsystem.
-     */
+
     private final TalonFX motor;
     private final TalonFXConfigurator configurator;
     private final TalonFXConfiguration configs;
     private final Encoder encoder;
     private final PositionControlledMotor positionControlledMotor;
     
-    // Constants for arm positions and limits (in rotations)
-    private static final double MIN_POSITION = -0.369263; 
-    private static final double MAX_POSITION = 0.357178;
-    
-    // PID constants - tune these values
-    private static final double kP = 60.0;
-    private static final double kI = 0.0;
-    private static final double kD = 0.0;
-    // private static final double kS = 0.0;  // Static friction
-    // private static final double kG = 0.3;  // Gravity compensation
-    // private static final double kV = 0.0;  // Velocity feedforward
-    
     public Arm() {
-        motor = new TalonFX(50, "CANivore");
+        motor = new TalonFX(Constants.Arm.MOTOR_ID, Constants.CANBUS);
         
         configurator = motor.getConfigurator();
         configs = new TalonFXConfiguration();
@@ -42,10 +29,10 @@ public class Arm extends SubsystemBase{
         motor.setNeutralMode(NeutralModeValue.Coast);
         
         // Use two DIO ports for quadrature encoder (channelA is blue, ChannelB is yellow)
-        encoder = new Encoder(1, 2);
+        encoder = new Encoder(Constants.Arm.ENCODER_CHANNEL_A, Constants.Arm.ENCODER_CHANNEL_B);
         
         // Configure encoder
-        encoder.setDistancePerPulse(1.0 / 2048.0);  // REV Through Bore has 2048 pulses per revolution
+        encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
         encoder.setReverseDirection(true);
         encoder.reset();  // Start at 0
         
@@ -53,10 +40,8 @@ public class Arm extends SubsystemBase{
         positionControlledMotor = new PositionControlledMotor(
             motor,  // Adapt TalonFX to MotorController interface
             encoder,
-            kP, kI, kD,
-            // kS, kG, kV,
-            MIN_POSITION, MAX_POSITION,
-            // 2.0, 3.0,  // Max velocity and acceleration
+            Constants.Arm.kP, Constants.Arm.kI, Constants.Arm.kD,
+            Constants.Arm.MIN_POSITION, Constants.Arm.MAX_POSITION,
             "Arm"
         );
     }

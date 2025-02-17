@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 public class PositionControlledMotor {
     private final TalonFX motor;
+    private final TalonFX followerMotor;  // Can be null if no follower
     private final Encoder encoder;
     private final ProfiledPIDController pidController;
     private final VoltageOut voltageRequest;
@@ -23,30 +24,49 @@ public class PositionControlledMotor {
     private static final double DEFAULT_MAX_VELOCITY = 2.0;    // rotations per second
     private static final double DEFAULT_MAX_ACCELERATION = 1.5; // rotations per second squared
 
-    // Constructor for PID only
+    // Constructor for PID only with single motor
     public PositionControlledMotor(
             TalonFX motor, Encoder encoder,
             double kP, double kI, double kD,
             double minPosition, double maxPosition, String name) {
-        this(motor, encoder, kP, kI, kD, 0, 0, 0, minPosition, maxPosition, name);
+        this(motor, null, encoder, kP, kI, kD, 0, 0, 0, minPosition, maxPosition, name);
     }
 
-    // Constructor for PID with FF
+    // Constructor for PID with FF with single motor
     public PositionControlledMotor(
             TalonFX motor, Encoder encoder,
             double kP, double kI, double kD,
             double kS, double kG, double kV,
             double minPosition, double maxPosition, String name) {
-        this(motor, encoder, kP, kI, kD, 0, 0, 0, minPosition, maxPosition, DEFAULT_MAX_VELOCITY, DEFAULT_MAX_ACCELERATION, name);
+        this(motor, null, encoder, kP, kI, kD, kS, kG, kV, minPosition, maxPosition, name);
     }
 
-    // Constructor for custom motion profile values
-    public PositionControlledMotor(TalonFX motor, Encoder encoder,
+    // Constructor for PID with follower motor
+    public PositionControlledMotor(
+            TalonFX motor, TalonFX followerMotor, Encoder encoder,
+            double kP, double kI, double kD,
+            double minPosition, double maxPosition, String name) {
+        this(motor, followerMotor, encoder, kP, kI, kD, 0,0, 0, minPosition, maxPosition, DEFAULT_MAX_VELOCITY, DEFAULT_MAX_ACCELERATION, name);
+    }
+
+    // Constructor for PID with FF and follower motor
+    public PositionControlledMotor(
+            TalonFX motor, TalonFX followerMotor, Encoder encoder,
+            double kP, double kI, double kD,
+            double kS, double kG, double kV,
+            double minPosition, double maxPosition, String name) {
+        this(motor, followerMotor, encoder, kP, kI, kD, kS, kG, kV, minPosition, maxPosition, DEFAULT_MAX_VELOCITY, DEFAULT_MAX_ACCELERATION, name);
+    }
+
+    // Full constructor with all parameters
+    public PositionControlledMotor(
+            TalonFX motor, TalonFX followerMotor, Encoder encoder,
             double kP, double kI, double kD,
             double kS, double kG, double kV,
             double minPosition, double maxPosition,
             double maxVelocity, double maxAcceleration, String name) {
         this.motor = motor;
+        this.followerMotor = followerMotor;
         this.encoder = encoder;
         this.minPosition = minPosition;
         this.maxPosition = maxPosition;
@@ -102,10 +122,16 @@ public class PositionControlledMotor {
             return;
         }
         motor.setControl(voltageRequest.withOutput(volts));
+        if (followerMotor != null) {
+            followerMotor.setControl(voltageRequest.withOutput(volts));
+        }
     }
 
     public void stop() {
         motor.stopMotor();
+        if (followerMotor != null) {
+            followerMotor.stopMotor();
+        }
     }
 
     public double getPosition() {

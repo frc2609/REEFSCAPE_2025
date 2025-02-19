@@ -33,8 +33,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Commands.PathPlannerAlignmentCommand;
+import frc.robot.Commands.ResetGyro;
+import frc.robot.Commands.AlignCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -73,6 +76,8 @@ public class RobotContainer {
   private Field2d m_field = new Field2d();
 
   private static double REEF_SIDE = 0.813;
+
+    public final Limelight seaweed = new Limelight("limelight-seaweed");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -131,7 +136,8 @@ public class RobotContainer {
       joystick.start().and(joystick.x()).whileTrue(swerve.sysIdQuasistatic(Direction.kReverse));
 
       // reset the field-centric heading on left bumper press
-      //.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+      joystick.leftBumper().onTrue(swerve.runOnce(() -> swerve.seedFieldCentric()));
+      joystick.rightBumper().onTrue(swerve.runOnce(() ->swerve.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
       swerve.registerTelemetry(logger::telemeterize);
 
@@ -164,7 +170,7 @@ public class RobotContainer {
     ));
 
     double ID = 18;
-    double distanceOffset = 0.5;
+    double distanceOffset = 1;
     double coralOffset = REEF_SIDE * -1/2;
 
 
@@ -172,13 +178,14 @@ public class RobotContainer {
 
 
     joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*coralOffset,
-      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*coralOffset,
+      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
       new Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians() - Math.PI)
     )));
 
+    joystick.y().onTrue(new ResetGyro(swerve, seaweed, pidgey).withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed, pidgey)).withTimeout(5));
+    //joystick.y().onTrue(new AlignCommand(swerve, seaweed, pidgey));
 
-    LimelightHelpers.SetFidcuial3DOffset(limeLightName, 1, 1, 1);
  
 
     //joystick.x().onTrue(new PathPlannerAlignmentCommand(swerve).withTimeout(5));

@@ -72,6 +72,8 @@ public class RobotContainer {
   private final String limeLightName = "limelight-seaweed";
   private Field2d m_field = new Field2d();
 
+  private static double REEF_SIDE = 0.813;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Register named commands
@@ -161,17 +163,19 @@ public class RobotContainer {
       0
     ));
 
-    double ID = 22;
-    double offset = 1;
+    double ID = 18;
+    double distanceOffset = 0.5;
+    double coralOffset = REEF_SIDE * -1/2;
+
 
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
 
     joystick.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
-      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
+      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*coralOffset,
+      fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*coralOffset,
       new Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians() - Math.PI)
-      )));
+    )));
 
 
     LimelightHelpers.SetFidcuial3DOffset(limeLightName, 1, 1, 1);

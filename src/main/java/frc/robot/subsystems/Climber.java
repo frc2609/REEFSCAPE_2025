@@ -11,56 +11,44 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 
-public class Elevator extends SubsystemBase {
-    private final TalonFX primaryMotor;
-    private final TalonFX followerMotor;
-    private final TalonFXConfigurator primaryConfigurator;
-    private final TalonFXConfigurator followerConfigurator;
+public class Climber extends SubsystemBase{
+
+    private final TalonFX motor;
+    private final TalonFXConfigurator configurator;
     private final TalonFXConfiguration configs;
     private final Encoder encoder;
     private final PositionControlledMotor positionControlledMotor;
     
-    public Elevator() {
-        primaryMotor = new TalonFX(Constants.Elevator.PRIMARY_MOTOR_ID, Constants.CANBUS);
-        followerMotor = new TalonFX(Constants.Elevator.FOLLOWER_MOTOR_ID, Constants.CANBUS);
+    public Climber() {
+        motor = new TalonFX(5, Constants.CANBUS);
         
-        primaryConfigurator = primaryMotor.getConfigurator();
-        followerConfigurator = followerMotor.getConfigurator();
+        configurator = motor.getConfigurator();
         configs = new TalonFXConfiguration();
-        NeutralModeValue neutralMode = NeutralModeValue.Brake;
-        
-        // Configure primary motor
         configs.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
-        primaryConfigurator.apply(configs);
-        primaryMotor.setNeutralMode(neutralMode);
+        configurator.apply(configs);
+        motor.setNeutralMode(NeutralModeValue.Brake);
         
-        // Configure follower motor
-        configs.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
-        followerConfigurator.apply(configs);
-        followerMotor.setNeutralMode(neutralMode);
-        
-        // Use two DIO ports for quadrature encoder
-        encoder = new Encoder(Constants.Elevator.ENCODER_CHANNEL_A, Constants.Elevator.ENCODER_CHANNEL_B);
+        // Use two DIO ports for quadrature encoder (channelA is blue, ChannelB is yellow)
+        encoder = new Encoder(1, 2);
         
         // Configure encoder
         encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
         encoder.setReverseDirection(true);
         encoder.reset();  // Start at 0
         
-        // Create position controlled motor with both motors and feedforward
+        // Create position controlled motor with both PID and feedforward
         positionControlledMotor = new PositionControlledMotor(
-            primaryMotor,
-            followerMotor,
-            encoder,
-            Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD,
-            Constants.Elevator.MIN_POSITION, Constants.Elevator.MAX_POSITION,
-            "Elevator"
+            motor,  // Adapt TalonFX to MotorController interface
+            encoder,    
+            40, 0, 0,
+            -.38, 0,
+            "Climber"
         );
     }
 
     @Override 
     public void periodic() {
-        SmartDashboard.putNumber("Elevator Position", getPosition());
+        SmartDashboard.putNumber("Climber Position", getPosition());
     }
 
     public void goToPosition(double targetPosition) {
@@ -86,4 +74,4 @@ public class Elevator extends SubsystemBase {
     public void resetPosition() {
         positionControlledMotor.resetPosition();
     }
-} 
+}

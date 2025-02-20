@@ -56,8 +56,8 @@ public final class Constants {
     public static final int ENCODER_CHANNEL_B = 2;
     
     // Position limits (in rotations)
-    public static final double MIN_POSITION = -0.369263;
-    public static final double MAX_POSITION = 0.357178;
+    public static final double MIN_POSITION = -0.4;
+    public static final double MAX_POSITION = 0.4;
     
     // PID constants
     public static final double kP = 60.0;

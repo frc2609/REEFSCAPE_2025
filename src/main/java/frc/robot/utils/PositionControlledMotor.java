@@ -3,7 +3,6 @@ package frc.robot.utils;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -11,7 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 public class PositionControlledMotor {
     private final TalonFX motor;
     private final TalonFX followerMotor;  // Can be null if no follower
-    private final Encoder encoder;
+    private final IEncoder encoder;
     private final ProfiledPIDController pidController;
     private final VoltageOut voltageRequest;
     private ArmFeedforward feedforward;
@@ -19,6 +18,7 @@ public class PositionControlledMotor {
     private final double minPosition;
     private final double maxPosition;
     private final String name;
+    private final double positionTolerance = 0.01;  // New field for position tolerance
 
     // Default motion profile values
     private static final double DEFAULT_MAX_VELOCITY = 2.0;    // rotations per second
@@ -26,7 +26,7 @@ public class PositionControlledMotor {
 
     // Constructor for PID only with single motor
     public PositionControlledMotor(
-            TalonFX motor, Encoder encoder,
+            TalonFX motor, IEncoder encoder,
             double kP, double kI, double kD,
             double minPosition, double maxPosition, String name) {
         this(motor, null, encoder, kP, kI, kD, 0, 0, 0, minPosition, maxPosition, name);
@@ -34,7 +34,7 @@ public class PositionControlledMotor {
 
     // Constructor for PID with FF with single motor
     public PositionControlledMotor(
-            TalonFX motor, Encoder encoder,
+            TalonFX motor, IEncoder encoder,
             double kP, double kI, double kD,
             double kS, double kG, double kV,
             double minPosition, double maxPosition, String name) {
@@ -43,7 +43,7 @@ public class PositionControlledMotor {
 
     // Constructor for PID with follower motor
     public PositionControlledMotor(
-            TalonFX motor, TalonFX followerMotor, Encoder encoder,
+            TalonFX motor, TalonFX followerMotor, IEncoder encoder,
             double kP, double kI, double kD,
             double minPosition, double maxPosition, String name) {
         this(motor, followerMotor, encoder, kP, kI, kD, 0,0, 0, minPosition, maxPosition, DEFAULT_MAX_VELOCITY, DEFAULT_MAX_ACCELERATION, name);
@@ -51,7 +51,7 @@ public class PositionControlledMotor {
 
     // Constructor for PID with FF and follower motor
     public PositionControlledMotor(
-            TalonFX motor, TalonFX followerMotor, Encoder encoder,
+            TalonFX motor, TalonFX followerMotor, IEncoder encoder,
             double kP, double kI, double kD,
             double kS, double kG, double kV,
             double minPosition, double maxPosition, String name) {
@@ -60,7 +60,7 @@ public class PositionControlledMotor {
 
     // Full constructor with all parameters
     public PositionControlledMotor(
-            TalonFX motor, TalonFX followerMotor, Encoder encoder,
+            TalonFX motor, TalonFX followerMotor, IEncoder encoder,
             double kP, double kI, double kD,
             double kS, double kG, double kV,
             double minPosition, double maxPosition,
@@ -83,6 +83,9 @@ public class PositionControlledMotor {
         if (kS != 0 || kG != 0 || kV != 0) {
             feedforward = new ArmFeedforward(kS, kG, kV);
         }
+
+        // Set tolerance on PID controller
+        pidController.setTolerance(positionTolerance);
     }
 
     public void goToPosition(double targetPosition) {
@@ -135,14 +138,10 @@ public class PositionControlledMotor {
     }
 
     public double getPosition() {
-        return encoder.getDistance();
+        return encoder.getPosition();
     }
 
     public boolean atPosition() {
-        return pidController.atGoal();
-    }
-
-    public void resetPosition() {
-        encoder.reset();
+        return Math.abs(getPosition() - pidController.getGoal().position) <= positionTolerance;
     }
 }

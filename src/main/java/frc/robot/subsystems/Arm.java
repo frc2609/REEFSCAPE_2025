@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
+import frc.robot.utils.EncoderAdapter;
 
 public class Arm extends SubsystemBase{
 
@@ -17,6 +18,7 @@ public class Arm extends SubsystemBase{
     private final TalonFXConfigurator configurator;
     private final TalonFXConfiguration configs;
     private final Encoder encoder;
+    private final EncoderAdapter encoderAdapter;
     private final PositionControlledMotor positionControlledMotor;
     
     public Arm() {
@@ -35,11 +37,13 @@ public class Arm extends SubsystemBase{
         encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
         encoder.setReverseDirection(true);
         encoder.reset();  // Start at 0
+
+        encoderAdapter = new EncoderAdapter(encoder);
         
         // Create position controlled motor with both PID and feedforward
         positionControlledMotor = new PositionControlledMotor(
             motor,  // Adapt TalonFX to MotorController interface
-            encoder,
+            encoderAdapter,
             Constants.Arm.kP, Constants.Arm.kI, Constants.Arm.kD,
             Constants.Arm.MIN_POSITION, Constants.Arm.MAX_POSITION,
             "Arm"
@@ -69,9 +73,5 @@ public class Arm extends SubsystemBase{
 
     public boolean atPosition() {
         return positionControlledMotor.atPosition();
-    }
-
-    public void resetPosition() {
-        positionControlledMotor.resetPosition();
     }
 }

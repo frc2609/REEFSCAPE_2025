@@ -66,6 +66,9 @@ public class RobotContainer {
     // private final Elevator elevator = new Elevator();
     private final Climber climber = new Climber();
     private final Intake intake = new Intake(); 
+public static InstantCommand instantCommand = new InstantCommand();
+
+
 
 private double targetPosition = 0.0;
 
@@ -103,32 +106,21 @@ joystick.a()
 
        joystick.povUp()
         .onTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    targetPosition +=0.01;
-                    System.out.println("Target Position: " + targetPosition);
-                } ),
-                new MoveClimberToPosition(climber, targetPosition)
+            new MoveClimberToPosition(climber, -0.37)
+        );
+
+        // joystick.povDown()
+        // .onTrue(
+        //     new InstantCommand(() -> {
+        //         climber.goToPosition(0);
+        //     } )
+        // );
+
+    joystick.povDown()
+    .onTrue(
+        new MoveClimberToPosition(climber, 0.0)
         
-            )
-        );
-
-        joystick.povDown()
-        .onTrue(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    targetPosition -=0.01;
-                    System.out.println("Target Position: " + targetPosition);
-                } ),
-           new MoveClimberToPosition(climber, targetPosition)
-            )
-        );
-
-    joystick.leftBumper()
-.onTrue(
-    new MoveClimberToPosition(climber, 0.0)
-    
-);
+    );
 
 
           

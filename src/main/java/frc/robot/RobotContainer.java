@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
@@ -26,6 +28,7 @@ import frc.robot.commands.arm.MoveArm;
 import frc.robot.commands.elevator.MoveElevator;
 import frc.robot.commands.climber.MoveClimberToPosition;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -62,6 +65,9 @@ public class RobotContainer {
     // private final Arm arm = new Arm();
     // private final Elevator elevator = new Elevator();
     private final Climber climber = new Climber();
+    private final Intake intake = new Intake(); 
+
+private double targetPosition = 0.0;
 
     public RobotContainer() {
 
@@ -71,31 +77,61 @@ public class RobotContainer {
 
         configureBindings();
 
+
     }
 
     private void configureBindings() {
-        // configureDrivetrainBindings();
+     
+joystick.a()
+.whileTrue(
+    new InstantCommand(() -> intake.setSpeed(0.1))
 
-        // joystick.x().onTrue(
-        //     new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(0.75)
-        //     .andThen(new AlignCommand(drivetrain, seaweed, pidgey)).withTimeout(2));
+    ).onFalse(
+        new InstantCommand(() -> intake.stop())
+    );
+    
+    joystick.b()
+    .whileTrue(
+        new InstantCommand(() -> intake.setSpeed(-0.1))
+    
+        ).onFalse(
+            new InstantCommand(() -> intake.stop())
+        ); 
+
+
         
-        // joystick.b().onTrue(Commands.runOnce(() -> {
-        //     Command currentCommand = drivetrain.getCurrentCommand();
-        //     if (currentCommand instanceof PathToAprilTagCommand) {
-        //         currentCommand.cancel();
-        //     }
-        // }));
 
-       joystick.y()
+       joystick.povUp()
         .onTrue(
-            new MoveClimberToPosition(climber, 0)
+            new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    targetPosition +=0.01;
+                    System.out.println("Target Position: " + targetPosition);
+                } ),
+                new MoveClimberToPosition(climber, targetPosition)
+        
+            )
         );
 
-        joystick.x()
+        joystick.povDown()
         .onTrue(
-            new MoveClimberToPosition(climber, -0.38)
+            new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    targetPosition -=0.01;
+                    System.out.println("Target Position: " + targetPosition);
+                } ),
+           new MoveClimberToPosition(climber, targetPosition)
+            )
         );
+
+    joystick.leftBumper()
+.onTrue(
+    new MoveClimberToPosition(climber, 0.0)
+    
+);
+
+
+          
 
     }
 

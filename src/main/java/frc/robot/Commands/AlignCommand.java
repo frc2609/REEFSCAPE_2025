@@ -103,7 +103,7 @@ public class AlignCommand extends Command {
     public void execute(){
         // double rot = limelightAimProportional();
 
-
+        LimelightHelpers.setPipelineIndex("limelight-seaweed", 1);
         // Store the ID of the AprilTag the Limelight is seeing
         // double tagID = LimelightHelpers.getFiducialID("limelight-seaweed");
          double xSpeed = limelightRangeProportional(); 
@@ -117,4 +117,9 @@ public class AlignCommand extends Command {
         );
 
     }
+
+    public void end(boolean interrupted){
+        LimelightHelpers.setPipelineIndex("limelight-seaweed", 0);
+    }
 }
+

@@ -169,8 +169,8 @@ public class RobotContainer {
       0
     ));
 
-    double ID = 18;
-    double distanceOffset = 1;
+    double ID = LimelightHelpers.getFiducialID(limeLightName);
+    double distanceOffset = 1.5;
     double coralOffset = REEF_SIDE * -1/2;
 
 
@@ -182,6 +182,7 @@ public class RobotContainer {
       fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
       new Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians() - Math.PI)
     )));
+
 
     joystick.y().onTrue(new ResetGyro(swerve, seaweed, pidgey).withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed, pidgey)).withTimeout(5));
     //joystick.y().onTrue(new AlignCommand(swerve, seaweed, pidgey));

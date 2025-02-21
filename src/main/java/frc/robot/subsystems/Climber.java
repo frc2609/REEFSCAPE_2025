@@ -28,7 +28,7 @@ public class Climber extends SubsystemBase{
         configs = new TalonFXConfiguration();
         configs.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
         configurator.apply(configs);
-        motor.setNeutralMode(NeutralModeValue.Coast);
+        motor.setNeutralMode(NeutralModeValue.Brake);
         
         // Use two DIO ports for quadrature encoder (channelA is blue, ChannelB is yellow)
         encoder = new Encoder(1, 2);
@@ -44,7 +44,7 @@ public class Climber extends SubsystemBase{
         positionControlledMotor = new PositionControlledMotor(
             motor,  // Adapt TalonFX to MotorController interface
             encoderAdapter,    
-            10, 0, 0,//40kp
+            60, 0, 0,//40kp
             -.38, 0,
             "Climber"
         );

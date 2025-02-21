@@ -105,8 +105,8 @@ joystick.a()
         
 
        joystick.povUp()
-        .onTrue(
-            new MoveClimberToPosition(climber, -0.37)
+        .whileTrue(
+            new MoveClimberToPosition(climber, -0.35)
         );
 
         // joystick.povDown()
@@ -117,7 +117,7 @@ joystick.a()
         // );
 
     joystick.povDown()
-    .onTrue(
+    .whileTrue(
         new MoveClimberToPosition(climber, 0.0)
         
     );

@@ -142,6 +142,7 @@ public class PositionControlledMotor {
     }
 
     public boolean atPosition() {
-        return Math.abs(getPosition() - pidController.getGoal().position) <= positionTolerance;
+        return pidController.atGoal();
+        // return Math.abs(getPosition() - pidController.getGoal().position) <= positionTolerance;
     }
 }

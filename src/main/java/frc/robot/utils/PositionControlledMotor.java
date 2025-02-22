@@ -11,7 +11,7 @@ public class PositionControlledMotor {
     private final TalonFX motor;
     private final TalonFX followerMotor;  // Can be null if no follower
     private final IEncoder encoder;
-    private final ProfiledPIDController pidController;
+    private ProfiledPIDController pidController;
     private final VoltageOut voltageRequest;
     private ArmFeedforward feedforward;
     
@@ -86,7 +86,20 @@ public class PositionControlledMotor {
 
         // Set tolerance on PID controller
         pidController.setTolerance(positionTolerance);
+
+        // if (encoder instanceof DutyCycleAdapter){
+        //     System.out.println("DutyCycle Detected");
+        //     pidController.enableContinuousInput(0.0, 1.0);
+        // }
     }
+
+public void setP(double P){
+pidController.setP(P);
+}
+
+
+
+
 
     public void goToPosition(double targetPosition) {
         // Clamp target to valid range

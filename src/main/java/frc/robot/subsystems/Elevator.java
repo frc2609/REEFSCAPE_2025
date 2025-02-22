@@ -21,6 +21,7 @@ public class Elevator extends SubsystemBase {
     private final Encoder encoder;
     private final EncoderAdapter encoderAdapter;
     private final PositionControlledMotor positionControlledMotor;
+    private double P = 0.5;
     
     public Elevator() {
         primaryMotor = new TalonFX(Constants.Elevator.PRIMARY_MOTOR_ID, Constants.CANBUS);
@@ -42,11 +43,11 @@ public class Elevator extends SubsystemBase {
         followerMotor.setNeutralMode(neutralMode);
         
         // Use two DIO ports for quadrature encoder
-        encoder = new Encoder(Constants.Elevator.ENCODER_CHANNEL_A, Constants.Elevator.ENCODER_CHANNEL_B);
+        encoder = new Encoder(6, 7);
         
         // Configure encoder
         encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
-        encoder.setReverseDirection(true);
+        encoder.setReverseDirection(false);
         encoder.reset();  // Start at 0
 
         encoderAdapter = new EncoderAdapter(encoder);
@@ -56,15 +57,23 @@ public class Elevator extends SubsystemBase {
             primaryMotor,
             followerMotor,
             encoderAdapter,
-            Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD,
+            P, Constants.Elevator.kI, Constants.Elevator.kD,
             Constants.Elevator.MIN_POSITION, Constants.Elevator.MAX_POSITION,
             "Elevator"
+
         );
     }
 
     @Override 
     public void periodic() {
         SmartDashboard.putNumber("Elevator Position", getPosition());
+        // SmartDashboard.putNumber("P Value", P);
+        double newP = SmartDashboard.getNumber( "P Value", 0.01);
+
+        if (newP != P){
+            P =newP;
+            positionControlledMotor.setP(P);
+        }
     }
 
     public void goToPosition(double targetPosition) {

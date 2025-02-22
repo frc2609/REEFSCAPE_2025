@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -10,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
+import frc.robot.utils.DutyCycleAdapter;
 import frc.robot.utils.EncoderAdapter;
 
 public class Climber extends SubsystemBase{
@@ -31,12 +33,11 @@ public class Climber extends SubsystemBase{
         motor.setNeutralMode(NeutralModeValue.Brake);
         
         // Use two DIO ports for quadrature encoder (channelA is blue, ChannelB is yellow)
-        encoder = new Encoder(1, 2);
+        encoder = new Encoder(0, 1);
         
         // Configure encoder
-        encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
-        encoder.setReverseDirection(true);
-        encoder.reset();  // Start at 0
+    //encoder.setInverted(true);
+    encoder.setReverseDirection(true);
 
         encoderAdapter = new EncoderAdapter(encoder);
         
@@ -44,8 +45,8 @@ public class Climber extends SubsystemBase{
         positionControlledMotor = new PositionControlledMotor(
             motor,  // Adapt TalonFX to MotorController interface
             encoderAdapter,    
-            60, 0, 0,//40kp
-            -.38, 0,
+            6, 0, 0,
+            0, .38,
             "Climber"
         );
     }

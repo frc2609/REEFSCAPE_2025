@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.Commands;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -22,8 +22,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.units.measure.*;
-import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.Constants.VisionConstants;
+import frc.robot.LimelightHelpers;
+import frc.robot.Constants.VisionConstants;
 
 public class ResetGyro extends Command {
     private final CommandSwerveDrivetrain m_Swerve;

@@ -66,8 +66,8 @@ public class RobotContainer {
     // /* Path follower */
     // private final SendableChooser<Command> autoChooser;
     // private final Arm arm = new Arm();
-   private final Elevator elevator = new Elevator();
-    // private final Climber climber = new Climber();
+  // private final Elevator elevator = new Elevator();
+     private final Climber climber = new Climber();
     // private final Intake intake = new Intake(); 
 
     private static double targetPosition = 0.1;
@@ -106,7 +106,7 @@ public class RobotContainer {
 
         joystick.rightBumper()
         .whileTrue(
-            new MoveElevatorToPositionSDB(elevator)
+            new MoveClimberToPositionSDB(climber)
         );
 
         joystick.povUp()

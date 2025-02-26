@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -11,7 +10,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
-import frc.robot.utils.DutyCycleAdapter;
 import frc.robot.utils.EncoderAdapter;
 
 public class Climber extends SubsystemBase{
@@ -21,7 +19,7 @@ public class Climber extends SubsystemBase{
     private final TalonFXConfiguration configs;
     private final Encoder encoder;
     private final EncoderAdapter encoderAdapter;
-    private final PositionControlledMotor positionControlledMotor;
+    public final PositionControlledMotor positionControlledMotor;
     
     public Climber() {
         motor = new TalonFX(5, Constants.CANBUS);
@@ -36,8 +34,8 @@ public class Climber extends SubsystemBase{
         encoder = new Encoder(0,1);
         encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
         // Configure encoder
-    //encoder.setInverted(true);
-    encoder.setReverseDirection(false);
+        //encoder.setInverted(true);
+        encoder.setReverseDirection(false);
 
         encoderAdapter = new EncoderAdapter(encoder);
         
@@ -46,7 +44,7 @@ public class Climber extends SubsystemBase{
             motor,  // Adapt TalonFX to MotorController interface
             encoderAdapter,    
             80, 0, 0,
-            0, .45,
+            0, 2,
             "Climber"
         );
     }
@@ -63,10 +61,6 @@ public class Climber extends SubsystemBase{
     public void stop() {
         positionControlledMotor.stop();
     }
-    
-    // public void setVoltage(double volts) {
-    //     positionControlledMotor.setVoltage(volts);
-    // }
 
     public double getPosition() {
         return positionControlledMotor.getPosition();

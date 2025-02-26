@@ -13,12 +13,14 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -70,7 +72,7 @@ public class RobotContainer {
      private final Climber climber = new Climber();
     // private final Intake intake = new Intake(); 
 
-    private static double targetPosition = 0.1;
+    private double targetPosition = 0.1;
 
     public RobotContainer() {
 
@@ -101,29 +103,45 @@ public class RobotContainer {
         //         new InstantCommand(() -> intake.stop())
         //     ); 
 
+        Timer adjustmentTimer = new Timer();
 
         
 
         joystick.rightBumper()
         .whileTrue(
-            new MoveClimberToPositionSDB(climber)
+            new MoveClimberToPosition(climber, this::getTargetPosition)
         );
 
-        joystick.povUp()
+        joystick.leftBumper()
         .onTrue(
-            new InstantCommand(() -> {
-                targetPosition += 0.01;
-                SmartDashboard.putNumber("Target", targetPosition);
+            new InstantCommand( () -> {
+                climber.positionControlledMotor.motor.setControl(
+                    climber.positionControlledMotor.motor_motionMagicReq
+                        .withPosition(2)
+                        .withSlot(0)
+                );
             })
         );
 
-        joystick.povDown()
-        .onTrue(
-            new InstantCommand(() -> {
-                targetPosition -= 0.01;
-                SmartDashboard.putNumber("Target", targetPosition);
-            })
-        );
+
+
+        // Target adjustment bindings
+        joystick.povUp().whileTrue(
+            new RunCommand(() -> 
+                adjustTargetPosition(0.01)          
+        ));
+        joystick.povDown().whileTrue(
+            new RunCommand(() -> 
+                adjustTargetPosition(-0.01)
+        ));
+        joystick.povLeft().whileTrue(
+            new RunCommand(() -> 
+                adjustTargetPosition(-0.1)
+        ));
+        joystick.povRight().whileTrue(
+            new RunCommand(() -> 
+                adjustTargetPosition(0.1)
+        ));
     }
 
     // private void configureDrivetrainBindings() {
@@ -173,5 +191,19 @@ public class RobotContainer {
         /* Run the path selected from the auto chooser */
         // return autoChooser.getSelected();
         return null;
+    }
+
+    private void adjustTargetPosition(double delta) {
+        this.targetPosition += delta;
+        SmartDashboard.putNumber("Target Position", targetPosition);
+        
+        // If the motor is currently moving, update the target immediately
+        if (joystick.rightBumper().getAsBoolean()) {
+            climber.positionControlledMotor.goToPosition(this.targetPosition);
+        }
+    }
+
+    private double getTargetPosition() {
+        return this.targetPosition;
     }
 }

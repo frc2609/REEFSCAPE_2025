@@ -62,10 +62,6 @@ public class Arm extends SubsystemBase{
     public void stop() {
         positionControlledMotor.stop();
     }
-    
-    public void setVoltage(double volts) {
-        positionControlledMotor.setVoltage(volts);
-    }
 
     public double getPosition() {
         return positionControlledMotor.getPosition();

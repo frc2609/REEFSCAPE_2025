@@ -67,13 +67,6 @@ public class Elevator extends SubsystemBase {
     @Override 
     public void periodic() {
         SmartDashboard.putNumber("Elevator Position", getPosition());
-        // SmartDashboard.putNumber("P Value", P);
-        double newP = SmartDashboard.getNumber( "P Value", 0.01);
-
-        if (newP != P){
-            P =newP;
-            positionControlledMotor.setP(P);
-        }
     }
 
     public void goToPosition(double targetPosition) {
@@ -82,10 +75,6 @@ public class Elevator extends SubsystemBase {
 
     public void stop() {
         positionControlledMotor.stop();
-    }
-    
-    public void setVoltage(double volts) {
-        positionControlledMotor.setVoltage(volts);
     }
 
     public double getPosition() {

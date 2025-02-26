@@ -1,72 +1,67 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Encoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
-import frc.robot.utils.EncoderAdapter;
 
-public class Climber extends SubsystemBase{
+public class Climber extends PositionControlledMotor{
 
-    private final TalonFX motor;
-    private final TalonFXConfigurator configurator;
-    private final TalonFXConfiguration configs;
-    private final Encoder encoder;
-    private final EncoderAdapter encoderAdapter;
-    public final PositionControlledMotor positionControlledMotor;
+    private final static double positionTolerance = 0.01;
+    private final static double maxAcceleration = 5;
+    private final static Boolean invertEncoder = false;
+    private final static double zeroPosition = 0;
+    private final static double maxVelocity = 10;
+    private final static double minPosition = -2;
+    private final static double maxPosition = 2;
+    private final static String name = "Climber";
     
     public Climber() {
-        motor = new TalonFX(5, Constants.CANBUS);
-        
-        configurator = motor.getConfigurator();
-        configs = new TalonFXConfiguration();
-        configs.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
-        configurator.apply(configs);
+        super(
+            name, 
+            new TalonFX(5, Constants.CANBUS), 
+            new DutyCycleEncoder(0), 
+            new ProfiledPIDController(
+                1, 0, 0,
+                new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
+            ),
+            positionTolerance, minPosition, maxPosition, zeroPosition);
+            
+        super.debug = true;
+    }
+
+    public void configureEncoder() {
+        encoder.setInverted(invertEncoder);
+    }
+
+    public void configureMotor() {
         motor.setNeutralMode(NeutralModeValue.Brake);
         
-        // Use two DIO ports for quadrature encoder (channelA is blue, ChannelB is yellow)
-        encoder = new Encoder(0,1);
-        encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);
-        // Configure encoder
-        //encoder.setInverted(true);
-        encoder.setReverseDirection(false);
+        TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+        talonConfig.MotorOutput
+            .withInverted(InvertedValue.CounterClockwise_Positive);
 
-        encoderAdapter = new EncoderAdapter(encoder);
+        talonConfig.MotionMagic
+            .withMotionMagicCruiseVelocity(maxVelocity)
+            .withMotionMagicAcceleration(maxAcceleration);
+
+        talonConfig.Slot0
+            .withKP(0.2)
+            .withKD(0.0000001);
+
+        talonConfig.SoftwareLimitSwitch
+            .withForwardSoftLimitEnable(true)
+            .withReverseSoftLimitEnable(true)
+            .withForwardSoftLimitThreshold(2)
+            .withReverseSoftLimitThreshold(-2);
         
-        // Create position controlled motor with both PID and feedforward
-        positionControlledMotor = new PositionControlledMotor(
-            motor,  // Adapt TalonFX to MotorController interface
-            encoderAdapter,    
-            80, 0, 0,
-            0, 2,
-            "Climber"
-        );
-    }
-
-    @Override 
-    public void periodic() {
-        SmartDashboard.putNumber("Climber Position", getPosition());
-    }
-
-    public void goToPosition(double targetPosition) {
-        positionControlledMotor.goToPosition(targetPosition);
-    }
-
-    public void stop() {
-        positionControlledMotor.stop();
-    }
-
-    public double getPosition() {
-        return positionControlledMotor.getPosition();
-    }
-
-    public boolean atPosition() {
-        return positionControlledMotor.atPosition();
+        motor.getConfigurator().apply(talonConfig);
     }
 }

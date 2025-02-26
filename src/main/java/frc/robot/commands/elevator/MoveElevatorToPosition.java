@@ -18,10 +18,10 @@ public class MoveElevatorToPosition extends Command {
         elevator.goToPosition(targetPosition);
     }
 
-    @Override
-    public boolean isFinished() {
-        return elevator.atPosition();
-    }
+    // @Override
+    // public boolean isFinished() {
+    //     return elevator.atPosition();
+    // }
 
     @Override
     public void end(boolean interrupted) {

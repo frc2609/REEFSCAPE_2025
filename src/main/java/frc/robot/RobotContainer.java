@@ -112,16 +112,16 @@ public class RobotContainer {
             new MoveClimberToPosition(climber, this::getTargetPosition)
         );
 
-        joystick.leftBumper()
-        .onTrue(
-            new InstantCommand( () -> {
-                climber.positionControlledMotor.motor.setControl(
-                    climber.positionControlledMotor.motor_motionMagicReq
-                        .withPosition(2)
-                        .withSlot(0)
-                );
-            })
-        );
+        // joystick.leftBumper()
+        // .onTrue(
+        //     new InstantCommand( () -> {
+        //         climber.positionControlledMotor.motor.setControl(
+        //             climber.positionControlledMotor.motor_motionMagicReq
+        //                 .withPosition(2)
+        //                 .withSlot(0)
+        //         );
+        //     })
+        // );
 
 
 
@@ -198,9 +198,9 @@ public class RobotContainer {
         SmartDashboard.putNumber("Target Position", targetPosition);
         
         // If the motor is currently moving, update the target immediately
-        if (joystick.rightBumper().getAsBoolean()) {
-            climber.positionControlledMotor.goToPosition(this.targetPosition);
-        }
+        // if (joystick.rightBumper().getAsBoolean()) {
+        //     climber.positionControlledMotor.goToPosition(this.targetPosition);
+        // }
     }
 
     private double getTargetPosition() {

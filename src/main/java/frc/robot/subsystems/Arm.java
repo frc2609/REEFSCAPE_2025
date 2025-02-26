@@ -19,7 +19,7 @@ public class Arm extends SubsystemBase{
     private final TalonFXConfiguration configs;
     private final Encoder encoder;
     private final EncoderAdapter encoderAdapter;
-    private final PositionControlledMotor positionControlledMotor;
+    // private final PositionControlledMotor positionControlledMotor;
     
     public Arm() {
         motor = new TalonFX(Constants.Arm.MOTOR_ID, Constants.CANBUS);
@@ -40,34 +40,34 @@ public class Arm extends SubsystemBase{
 
         encoderAdapter = new EncoderAdapter(encoder);
         
-        // Create position controlled motor with both PID and feedforward
-        positionControlledMotor = new PositionControlledMotor(
-            motor,  // Adapt TalonFX to MotorController interface
-            encoderAdapter,
-            Constants.Arm.kP, Constants.Arm.kI, Constants.Arm.kD,
-            Constants.Arm.MIN_POSITION, Constants.Arm.MAX_POSITION,
-            "Arm"
-        );
+        // // Create position controlled motor with both PID and feedforward
+        // positionControlledMotor = new PositionControlledMotor(
+        //     motor,  // Adapt TalonFX to MotorController interface
+        //     encoderAdapter,
+        //     Constants.Arm.kP, Constants.Arm.kI, Constants.Arm.kD,
+        //     Constants.Arm.MIN_POSITION, Constants.Arm.MAX_POSITION,
+        //     "Arm"
+        // );
     }
 
-    @Override 
-    public void periodic() {
-        SmartDashboard.putNumber("Arm Position", getPosition());
-    }
+    // @Override 
+    // public void periodic() {
+    //     SmartDashboard.putNumber("Arm Position", getPosition());
+    // }
 
     public void goToPosition(double targetPosition) {
-        positionControlledMotor.goToPosition(targetPosition);
+        // positionControlledMotor.goToPosition(targetPosition);
     }
 
     public void stop() {
-        positionControlledMotor.stop();
+        // positionControlledMotor.stop();
     }
 
-    public double getPosition() {
-        return positionControlledMotor.getPosition();
-    }
+    // public double getPosition() {
+        // return positionControlledMotor.getPosition();
+    // }
 
-    public boolean atPosition() {
-        return positionControlledMotor.atPosition();
-    }
+    // public boolean atPosition() {
+    //     return positionControlledMotor.atPosition();
+    // }
 }

@@ -29,7 +29,7 @@ public class Climber extends PositionControlledMotor{
             new TalonFX(5, Constants.CANBUS), 
             new DutyCycleEncoder(0), 
             new ProfiledPIDController(
-                1, 0, 0,
+                10, 0, 0,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, minPosition, maxPosition, zeroPosition);

@@ -18,10 +18,10 @@ public class MoveArmToPosition extends Command {
         arm.goToPosition(targetPosition);
     }
 
-    @Override
-    public boolean isFinished() {
-        return arm.atPosition();
-    }
+    // @Override
+    // public boolean isFinished() {
+    //     return arm.atPosition();
+    // }
 
     @Override
     public void end(boolean interrupted) {

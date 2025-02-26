@@ -18,7 +18,7 @@ public class MoveClimberToPosition extends Command {
     @Override
     public void execute() {
         double currentTarget = targetPositionSupplier.get();
-        climber.positionControlledMotor.goToPosition(currentTarget);
+        climber.goToPosition(currentTarget);
     }
 
     @Override

@@ -13,11 +13,11 @@ import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 
 public class Climber extends PositionControlledMotor{
+    public final static double zeroPosition = 0;
 
-    private final static double positionTolerance = 0.01;
+    public final static double positionTolerance = 0.01;
     private final static double maxAcceleration = 5;
     private final static Boolean invertEncoder = false;
-    private final static double zeroPosition = 0;
     private final static double maxVelocity = 10;
     private final static double minPosition = -2;
     private final static double maxPosition = 2;

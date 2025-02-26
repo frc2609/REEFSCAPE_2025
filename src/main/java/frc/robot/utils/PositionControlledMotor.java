@@ -13,6 +13,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     public final TalonFX motor;
     public final DutyCycleEncoder encoder;
     public Boolean debug = false;
+    public ProfiledPIDController pidController;
 
     private final String name;
     private final double positionTolerance;
@@ -29,10 +30,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         this.positionTolerance = positionTolerance;
         this.minPosition = minPosition;
         this.maxPosition = maxPosition;
+        this.pidController = pidController;
         
         configureEncoder();
         configureMotor();
-        zeroAndReset(pidController, zeroPosition);
     }
 
     public PositionControlledMotor(String name, TalonFX motor, TalonFX followerMotor, DutyCycleEncoder encoder, ProfiledPIDController pidController, double positionTolerance, double minPosition, double maxPosition, double zeroPosition) {
@@ -46,7 +47,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
         configureEncoder();
         configureMotor();
-        zeroAndReset(pidController, zeroPosition);
     }
 
     public void goToPosition(double targetPosition) {
@@ -68,6 +68,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             SmartDashboard.putNumber(name + " Velocity", getVelocity());
             SmartDashboard.putNumber(name + " Current", getCurrent());
             SmartDashboard.putNumber(name + " Voltage", getVoltage());
+            SmartDashboard.putNumber(name + " Abs pos", getAbsPosition());
         }
     }
 
@@ -91,7 +92,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     }
     public boolean atPosition(double targetPosition) {
         double error = Math.abs(targetPosition - getPosition());
-        return error > positionTolerance;
+        return error <= positionTolerance;
     }
     public void zeroAndReset(ProfiledPIDController pidController, double zeroPosition) {
         double currentPosition = encoder.get();
@@ -108,11 +109,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         
         stop();
         
-        motor.setPosition(0);
-
-        if (followerMotor != null){
-            followerMotor.setPosition(0);
-        }
+        resetPosition();
     }
     public void stop() {
         motor.stopMotor();
@@ -135,6 +132,15 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             followerMotor.setControl(voltageRequest);
         }
     }
+
+    public void resetPosition() {
+        motor.setPosition(0);
+        // If you have a follower motor, reset its position as well.
+        if (followerMotor != null) {
+            followerMotor.setPosition(0);
+        }
+    }
+    
 
     // Abstract methods for subclasses to implement
     public abstract void configureMotor();

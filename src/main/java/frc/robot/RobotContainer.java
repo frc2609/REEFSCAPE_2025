@@ -32,6 +32,7 @@ import frc.robot.commands.elevator.MoveElevator;
 import frc.robot.commands.elevator.MoveElevatorToPositionSDB;
 import frc.robot.commands.climber.MoveClimberToPosition;
 import frc.robot.commands.climber.MoveClimberToPositionSDB;
+import frc.robot.commands.climber.ZeroAndResetClimber;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Arm;
@@ -112,16 +113,10 @@ public class RobotContainer {
             new MoveClimberToPosition(climber, this::getTargetPosition)
         );
 
-        // joystick.leftBumper()
-        // .onTrue(
-        //     new InstantCommand( () -> {
-        //         climber.positionControlledMotor.motor.setControl(
-        //             climber.positionControlledMotor.motor_motionMagicReq
-        //                 .withPosition(2)
-        //                 .withSlot(0)
-        //         );
-        //     })
-        // );
+        joystick.leftBumper()
+        .onTrue(
+            new ZeroAndResetClimber(climber)
+        );
 
 
 

@@ -19,8 +19,8 @@ public class Climber extends PositionControlledMotor{
     private final static double maxAcceleration = 5;
     private final static Boolean invertEncoder = false;
     private final static double maxVelocity = 10;
-    private final static double minPosition = -2;
-    private final static double maxPosition = 2;
+    private final static double minPosition = -200;
+    private final static double maxPosition = 200;
     private final static String name = "Climber";
     
     public Climber() {
@@ -29,7 +29,7 @@ public class Climber extends PositionControlledMotor{
             new TalonFX(5, Constants.CANBUS), 
             new DutyCycleEncoder(0), 
             new ProfiledPIDController(
-                10, 0, 0,
+                2, 0, 0,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, minPosition, maxPosition, zeroPosition);
@@ -59,8 +59,8 @@ public class Climber extends PositionControlledMotor{
         talonConfig.SoftwareLimitSwitch
             .withForwardSoftLimitEnable(true)
             .withReverseSoftLimitEnable(true)
-            .withForwardSoftLimitThreshold(2)
-            .withReverseSoftLimitThreshold(-2);
+            .withForwardSoftLimitThreshold(maxPosition)
+            .withReverseSoftLimitThreshold(minPosition);
         
         motor.getConfigurator().apply(talonConfig);
     }

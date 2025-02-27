@@ -94,23 +94,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         double error = Math.abs(targetPosition - getPosition());
         return error <= positionTolerance;
     }
-    public void zeroAndReset(ProfiledPIDController pidController, double zeroPosition) {
-        double currentPosition = encoder.get();
-        
-        pidController.setGoal(zeroPosition);
-        
-        while (!pidController.atGoal()) {
-            double output = pidController.calculate(currentPosition);
-            
-            setVoltage(output);
-            
-            currentPosition = encoder.get();
-        }
-        
-        stop();
-        
-        resetPosition();
-    }
+
     public void stop() {
         motor.stopMotor();
         if (followerMotor != null){

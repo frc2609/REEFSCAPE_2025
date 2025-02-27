@@ -23,6 +23,7 @@ public class ZeroAndResetClimber extends Command {
         pidController.reset(climber.getAbsPosition());
         pidController.setGoal(targetPosition);
         pidController.setTolerance(climber.positionTolerance);
+        pidController.enableContinuousInput(0, 1);
     }
 
     @Override

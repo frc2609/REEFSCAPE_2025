@@ -51,8 +51,9 @@ public class Elevator extends PositionControlledMotor {
         motor.setNeutralMode(NeutralModeValue.Brake);
         
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+
         talonConfig.MotorOutput
-            .withInverted(InvertedValue.CounterClockwise_Positive);
+            .withInverted(InvertedValue.Clockwise_Positive);
 
         talonConfig.MotionMagic
             .withMotionMagicCruiseVelocity(maxVelocity)

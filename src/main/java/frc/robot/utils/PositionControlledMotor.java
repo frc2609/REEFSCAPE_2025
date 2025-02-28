@@ -20,7 +20,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private final double minPosition;
     private final double maxPosition;
     
-    private TalonFX followerMotor = null;
+    public TalonFX followerMotor = null;
     private MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
 
     public PositionControlledMotor(String name, TalonFX motor, DutyCycleEncoder encoder, ProfiledPIDController pidController, double positionTolerance, double minPosition, double maxPosition, double zeroPosition) {

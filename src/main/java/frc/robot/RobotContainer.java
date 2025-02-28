@@ -28,7 +28,9 @@ import frc.robot.commands.AlignCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.arm.MoveArm;
+import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.commands.elevator.MoveElevator;
+import frc.robot.commands.elevator.MoveElevatorToPosition;
 import frc.robot.commands.elevator.MoveElevatorToPositionSDB;
 import frc.robot.commands.climber.MoveClimberToPosition;
 import frc.robot.commands.climber.MoveClimberToPositionSDB;
@@ -68,9 +70,9 @@ public class RobotContainer {
 
     // /* Path follower */
     // private final SendableChooser<Command> autoChooser;
-    // private final Arm arm = new Arm();
-  // private final Elevator elevator = new Elevator();
-     private final Climber climber = new Climber();
+    private final Arm arm = new Arm();
+    private final Elevator elevator = new Elevator();
+    private final Climber climber = new Climber();
     // private final Intake intake = new Intake(); 
 
     private double targetPosition = 0.1;
@@ -104,18 +106,22 @@ public class RobotContainer {
         //         new InstantCommand(() -> intake.stop())
         //     ); 
 
-        Timer adjustmentTimer = new Timer();
 
         
 
-        joystick.rightBumper()
+        joystick.x()
         .whileTrue(
             new MoveClimberToPosition(climber, this::getTargetPosition)
         );
 
-        joystick.leftBumper()
-        .onTrue(
-            new ZeroAndResetClimber(climber)
+        joystick.a()
+        .whileTrue(
+            new MoveArmToPosition(arm, this::getTargetPosition)
+        );
+
+        joystick.y()
+        .whileTrue(
+            new MoveElevatorToPosition(elevator, this::getTargetPosition)
         );
 
 

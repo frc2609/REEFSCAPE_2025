@@ -11,11 +11,11 @@ public class MoveArm extends SequentialCommandGroup {
 
     public MoveArm(Arm arm) {
         addCommands(
-            new MoveArmToPosition(arm, UP_POSITION).withTimeout(1),
-            new WaitCommand(0.2),
-            new MoveArmToPosition(arm, DOWN_POSITION).withTimeout(1),
-            new WaitCommand(0.2),
-            new MoveArmToPosition(arm, HOME_POSITION).withTimeout(1)
+            // new MoveArmToPosition(arm, UP_POSITION).withTimeout(1),
+            // new WaitCommand(0.2),
+            // new MoveArmToPosition(arm, DOWN_POSITION).withTimeout(1),
+            // new WaitCommand(0.2),
+            // new MoveArmToPosition(arm, HOME_POSITION).withTimeout(1)
         );
     }
 }

@@ -11,11 +11,11 @@ public class MoveElevator extends SequentialCommandGroup {
 
     public MoveElevator(Elevator elevator) {
         addCommands(
-            new MoveElevatorToPosition(elevator, TOP_POSITION).withTimeout(2),
-            new WaitCommand(0.2),
-            new MoveElevatorToPosition(elevator, MIDDLE_POSITION).withTimeout(2),
-            new WaitCommand(0.2),
-            new MoveElevatorToPosition(elevator, HOME_POSITION).withTimeout(2)
+            // new MoveElevatorToPosition(elevator, TOP_POSITION).withTimeout(2),
+            // new WaitCommand(0.2),
+            // new MoveElevatorToPosition(elevator, MIDDLE_POSITION).withTimeout(2),
+            // new WaitCommand(0.2),
+            // new MoveElevatorToPosition(elevator, HOME_POSITION).withTimeout(2)
         );
     }
 } 

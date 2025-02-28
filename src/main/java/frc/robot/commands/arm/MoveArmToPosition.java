@@ -1,21 +1,24 @@
 package frc.robot.commands.arm;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 
 public class MoveArmToPosition extends Command {
     private final Arm arm;
-    private final double targetPosition;
+    private final Supplier<Double> targetPositionSupplier;
 
-    public MoveArmToPosition(Arm arm, double targetPosition) {
+    public MoveArmToPosition(Arm arm, Supplier<Double> targetPositionSupplier) {
         this.arm = arm;
-        this.targetPosition = targetPosition;
+        this.targetPositionSupplier = targetPositionSupplier;
         addRequirements(arm);
     }
 
     @Override
     public void execute() {
-        arm.goToPosition(targetPosition);
+        double currentTarget = targetPositionSupplier.get();
+        arm.goToPosition(currentTarget);
     }
 
     // @Override

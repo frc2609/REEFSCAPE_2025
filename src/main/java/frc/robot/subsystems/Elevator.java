@@ -2,86 +2,75 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.Follower;
+
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 import frc.robot.utils.EncoderAdapter;
 
-public class Elevator extends SubsystemBase {
-    private final TalonFX primaryMotor;
-    private final TalonFX followerMotor;
-    private final TalonFXConfigurator primaryConfigurator;
-    private final TalonFXConfigurator followerConfigurator;
-    private final TalonFXConfiguration configs;
-    private final Encoder encoder;
-    private final EncoderAdapter encoderAdapter;
-    // private final PositionControlledMotor positionControlledMotor;
-    private double P = 0.5;
+public class Elevator extends PositionControlledMotor {
+     public final static double zeroPosition = 0;
+
+    public final static double positionTolerance = 0.01;
+    private final static double maxAcceleration = 5;
+    private final static Boolean invertEncoder = false;
+    private final static double maxVelocity = 10;
+    private final static double minPosition = -200;
+    private final static double maxPosition = 200;
+    private final static String name = "ELEVATOR";
     
     public Elevator() {
-        primaryMotor = new TalonFX(Constants.Elevator.PRIMARY_MOTOR_ID, Constants.CANBUS);
-        followerMotor = new TalonFX(Constants.Elevator.FOLLOWER_MOTOR_ID, Constants.CANBUS);
-        
-        primaryConfigurator = primaryMotor.getConfigurator();
-        followerConfigurator = followerMotor.getConfigurator();
-        configs = new TalonFXConfiguration();
-        NeutralModeValue neutralMode = NeutralModeValue.Brake;
-        
-        // Configure primary motor
-        configs.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
-        primaryConfigurator.apply(configs);
-        primaryMotor.setNeutralMode(neutralMode);
-        
-        // Configure follower motor
-        configs.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
-        followerConfigurator.apply(configs);
-        followerMotor.setNeutralMode(neutralMode);
-        
-        // Use two DIO ports for quadrature encoder
-        encoder = new Encoder(6, 7);
-        
-        // Configure encoder
-        encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
-        encoder.setReverseDirection(false);
-        encoder.reset();  // Start at 0
-
-        encoderAdapter = new EncoderAdapter(encoder);
-        
-        // Create position controlled motor with both motors and feedforward
-        // positionControlledMotor = new PositionControlledMotor(
-        //     primaryMotor,
-        //     followerMotor,
-        //     encoderAdapter,
-        //     P, Constants.Elevator.kI, Constants.Elevator.kD,
-        //     Constants.Elevator.MIN_POSITION, Constants.Elevator.MAX_POSITION,
-        //     "Elevator"
-
-        // );
+        super(
+            name, 
+            new TalonFX(60, Constants.CANBUS), 
+            new TalonFX(61, Constants.CANBUS), 
+            new DutyCycleEncoder(2), 
+            new ProfiledPIDController(
+                2, 0, 0,
+                new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
+            ),
+            positionTolerance, minPosition, maxPosition, zeroPosition);
+            
+        super.debug = true;
     }
 
-    // @Override 
-    // public void periodic() {
-    //     SmartDashboard.putNumber("Elevator Position", getPosition());
-    // }
-
-    public void goToPosition(double targetPosition) {
-        // positionControlledMotor.goToPosition(targetPosition);
+    public void configureEncoder() {
+        encoder.setInverted(invertEncoder);
     }
 
-    public void stop() {
-        // positionControlledMotor.stop();
+    public void configureMotor() {
+        motor.setNeutralMode(NeutralModeValue.Brake);
+        
+        TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+        talonConfig.MotorOutput
+            .withInverted(InvertedValue.CounterClockwise_Positive);
+
+        talonConfig.MotionMagic
+            .withMotionMagicCruiseVelocity(maxVelocity)
+            .withMotionMagicAcceleration(maxAcceleration);
+
+        talonConfig.Slot0
+            .withKP(0.2)
+            .withKD(0.0000001);
+
+        talonConfig.SoftwareLimitSwitch
+            .withForwardSoftLimitEnable(true)
+            .withReverseSoftLimitEnable(true)
+            .withForwardSoftLimitThreshold(maxPosition)
+            .withReverseSoftLimitThreshold(minPosition);
+        
+        motor.getConfigurator().apply(talonConfig);
+        followerMotor.getConfigurator().apply(talonConfig);
     }
+}
 
-    // public double getPosition() {
-    //     return positionControlledMotor.getPosition();
-    // }
 
-    // public boolean atPosition() {
-    //     return positionControlledMotor.atPosition();
-    // }
-} 

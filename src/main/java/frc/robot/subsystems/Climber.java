@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -33,9 +34,7 @@ public class Climber extends PositionControlledMotor{
                 10, 0, 0,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
-            positionTolerance, minPosition, maxPosition, zeroPosition);
-            
-        super.debug = true;
+            positionTolerance, minPosition, maxPosition, zeroPosition, true);
     }
 
     public void configureEncoder() {
@@ -64,5 +63,36 @@ public class Climber extends PositionControlledMotor{
             .withReverseSoftLimitThreshold(minPosition);
         
         motor.getConfigurator().apply(talonConfig);
+    }
+        @Override
+    public TalonFXConfiguration getMotorConfig() {
+        TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+        talonConfig.MotorOutput
+            .withInverted(InvertedValue.CounterClockwise_Positive);
+
+        talonConfig.MotionMagic
+            .withMotionMagicCruiseVelocity(maxVelocity)
+            .withMotionMagicAcceleration(maxAcceleration)
+            .withMotionMagicJerk(10*maxAcceleration);
+
+        talonConfig.Slot0
+            .withKP(.5)
+            .withKI(0)
+            .withKD(0);
+
+        talonConfig.Slot0
+            .withKS(0)
+            .withKG(0)
+            .withKV(0)
+            .withKA(0)
+            .withGravityType(GravityTypeValue.Arm_Cosine);
+
+        talonConfig.SoftwareLimitSwitch
+            .withForwardSoftLimitEnable(true)
+            .withReverseSoftLimitEnable(true)
+            .withForwardSoftLimitThreshold(maxPosition)
+            .withReverseSoftLimitThreshold(minPosition);
+
+        return talonConfig;
     }
 }

@@ -22,7 +22,7 @@ public class Arm extends PositionControlledMotor{
     private final static double maxAcceleration = 160;
     private final static Boolean invertEncoder = false;
     private final static double maxVelocity = 80;
-    private final static double minPosition = -40.48;
+    private final static double minPosition = -33;
     private final static double maxPosition = 3.85;
     private final static String name = "Arm";
     
@@ -32,7 +32,7 @@ public class Arm extends PositionControlledMotor{
             new TalonFX(7, Constants.CANBUS), 
             new DutyCycleEncoder(1), 
             new ProfiledPIDController(
-                20, 0, .5,
+                20, 1, .5,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, minPosition, maxPosition, zeroPosition);

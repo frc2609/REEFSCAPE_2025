@@ -9,6 +9,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public abstract class PositionControlledMotor extends SubsystemBase {
     public final TalonFX motor;
@@ -25,18 +27,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     public TalonFX followerMotor = null;
     private MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
 
-    public PositionControlledMotor(String name, TalonFX motor, DutyCycleEncoder encoder, ProfiledPIDController pidController, double positionTolerance, double minPosition, double maxPosition, double zeroPosition) {
-        this.name = name;
-        this.motor = motor;
-        this.encoder = encoder;
-        this.positionTolerance = positionTolerance;
-        this.minPosition = minPosition;
-        this.maxPosition = maxPosition;
-        this.pidController = pidController;
-        this.zeroPosition = zeroPosition;
+    private final NetworkTable pidTable;
 
-        configureEncoder();
-        configureMotor();
+    public PositionControlledMotor(String name, TalonFX motor, DutyCycleEncoder encoder, ProfiledPIDController pidController, double positionTolerance, double minPosition, double maxPosition, double zeroPosition) {
+        this(name, motor, null, encoder, pidController, positionTolerance, minPosition, maxPosition, zeroPosition);        
     }
 
     public PositionControlledMotor(String name, TalonFX motor, TalonFX followerMotor, DutyCycleEncoder encoder, ProfiledPIDController pidController, double positionTolerance, double minPosition, double maxPosition, double zeroPosition) {
@@ -44,6 +38,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         this.motor = motor;
         this.followerMotor = followerMotor;
         this.encoder = encoder;
+        this.pidController = pidController;
         this.positionTolerance = positionTolerance;
         this.minPosition = minPosition;
         this.maxPosition = maxPosition;
@@ -51,6 +46,13 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
         configureEncoder();
         configureMotor();
+
+        // Initialize NetworkTables
+        pidTable = NetworkTableInstance.getDefault().getTable("PID/" + name);
+        pidTable.getEntry("kP").setDouble(pidController.getP());
+        pidTable.getEntry("kI").setDouble(pidController.getI());
+        pidTable.getEntry("kD").setDouble(pidController.getD());
+        pidTable.getEntry("Setpoint").setDouble(0.0); // Initial setpoint
     }
 
     public void goToPosition(double targetPosition) {
@@ -66,6 +68,19 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // Update PID values from NetworkTables
+        double kP = pidTable.getEntry("kP").getDouble(pidController.getP());
+        double kI = pidTable.getEntry("kI").getDouble(pidController.getI());
+        double kD = pidTable.getEntry("kD").getDouble(pidController.getD());
+        double setpoint = pidTable.getEntry("Setpoint").getDouble(0.0);
+        pidController.setPID(kP, kI, kD);
+
+        // Publish motor performance data
+        pidTable.getEntry("Position").setDouble(getPosition());
+        pidTable.getEntry("Velocity").setDouble(getVelocity());
+        pidTable.getEntry("Current").setDouble(getCurrent());
+        pidTable.getEntry("Voltage").setDouble(getVoltage());
+
         // Use getter methods to access subclass data
         if (debug) {
             SmartDashboard.putNumber(name + " Position", getPosition());

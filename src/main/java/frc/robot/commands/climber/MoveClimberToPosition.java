@@ -23,8 +23,8 @@ public class MoveClimberToPosition extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
-      //  return climber.atPosition();
+        // return false;
+       return climber.atPosition(targetPositionSupplier.get());
     }
 
     @Override

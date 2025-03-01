@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -16,7 +17,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     public ProfiledPIDController pidController;
 
     private final String name;
-    private final double positionTolerance;
+    public final double positionTolerance;
+    public final double zeroPosition;
     private final double minPosition;
     private final double maxPosition;
     
@@ -31,7 +33,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         this.minPosition = minPosition;
         this.maxPosition = maxPosition;
         this.pidController = pidController;
-        
+        this.zeroPosition = zeroPosition;
+
         configureEncoder();
         configureMotor();
     }
@@ -44,6 +47,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         this.positionTolerance = positionTolerance;
         this.minPosition = minPosition;
         this.maxPosition = maxPosition;
+        this.zeroPosition = zeroPosition;
 
         configureEncoder();
         configureMotor();
@@ -118,7 +122,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     }
 
     public void resetPosition() {
-        motor.setPosition(0);
+        StatusCode stat = motor.setPosition(0);
+        SmartDashboard.putString("Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("posAfterReset", getPosition());
+
         // If you have a follower motor, reset its position as well.
         if (followerMotor != null) {
             followerMotor.setPosition(0);

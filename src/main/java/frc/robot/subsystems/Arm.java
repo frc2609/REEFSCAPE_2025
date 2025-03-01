@@ -16,14 +16,14 @@ import frc.robot.utils.Constants;
 import frc.robot.utils.EncoderAdapter;
 
 public class Arm extends PositionControlledMotor{
-public final static double zeroPosition = 0;
+    public final static double zeroPosition = 0.62;
 
     public final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 5;
+    private final static double maxAcceleration = 10;
     private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 10;
-    private final static double minPosition = -200;
-    private final static double maxPosition = 200;
+    private final static double maxVelocity = 20;
+    private final static double minPosition = -40.48;
+    private final static double maxPosition = 3.85;
     private final static String name = "Arm";
     
     public Arm() {
@@ -32,7 +32,7 @@ public final static double zeroPosition = 0;
             new TalonFX(7, Constants.CANBUS), 
             new DutyCycleEncoder(1), 
             new ProfiledPIDController(
-                2, 0, 0,
+                30, 0, 1,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, minPosition, maxPosition, zeroPosition);
@@ -53,11 +53,11 @@ public final static double zeroPosition = 0;
 
         talonConfig.MotionMagic
             .withMotionMagicCruiseVelocity(maxVelocity)
-            .withMotionMagicAcceleration(maxAcceleration);
+            .withMotionMagicAcceleration(maxAcceleration)
+            .withMotionMagicJerk(10*maxAcceleration);
 
         talonConfig.Slot0
-            .withKP(0.2)
-            .withKD(0.0000001);
+            .withKP(5);
 
         talonConfig.SoftwareLimitSwitch
             .withForwardSoftLimitEnable(true)

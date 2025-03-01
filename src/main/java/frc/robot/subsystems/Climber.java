@@ -13,7 +13,8 @@ import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 
 public class Climber extends PositionControlledMotor{
-    public final static double zeroPosition = 0;
+    public final static double zeroPosition = 0.35;
+    
 
     public final static double positionTolerance = 0.01;
     private final static double maxAcceleration = 5;
@@ -29,7 +30,7 @@ public class Climber extends PositionControlledMotor{
             new TalonFX(5, Constants.CANBUS), 
             new DutyCycleEncoder(0), 
             new ProfiledPIDController(
-                2, 0, 0,
+                10, 0, 0,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, minPosition, maxPosition, zeroPosition);

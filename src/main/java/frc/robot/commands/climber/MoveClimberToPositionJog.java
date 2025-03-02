@@ -5,26 +5,26 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
-public class MoveClimberToPosition extends Command {
+public class MoveClimberToPositionJog extends Command {
     private final Climber climber;
-    private final Double targetPosition;
+    private final Supplier<Double> targetPositionSupplier;
 
-    public MoveClimberToPosition(Climber climber, Double targetPosition) {
+    public MoveClimberToPositionJog(Climber climber, Supplier<Double> targetPositionSupplier) {
         this.climber = climber;
-        this.targetPosition = targetPosition;
+        this.targetPositionSupplier = targetPositionSupplier;
         addRequirements(climber);
     }
 
     @Override
     public void execute() {
-        double currentTarget = targetPosition;
+        double currentTarget = targetPositionSupplier.get();
         climber.goToPosition(currentTarget);
     }
 
     @Override
     public boolean isFinished() {
         // return false;
-       return climber.atPosition(targetPosition);
+       return climber.atPosition(targetPositionSupplier.get());
     }
 
     @Override

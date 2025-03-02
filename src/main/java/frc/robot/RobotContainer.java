@@ -34,6 +34,7 @@ import frc.robot.commands.elevator.MoveElevator;
 import frc.robot.commands.elevator.MoveElevatorToPosition;
 import frc.robot.commands.elevator.MoveElevatorToPositionSDB;
 import frc.robot.commands.climber.MoveClimberToPosition;
+import frc.robot.commands.climber.MoveClimberToPositionJog;
 import frc.robot.commands.climber.MoveClimberToPositionSDB;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Intake;
@@ -110,23 +111,18 @@ public class RobotContainer {
         
 
         joystick.x()
-        .whileTrue(
-            new MoveClimberToPosition(climber, this::getTargetPosition)
+        .onTrue(
+            new MoveClimberToPosition(climber, 300.0)
         );
 
         joystick.a()
         .onTrue(
-            new MoveArmToPosition(arm, this::getTargetPosition)
-        );
-
-        joystick.y()
-        .whileTrue(
-            new MoveElevatorToPosition(elevator, this::getTargetPosition)
+            new MoveClimberToPosition(climber, 0.0)
         );
 
         joystick.b()
         .onTrue(
-        new ZeroAndResetPCM(arm)
+            new ZeroAndResetPCM(climber)
         );
 
 
@@ -134,19 +130,19 @@ public class RobotContainer {
         // Target adjustment bindings
         joystick.povUp().whileTrue(
             new RunCommand(() -> 
-                adjustTargetPosition(0.01)          
+                adjustTargetPosition(1)          
         ));
         joystick.povDown().whileTrue(
             new RunCommand(() -> 
-                adjustTargetPosition(-0.01)
+                adjustTargetPosition(-1)
         ));
         joystick.povLeft().whileTrue(
             new RunCommand(() -> 
-                adjustTargetPosition(-0.1)
+                adjustTargetPosition(-10)
         ));
         joystick.povRight().whileTrue(
             new RunCommand(() -> 
-                adjustTargetPosition(0.1)
+                adjustTargetPosition(10)
         ));
     }
 

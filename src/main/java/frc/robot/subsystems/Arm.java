@@ -7,6 +7,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
@@ -22,6 +27,44 @@ public class Arm extends PositionControlledMotor{
     private final static double maxPosition = 3.85;
     private final static String name = "Arm";
     
+    public static TalonFXConfiguration talonConfig = 
+        new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake)
+            )
+            .withMotionMagic(
+                new MotionMagicConfigs()
+                    .withMotionMagicCruiseVelocity(maxVelocity)
+                    .withMotionMagicAcceleration(maxAcceleration)
+                    .withMotionMagicJerk(10)
+            )
+            .withSlot0(
+                new Slot0Configs()
+                    .withKP(.5)
+                    .withKI(0)
+                    .withKD(0)
+                    .withKS(0)
+                    .withKG(0.06)
+                    .withKV(0)
+                    .withKA(0)
+                    .withGravityType(GravityTypeValue.Elevator_Static)
+            )
+            .withSoftwareLimitSwitch(
+                new SoftwareLimitSwitchConfigs()
+                    .withForwardSoftLimitEnable(true)
+                    .withReverseSoftLimitEnable(true)
+                    .withForwardSoftLimitThreshold(maxPosition)
+                    .withReverseSoftLimitThreshold(minPosition)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(80)
+                    .withSupplyCurrentLimit(30)
+            );
+
+
     public Arm() {
         super(
             name, 
@@ -31,7 +74,10 @@ public class Arm extends PositionControlledMotor{
                 20, 1, .5,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
-            positionTolerance, minPosition, maxPosition, zeroPosition, true);
+            positionTolerance, true
+        );
+
+        super.debug = true;
     }
 
     public void configureEncoder() {
@@ -39,33 +85,6 @@ public class Arm extends PositionControlledMotor{
     }
 
     public TalonFXConfiguration getMotorConfig() {
-        TalonFXConfiguration talonConfig = new TalonFXConfiguration();
-        talonConfig.MotorOutput
-            .withInverted(InvertedValue.CounterClockwise_Positive);
-
-        talonConfig.MotionMagic
-            .withMotionMagicCruiseVelocity(maxVelocity)
-            .withMotionMagicAcceleration(maxAcceleration)
-            .withMotionMagicJerk(10*maxAcceleration);
-
-        talonConfig.Slot0
-            .withKP(.5)
-            .withKI(0)
-            .withKD(0);
-
-        talonConfig.Slot0
-            .withKS(0)
-            .withKG(0)
-            .withKV(0)
-            .withKA(0)
-            .withGravityType(GravityTypeValue.Arm_Cosine);
-
-        talonConfig.SoftwareLimitSwitch
-            .withForwardSoftLimitEnable(true)
-            .withReverseSoftLimitEnable(true)
-            .withForwardSoftLimitThreshold(maxPosition)
-            .withReverseSoftLimitThreshold(minPosition);
-
-        return talonConfig;
+        return Arm.talonConfig;
     }
 }

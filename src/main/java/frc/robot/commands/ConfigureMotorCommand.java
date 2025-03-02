@@ -12,7 +12,7 @@ public class ConfigureMotorCommand extends Command {
 
     @Override
     public void initialize() {
-        motor.updateTalonConfig();
+        // motor.updateTalonConfig();
     }
 
     @Override

@@ -9,12 +9,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ZeroAndResetPCM extends Command {
     private final PositionControlledMotor subsystem;
     private final ProfiledPIDController pidController;
-    private final double targetPosition;  // Typically 0
 
     public ZeroAndResetPCM(PositionControlledMotor subsystem) {
         this.subsystem = subsystem;
         this.pidController = subsystem.pidController;
-        this.targetPosition = subsystem.zeroPosition;
         addRequirements(subsystem);
     }
 
@@ -22,7 +20,7 @@ public class ZeroAndResetPCM extends Command {
     public void initialize() {
         // Reset the PID controller's state using the current absolute position.
         pidController.reset(subsystem.getAbsPosition());
-        pidController.setGoal(targetPosition);
+        pidController.setGoal(0);
         pidController.setTolerance(subsystem.positionTolerance);
         pidController.enableContinuousInput(0, 1);
     }

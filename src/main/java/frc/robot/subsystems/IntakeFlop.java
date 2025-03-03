@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 
-public class Climber extends PositionControlledMotor{
+public class IntakeFlop extends PositionControlledMotor {
     public final static double zeroPosition = 0.39;
     
 
@@ -28,7 +28,7 @@ public class Climber extends PositionControlledMotor{
     private final static double maxVelocity = 100;
     private final static double minPosition = -20;
     private final static double maxPosition = 400;
-    private final static String name = "Climber";
+    private final static String name = "IntakeFlop";
 
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
@@ -52,7 +52,7 @@ public class Climber extends PositionControlledMotor{
                     .withKG(0)
                     .withKV(0)
                     .withKA(0)
-                    .withGravityType(GravityTypeValue.Elevator_Static)
+                    .withGravityType(GravityTypeValue.Intake_Static)
             )
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs()
@@ -67,10 +67,10 @@ public class Climber extends PositionControlledMotor{
                     .withSupplyCurrentLimit(30)
             );
     
-    public Climber() {
+    public IntakeFlop() {
         super(
             name, 
-            new TalonFX(5, Constants.CANBUS), 
+            new TalonFX(8, Constants.CANBUS), 
             new DutyCycleEncoder(0, 1, zeroPosition), 
             new ProfiledPIDController(
                 15, 0, 0,
@@ -80,13 +80,18 @@ public class Climber extends PositionControlledMotor{
         );
 
         super.debug = true;
+
     }
 
+    @Override
+    public void configureMotor() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configureMotor'");
+    }
+
+    @Override
     public void configureEncoder() {
-        encoder.setInverted(invertEncoder);
-    }
-
-    public TalonFXConfiguration getMotorConfig() {
-        return Climber.talonConfig;
-    }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configureEncoder'");
+    }  
 }

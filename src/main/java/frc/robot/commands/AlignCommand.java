@@ -3,7 +3,7 @@ package frc.robot.commands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Limelight;
-
+import frc.robot.subsystems.VisionSubsystem;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -15,6 +15,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.configs.jni.ConfigJNI;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -42,6 +43,10 @@ public class AlignCommand extends Command {
     private final Pigeon2 m_Pigeon2;
     private Pose2d taPose2d;
     private JSONObject map;
+    final double HEIGHT_OF_LIMELIGHT = 0.5; // meters
+    final double HEIGHT_OF_TARGET = 2.0; // meters
+    PIDController m_pidController = new PIDController(0.06, 0.0, 0.0);
+    final double PITCH = 100;
 
     private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
    .withDeadband(4.73 * 0.1).withRotationalDeadband(2 * 0.1); // Add a 10% deadband
@@ -54,6 +59,15 @@ public class AlignCommand extends Command {
         m_limelight = limelight;
         m_Pigeon2 = pidgey;
 
+        String fileLocation =  String.format("%s%s", Filesystem.getDeployDirectory(), "/frc2025r2.json");
+        SmartDashboard.putString("print", fileLocation);
+        try (FileReader reader = new FileReader(fileLocation)) {
+            JSONParser jsonParser = new JSONParser();
+            map = (JSONObject) jsonParser.parse(reader);
+            SmartDashboard.putString("map", map.toJSONString());
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
         addRequirements(swerve, limelight);
     }
 
@@ -65,7 +79,7 @@ public class AlignCommand extends Command {
         double kP = 0.01;
     
         // Get the "tx" value from the Limelight
-        double targetingAngularVelocity = m_limelight.get_tx() * kP;
+        double targetingAngularVelocity = m_limelight.get_tx() * m_pidController.getP();
 
         SmartDashboard.putNumber("limelightX: ", m_limelight.get_tx());
 
@@ -82,11 +96,16 @@ public class AlignCommand extends Command {
     // Proportional ranging control with Limelight's "ty" value
     // Works best if the Limelight's mount height and target mount height are different.
     private double limelightRangeProportional() {
-        double kP = 0.006;
     
+        double kP = 0.06;
+
         // Get the "ty" value from the Limelight
         // double targetingForwardSpeed = m_Vision.getTY() * kP;
-        double targetingForwardSpeed = m_limelight.get_ty() * kP;
+
+        double goalDistance = 0.2; // meters
+        double distance = Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
+
+        double targetingForwardSpeed = (distance-goalDistance) * m_pidController.getP();
 
 
     
@@ -98,7 +117,13 @@ public class AlignCommand extends Command {
     
         return targetingForwardSpeed;
     }
+    private double LimelightRoation(){
+        double kP = 0.06;
+        double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
+        SmartDashboard.putNumber("Angle",angle);
+        return angle;
 
+    }
 
     public void execute(){
         // double rot = limelightAimProportional();

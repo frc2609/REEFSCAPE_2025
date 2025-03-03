@@ -20,26 +20,36 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
+import frc.robot.commands.ZeroAndResetPCM;
 import frc.robot.commands.arm.MoveArm;
+import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.commands.elevator.MoveElevator;
+import frc.robot.commands.elevator.MoveElevatorToPosition;
+import frc.robot.commands.elevator.MoveElevatorToPositionSDB;
 import frc.robot.commands.climber.MoveClimberToPosition;
+
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.PathPlannerAlignmentCommand;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.AlignCommand;
+import frc.robot.commands.climber.MoveClimberToPositionJog;
+import frc.robot.commands.climber.MoveClimberToPositionSDB;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeRoll;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -49,6 +59,7 @@ import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
 
 public class RobotContainer {
+
   // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   // // kSpeedAt12Volts desired top speed
   // private double MaxAngularRate =
@@ -101,12 +112,11 @@ public class RobotContainer {
     // private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on
     // roboRIO CAN Bus with device ID 0
     // // private final ResetGyro resetGyro = new ResetGyro(drivetrain, seaweed,
-    // pidgey);
-  
+    // pidgey)
     // /* Path follower */
     // private final SendableChooser<Command> autoChooser;
-    // private final Arm arm = new Arm();
-    // private final Elevator elevator = new Elevator();
+    private final Arm arm = new Arm();
+    private final Elevator elevator = new Elevator();
     private final Climber climber = new Climber();
     private final Intake intake = new Intake();
     public static InstantCommand instantCommand = new InstantCommand();
@@ -134,7 +144,6 @@ public class RobotContainer {
       pidgey.clearStickyFault_BootDuringEnable();
       // Configure the trigger b indings
       configureBindings();
-  
     }
   
     private void configureBindings() {
@@ -246,24 +255,24 @@ public class RobotContainer {
 
     joystick.y().onTrue(new ResetGyro(swerve, seaweed, pidgey).withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed, pidgey)).withTimeout(5));
 
+        // joystick.pov(0).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
+        // joystick.pov(180)
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
 
-    //     joystick.pov(0).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-    //     joystick.pov(180)
-    //             .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-    //     // Run SysId routines when holding back/start and X/Y.
-    //     // Note that each routine should be run exactly once in a single log.
-    //     joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    //     joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    //     joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    //     joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-    //     // reset the field-centric heading on left bumper press
-    //     joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // reset the field-centric heading on left bumper press
+        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
     //     drivetrain.registerTelemetry(logger::telemeterize);
-    // }
-  }
+    //}
+
+    }
     public void robotInit() {
         for (int port = 5800; port <= 5810; port++) {
             PortForwarder.add(port, "limelight.local", port);
@@ -275,4 +284,16 @@ public class RobotContainer {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
     }
-  }
+  
+
+    private void adjustTargetPosition(double delta) {
+        this.targetPosition += delta;
+        SmartDashboard.putNumber("Target Position", targetPosition);
+        
+        // If the motor is currently moving, update the target immediately
+        // if (joystick.rightBumper().getAsBoolean()) {
+        //     climber.positionControlledMotor.goToPosition(this.targetPosition);
+        // }
+    }
+}
+  

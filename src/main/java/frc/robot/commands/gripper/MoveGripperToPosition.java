@@ -1,24 +1,24 @@
-package frc.robot.commands.arm;
+package frc.robot.commands.gripper;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Gripper;
 
-public class MoveArmToPosition extends Command {
-    private final Arm arm;
+public class MoveGripperToPosition extends Command {
+    private final Gripper gripper;
     private final Supplier<Double> targetPositionSupplier;
 
-    public MoveArmToPosition(Arm arm, Supplier<Double> targetPositionSupplier) {
-        this.arm = arm;
+    public MoveGripperToPosition(Gripper gripper, Supplier<Double> targetPositionSupplier) {
+        this.gripper = gripper;
         this.targetPositionSupplier = targetPositionSupplier;
-        addRequirements(arm);
+        addRequirements(gripper);
     }
 
     @Override
     public void execute() {
         double currentTarget = targetPositionSupplier.get();
-        arm.goToPosition(currentTarget);
+        gripper.goToPosition(currentTarget);
     }
 
     // @Override
@@ -28,6 +28,6 @@ public class MoveArmToPosition extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        arm.stop();
+        gripper.stop();
     }
 } 

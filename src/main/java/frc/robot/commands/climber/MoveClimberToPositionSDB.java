@@ -1,34 +1,32 @@
 package frc.robot.commands.climber;
 
-import java.util.function.Supplier;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
-public class MoveClimberToPosition extends Command {
+public class MoveClimberToPositionSDB extends Command{
     private final Climber climber;
-    private final Double targetPosition;
+    private double targetPosition;
 
-    public MoveClimberToPosition(Climber climber, Double targetPosition) {
+    public MoveClimberToPositionSDB(Climber climber) {
         this.climber = climber;
-        this.targetPosition = targetPosition;
         addRequirements(climber);
     }
 
     @Override
     public void execute() {
-        double currentTarget = targetPosition;
-        climber.goToPosition(currentTarget);
+        targetPosition = SmartDashboard.getNumber("Target", 0);
+        climber.goToPosition(targetPosition);
     }
 
     @Override
     public boolean isFinished() {
-        // return false;
-       return climber.atPosition(targetPosition);
+        return false;
+      //  return climber.atPosition();
     }
 
     @Override
     public void end(boolean interrupted) {
         climber.stop();
     }
-} 
+}

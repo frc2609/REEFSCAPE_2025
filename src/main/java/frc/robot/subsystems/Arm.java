@@ -1,77 +1,90 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
-import frc.robot.utils.EncoderAdapter;
 
-public class Arm extends SubsystemBase{
+public class Arm extends PositionControlledMotor{
+    public final static double zeroPosition = 0.63;
 
-    private final TalonFX motor;
-    private final TalonFXConfigurator configurator;
-    private final TalonFXConfiguration configs;
-    private final Encoder encoder;
-    private final EncoderAdapter encoderAdapter;
-    private final PositionControlledMotor positionControlledMotor;
+    public final static double positionTolerance = 0.01;
+    private final static double maxAcceleration = 160;
+    private final static Boolean invertEncoder = false;
+    private final static double maxVelocity = 80;
+    private final static double minPosition = -33;
+    private final static double maxPosition = 3.85;
+    private final static String name = "Arm";
     
+    public static TalonFXConfiguration talonConfig = 
+        new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake)
+            )
+            .withMotionMagic(
+                new MotionMagicConfigs()
+                    .withMotionMagicCruiseVelocity(maxVelocity)
+                    .withMotionMagicAcceleration(maxAcceleration)
+                    .withMotionMagicJerk(10)
+            )
+            .withSlot0(
+                new Slot0Configs()
+                    .withKP(.5)
+                    .withKI(0)
+                    .withKD(0)
+                    .withKS(0)
+                    .withKG(0.06)
+                    .withKV(0)
+                    .withKA(0)
+                    .withGravityType(GravityTypeValue.Elevator_Static)
+            )
+            .withSoftwareLimitSwitch(
+                new SoftwareLimitSwitchConfigs()
+                    .withForwardSoftLimitEnable(true)
+                    .withReverseSoftLimitEnable(true)
+                    .withForwardSoftLimitThreshold(maxPosition)
+                    .withReverseSoftLimitThreshold(minPosition)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(80)
+                    .withSupplyCurrentLimit(30)
+            );
+
+
     public Arm() {
-        motor = new TalonFX(Constants.Arm.MOTOR_ID, Constants.CANBUS);
-        
-        configurator = motor.getConfigurator();
-        configs = new TalonFXConfiguration();
-        configs.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
-        configurator.apply(configs);
-        motor.setNeutralMode(NeutralModeValue.Coast);
-        
-        // Use two DIO ports for quadrature encoder (channelA is blue, ChannelB is yellow)
-        encoder = new Encoder(Constants.Arm.ENCODER_CHANNEL_A, Constants.Arm.ENCODER_CHANNEL_B);
-        
-        // Configure encoder
-        encoder.setDistancePerPulse(Constants.ENCODER_DISTANCE_PER_PULSE);  // REV Through Bore has 2048 pulses per revolution
-        encoder.setReverseDirection(true);
-        encoder.reset();  // Start at 0
-
-        encoderAdapter = new EncoderAdapter(encoder);
-        
-        // Create position controlled motor with both PID and feedforward
-        positionControlledMotor = new PositionControlledMotor(
-            motor,  // Adapt TalonFX to MotorController interface
-            encoderAdapter,
-            Constants.Arm.kP, Constants.Arm.kI, Constants.Arm.kD,
-            Constants.Arm.MIN_POSITION, Constants.Arm.MAX_POSITION,
-            "Arm"
+        super(
+            name, 
+            new TalonFX(7, Constants.CANBUS), 
+            new DutyCycleEncoder(1), 
+            new ProfiledPIDController(
+                20, 1, .5,
+                new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
+            ),
+            positionTolerance, true
         );
+
+        super.debug = true;
     }
 
-    @Override 
-    public void periodic() {
-        SmartDashboard.putNumber("Arm Position", getPosition());
+    public void configureEncoder() {
+        encoder.setInverted(invertEncoder);
     }
 
-    public void goToPosition(double targetPosition) {
-        positionControlledMotor.goToPosition(targetPosition);
-    }
-
-    public void stop() {
-        positionControlledMotor.stop();
-    }
-    
-    public void setVoltage(double volts) {
-        positionControlledMotor.setVoltage(volts);
-    }
-
-    public double getPosition() {
-        return positionControlledMotor.getPosition();
-    }
-
-    public boolean atPosition() {
-        return positionControlledMotor.atPosition();
+    public TalonFXConfiguration getMotorConfig() {
+        return Arm.talonConfig;
     }
 }

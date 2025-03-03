@@ -76,10 +76,10 @@ public final class Constants {
     
     // Position limits (in rotations)
     public static final double MIN_POSITION = 0.0;
-    public static final double MAX_POSITION = 5.0;
+    public static final double MAX_POSITION = 3.0;
     
     // PID constants
-    public static final double kP = 1.0;
+    public static final double kP = 0.1;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
   }

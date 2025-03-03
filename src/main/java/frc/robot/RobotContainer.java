@@ -36,7 +36,7 @@ import frc.robot.commands.elevator.MoveElevatorToPositionSDB;
 import frc.robot.commands.climber.MoveClimberToPosition;
 import frc.robot.commands.climber.MoveClimberToPositionSDB;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeRoll;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;

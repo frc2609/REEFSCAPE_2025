@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 <<<<<<< HEAD
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -94,6 +95,9 @@ public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second //
                                                                                     // max angular velocity
+  private final DigitalInput intakeBeam = new DigitalInput(4);
+  intakeBeam.get();
+
 
   private SendableChooser<Command> autoChooser;
   

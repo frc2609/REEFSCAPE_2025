@@ -1,5 +1,4 @@
-package frc.robot;
-import java.util.Map;
+package frc.robot.utils;
 
 public class AprilTagConfig {
     public static class AprilTag {

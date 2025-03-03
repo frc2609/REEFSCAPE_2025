@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.utils;
 
 import java.util.HashMap;
 
@@ -15,9 +15,7 @@ import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
-import java.util.HashMap;
 
-import edu.wpi.first.units.measure.*; 
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -42,8 +40,48 @@ public final class Constants {
 
     public static final PIDConstants translationConstants = new PIDConstants(5.0, 0.0, 0.0);
     public static final PIDConstants rotationConstants = new PIDConstants(5.0, 0.0, 0.0);
+  }
+
+  public static final String CANBUS = "CANivore";
+  
+  public static final double ENCODER_DISTANCE_PER_PULSE = 1.0 / 2048.0;  // REV Through Bore has 2048 pulses per revolution
 
 
+  public static final class Arm {
+    // Motor configuration
+    public static final int MOTOR_ID = 50;
+    
+    // Encoder configuration
+    public static final int ENCODER_CHANNEL_A = 1;
+    public static final int ENCODER_CHANNEL_B = 2;
+    
+    // Position limits (in rotations)
+    public static final double MIN_POSITION = -0.4;
+    public static final double MAX_POSITION = 0.4;
+    
+    // PID constants
+    public static final double kP = 60.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+  }
+
+  public static final class Elevator {
+    // Motor configuration
+    public static final int PRIMARY_MOTOR_ID = 61;
+    public static final int FOLLOWER_MOTOR_ID = 62;
+    
+    // Encoder configuration
+    public static final int ENCODER_CHANNEL_A = 3;
+    public static final int ENCODER_CHANNEL_B = 4;
+    
+    // Position limits (in rotations)
+    public static final double MIN_POSITION = 0.0;
+    public static final double MAX_POSITION = 3.0;
+    
+    // PID constants
+    public static final double kP = 0.1;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
   }
 
   public static class OperatorConstants {

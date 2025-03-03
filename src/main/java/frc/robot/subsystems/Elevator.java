@@ -13,20 +13,20 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 
-public class Arm extends PositionControlledMotor{
-    public final static double zeroPosition = 0.63;
+public class Elevator extends PositionControlledMotor {
+    public final static double zeroPosition = 0;
+    public final static double positionTolerance = 0.1;
+    private final static double maxAcceleration = 5;
+    private final static double maxVelocity = 10;
+    private final static String name = "ELEVATOR";
 
-    public final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 160;
-    private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 80;
-    private final static double minPosition = -33;
-    private final static double maxPosition = 3.85;
-    private final static String name = "Arm";
-    
+    private static final double minPosition = 0;
+    private static final double maxPosition = 12.9;
+
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
@@ -63,28 +63,31 @@ public class Arm extends PositionControlledMotor{
                     .withStatorCurrentLimit(80)
                     .withSupplyCurrentLimit(30)
             );
-
-
-    public Arm() {
+    
+    public Elevator() {
         super(
             name, 
-            new TalonFX(7, Constants.CANBUS), 
-            new DutyCycleEncoder(1), 
+            new TalonFX(60, Constants.CANBUS), 
+            new TalonFX(61, Constants.CANBUS), 
+            new DutyCycleEncoder(2,1, zeroPosition), 
             new ProfiledPIDController(
-                20, 1, .5,
+                2, 0, 0,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, true
         );
 
         super.debug = true;
+
     }
 
     public void configureEncoder() {
-        encoder.setInverted(invertEncoder);
+        encoder.setInverted(false);
     }
 
     public TalonFXConfiguration getMotorConfig() {
-        return Arm.talonConfig;
+        return Elevator.talonConfig;
     }
 }
+
+

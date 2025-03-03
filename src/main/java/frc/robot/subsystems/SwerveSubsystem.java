@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.utils.Constants;
 
 /**
  * Basic simulation of a swerve subsystem with the methods needed by PathPlanner
@@ -162,7 +162,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void setTargetState(SwerveModuleState targetState) {
       // Optimize the state
-      currentState = SwerveModuleState.optimize(targetState, currentState.angle);
+      // currentState = SwerveModuleState.optimize(targetState, currentState.angle);
+      currentState.optimize(targetState.angle);
 
       currentPosition = new SwerveModulePosition(currentPosition.distanceMeters + (currentState.speedMetersPerSecond * 0.02), currentState.angle);
     }

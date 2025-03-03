@@ -1,37 +1,40 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
 
-public class Arm extends PositionControlledMotor{
-    public final static double zeroPosition = 0.63;
+public class IntakeFlop extends PositionControlledMotor {
+    public final static double zeroPosition = 0.39;
+    
 
     public final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 160;
+    private final static double maxAcceleration = 50;
     private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 80;
-    private final static double minPosition = -33;
-    private final static double maxPosition = 3.85;
-    private final static String name = "Arm";
-    
+    private final static double maxVelocity = 100;
+    private final static double minPosition = -20;
+    private final static double maxPosition = 400;
+    private final static String name = "IntakeFlop";
+
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake)
             )
             .withMotionMagic(
@@ -46,10 +49,10 @@ public class Arm extends PositionControlledMotor{
                     .withKI(0)
                     .withKD(0)
                     .withKS(0)
-                    .withKG(0.06)
+                    .withKG(0)
                     .withKV(0)
                     .withKA(0)
-                    .withGravityType(GravityTypeValue.Elevator_Static)
+                    .withGravityType(GravityTypeValue.Intake_Static)
             )
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs()
@@ -63,28 +66,32 @@ public class Arm extends PositionControlledMotor{
                     .withStatorCurrentLimit(80)
                     .withSupplyCurrentLimit(30)
             );
-
-
-    public Arm() {
+    
+    public IntakeFlop() {
         super(
             name, 
-            new TalonFX(7, Constants.CANBUS), 
-            new DutyCycleEncoder(1), 
+            new TalonFX(8, Constants.CANBUS), 
+            new DutyCycleEncoder(0, 1, zeroPosition), 
             new ProfiledPIDController(
-                20, 1, .5,
+                15, 0, 0,
                 new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
             ),
             positionTolerance, true
         );
 
         super.debug = true;
+
     }
 
+    @Override
+    public void configureMotor() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configureMotor'");
+    }
+
+    @Override
     public void configureEncoder() {
-        encoder.setInverted(invertEncoder);
-    }
-
-    public TalonFXConfiguration getMotorConfig() {
-        return Arm.talonConfig;
-    }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configureEncoder'");
+    }  
 }

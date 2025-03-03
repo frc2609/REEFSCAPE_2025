@@ -188,7 +188,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
         double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
         
-        // Only allow voltage if it won't drive us past limits
         if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
             stop();
             return;

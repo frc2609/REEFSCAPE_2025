@@ -11,11 +11,11 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class PathPlannerAlignmentCommand extends Command {
     private final CommandSwerveDrivetrain m_Swerve;
     private String limeLightName;
-    private AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    // private AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
     public PathPlannerAlignmentCommand(CommandSwerveDrivetrain swerve) {
         m_Swerve = swerve;
-        fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+        // fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         addRequirements(swerve);
     }
 
@@ -28,12 +28,12 @@ public class PathPlannerAlignmentCommand extends Command {
         LimelightHelpers.setFiducial3DOffset(limeLightName, 1, 1, 0);
 
         m_Swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
-        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
-        fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
+        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
+        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*offset,
+        // fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().toRotation2d()
         ));
 
 
-        System.out.println(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d());
+        // System.out.println(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d());
     }
 }

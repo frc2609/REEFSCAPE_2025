@@ -1,33 +1,37 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import frc.robot.utils.PositionControlledMotor;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.utils.Constants;
 
 public class Arm extends PositionControlledMotor{
-    public final static double zeroPosition = 0.63;
-
-    public final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 160;
-    private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 80;
-    private final static double minPosition = -33;
-    private final static double maxPosition = 3.85;
+    // Move the following to config and get gear ratios.
+    // We changed how the motor is reset please check the position values
+    private final double positionTolerance = 0.01;
+    private final double maxAcceleration = 160;
+    private final Boolean invertEncoder = false;
+    private final double maxVelocity = 80;
+    private final double minPosition = -33;
+    private final double maxPosition = 3.85;
     private final static String name = "Arm";
+    private final Double encoderConversion = null;
+    private final static int motorID = 7;
+    private final int encoderID = 1;
+    private final double zeroPosition = 0.63;
+
     
-    public static TalonFXConfiguration talonConfig = 
+    private final DutyCycleEncoder encoder;
+    public TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
@@ -64,27 +68,29 @@ public class Arm extends PositionControlledMotor{
                     .withSupplyCurrentLimit(30)
             );
 
-
     public Arm() {
         super(
             name, 
-            new TalonFX(7, Constants.CANBUS), 
-            new DutyCycleEncoder(1), 
-            new ProfiledPIDController(
-                20, 1, .5,
-                new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
-            ),
-            positionTolerance, true
+            new TalonFX(motorID, Constants.CANBUS), 
+            true
         );
-
-        super.debug = true;
-    }
-
-    public void configureEncoder() {
+        encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
         encoder.setInverted(invertEncoder);
     }
 
-    public TalonFXConfiguration getMotorConfig() {
-        return Arm.talonConfig;
+    protected TalonFXConfiguration getMotorConfig() {
+        return talonConfig;
+    }
+
+    protected Double getEncoderConversion(){
+        return encoderConversion;
+    }
+
+    protected double getPositionTolerance() {
+        return positionTolerance;
+    }
+
+    protected DutyCycleEncoder getEncoder() {
+        return encoder;
     }
 }

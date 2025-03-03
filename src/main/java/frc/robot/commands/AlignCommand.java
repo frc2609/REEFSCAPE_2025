@@ -58,6 +58,7 @@ public class AlignCommand extends Command {
         m_Swerve = swerve;
         m_limelight = limelight;
         m_Pigeon2 = pidgey;
+
         String fileLocation =  String.format("%s%s", Filesystem.getDeployDirectory(), "/frc2025r2.json");
         SmartDashboard.putString("print", fileLocation);
         try (FileReader reader = new FileReader(fileLocation)) {
@@ -75,7 +76,7 @@ public class AlignCommand extends Command {
     private double limelightAimProportional() {
         // kP (constant of proportionality)
         // Determines the aggressiveness of the proportional control loop
-        double kP = 0.04;
+        double kP = 0.01;
     
         // Get the "tx" value from the Limelight
         double targetingAngularVelocity = m_limelight.get_tx() * m_pidController.getP();
@@ -84,7 +85,7 @@ public class AlignCommand extends Command {
 
     
         // Convert to radians per second for the drivetrain
-        targetingAngularVelocity *= TunerConstants.kSpeedAt12Volts.magnitude();
+        targetingAngularVelocity *= -TunerConstants.kSpeedAt12Volts.magnitude();
     
         // Invert since tx is positive when the target is to the right of the crosshair
         // targetingAngularVelocity *= 1.0;
@@ -95,8 +96,8 @@ public class AlignCommand extends Command {
     // Proportional ranging control with Limelight's "ty" value
     // Works best if the Limelight's mount height and target mount height are different.
     private double limelightRangeProportional() {
+    
         double kP = 0.06;
-
 
         // Get the "ty" value from the Limelight
         // double targetingForwardSpeed = m_Vision.getTY() * kP;
@@ -109,31 +110,13 @@ public class AlignCommand extends Command {
 
     
         // Convert to meters per second for the drivetrain
-        targetingForwardSpeed *= TunerConstants.kSpeedAt12Volts.magnitude();
+        targetingForwardSpeed *= -TunerConstants.kSpeedAt12Volts.magnitude();
     
         // Invert the direction for proper control
         // targetingForwardSpeed *= 1.0;
     
         return targetingForwardSpeed;
     }
-    // private double limelightRotProportional() {
-    //     double kP = 0.06;
-    
-    //     // Get the "ty" value from the Limelight
-    //     // double targetingForwardSpeed = m_Vision.getTY() * kP;
-    //     double targetingForwardSpeed = m_limelight.get_tl() * kP;
-
-    //     //SmartDashboard.putNumber("limelightX", LimelightHelpers.getTY("limelight"));
-    
-    //     // Convert to meters per second for the drivetrain
-    //     targetingForwardSpeed *= TunerConstants.kSpeedAt12Volts.magnitude();
-    
-    //     // Invert the direction for proper control
-    //     // targetingForwardSpeed *= 1.0;
-    
-    //     return targetingForwardSpeed;
-    // }
-
     private double LimelightRoation(){
         double kP = 0.06;
         double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
@@ -145,28 +128,23 @@ public class AlignCommand extends Command {
     public void execute(){
         // double rot = limelightAimProportional();
 
-
+        LimelightHelpers.setPipelineIndex("limelight-seaweed", 1);
         // Store the ID of the AprilTag the Limelight is seeing
         // double tagID = LimelightHelpers.getFiducialID("limelight-seaweed");
          double xSpeed = limelightRangeProportional(); 
          double yspeed = limelightAimProportional();
-
-
-        
-        //System.out.print(map);
-        // SmartDashboard.putString("AprilTagID", map.get("1").toString());
-
-        // double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-seaweed")[5];
-
-
+        System.out.println(xSpeed);
 
         m_Swerve.setControl(
             m_driveRequest
                 .withVelocityX(xSpeed)  
                 .withVelocityY(yspeed)
-            
         );
 
-        //m_Swerve.applyRequest(()->m_driveRequest.withVelocityX(xSpeed));
+    }
+
+    public void end(boolean interrupted){
+        LimelightHelpers.setPipelineIndex("limelight-seaweed", 0);
     }
 }
+

@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
-import frc.robot.commands.ZeroAndResetPCM;
+import frc.robot.commands.ZeroPCM;
 import frc.robot.commands.arm.MoveArm;
 import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.commands.elevator.MoveElevator;
@@ -122,7 +122,7 @@ public class RobotContainer {
 
         joystick.b()
         .onTrue(
-            new ZeroAndResetPCM(climber)
+            new ZeroPCM(climber)
         );
 
 

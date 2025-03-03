@@ -3,29 +3,29 @@ package frc.robot.commands.climber;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
-public class MoveClimberToPosition extends Command {
+public class DeployClimberCommand extends Command {
     private final Climber climber;
-    private final Double targetPosition;
 
-    public MoveClimberToPosition(Climber climber, Double targetPosition) {
+    public DeployClimberCommand(Climber climber) {
         this.climber = climber;
-        this.targetPosition = targetPosition;
         addRequirements(climber);
     }
 
     @Override
-    public void execute() {
-        double currentTarget = targetPosition;
-        climber.goToPosition(currentTarget);
+    public void initialize() {
+        // Move climber to deploy position
+        climber.goToPosition(300.0);
     }
 
     @Override
     public boolean isFinished() {
-       return climber.atPosition(targetPosition);
+        // Finish when climber reaches target position
+        return climber.atPosition(300.0);
     }
 
     @Override
     public void end(boolean interrupted) {
+        // Stop climber when command ends
         climber.stop();
     }
-} 
+}

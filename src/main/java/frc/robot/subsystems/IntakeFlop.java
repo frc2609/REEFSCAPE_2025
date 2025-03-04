@@ -34,7 +34,7 @@ public class IntakeFlop extends PositionControlledMotor {
             new TalonFXConfiguration()
                 .withMotorOutput(
                     new MotorOutputConfigs()
-                        .withInverted(InvertedValue.CounterClockwise_Positive)
+                        .withInverted(InvertedValue.Clockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Brake)
                 )
                 .withMotionMagic(
@@ -78,6 +78,7 @@ public class IntakeFlop extends PositionControlledMotor {
             encoder.setInverted(invertEncoder);
     
             super.debug = true;
+            resetPosition();
     
         }
         protected TalonFXConfiguration getMotorConfig() {

@@ -36,7 +36,7 @@ public class Elevator extends PositionControlledMotor {
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Coast)
+                    .withNeutralMode(NeutralModeValue.Brake)
             )
             .withMotionMagic(
                 new MotionMagicConfigs()

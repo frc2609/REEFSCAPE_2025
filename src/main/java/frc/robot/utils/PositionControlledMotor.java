@@ -4,6 +4,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -45,6 +46,13 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         
         if (debug) {
             setElasticValues(talonConfig);
+        }
+    }
+
+    public void setNeutralMode(NeutralModeValue mode){
+        motor.setNeutralMode(mode);
+        if (followerMotor != null){
+            followerMotor.setNeutralMode(mode);
         }
     }
 

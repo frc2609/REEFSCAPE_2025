@@ -21,13 +21,13 @@ public class Arm extends PositionControlledMotor{
     private final static double maxAcceleration = 160;
     private final Boolean invertEncoder = false;
     private final static double maxVelocity = 80;
-    private final static double minPosition = -33;
-    private final static double maxPosition = 3.85;
+    private final static double minPosition = -8.04;
+    private final static double maxPosition = 33;
     private final static String name = "Arm";
     private final Double encoderConversion = 25.0;
     private final static int motorID = 7;
     private final int encoderID = 1;
-    private final double zeroPosition = 0.63;
+    private final double zeroPosition = 0.65;
 
     
     private final DutyCycleEncoder encoder;

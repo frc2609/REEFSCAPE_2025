@@ -4,6 +4,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -19,36 +20,153 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private final NetworkTable configTable;
     private final TalonFX followerMotor;
     private final TalonFX motor;
+
+    private final TalonFXConfiguration talonConfig;
+    private final DutyCycleEncoder encoder;
     private final String name;
+    private final int motorId;
+    private final int followerId;
+    private final double positionTolerance;
+    private final double gearRatio;
+    private final double encoderRatio;
 
-    // Abstract methods for subclasses to implement
-    protected abstract TalonFXConfiguration getMotorConfig();
-    protected abstract Double getEncoderConversion();
-    protected abstract double getPositionTolerance();
-    protected abstract DutyCycleEncoder getEncoder();
-
-    public PositionControlledMotor(String name, TalonFX motor, boolean debug) {
-        this(name, motor, null, debug);
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        double gearRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this(
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            -1,
+            gearRatio,
+            -1,
+            positionTolerance,
+            debug);
     }
 
     
-    public PositionControlledMotor(String name, TalonFX motor, TalonFX follower, boolean debug) {
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        int followerId,
+        double gearRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this(
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            followerId,
+            gearRatio,
+            -1,
+            positionTolerance,
+            debug);
+    }
+
+
+    
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        double gearRatio,
+        double encoderRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this(
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            -1,
+            gearRatio,
+            encoderRatio,
+            positionTolerance,
+            debug);
+    }
+
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        int followerId,
+        double gearRatio,
+        double encoderRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this.talonConfig = talonConfig;
+        this.encoder = encoder;
         this.name = name;
-        this.motor = motor;
-        this.followerMotor = follower;
+        this.motorId = motorId;
+        this.followerId = followerId;
+        this.gearRatio = gearRatio;
+        this.positionTolerance = positionTolerance;
         this.debug = debug;
+
+        encoder.setInverted(invertEncoder);
+
+        this.motor = new TalonFX(motorId, Constants.CANBUS);
+
+        if (followerId != -1){
+            followerMotor = new TalonFX(followerId, Constants.CANBUS);
+        } else {
+            followerMotor = null;
+        }
+        
+
+        if(encoderRatio == -1 ){
+            this.encoderRatio = gearRatio;
+        } else {
+            this.encoderRatio = encoderRatio;
+        }
+
         configTable = NetworkTableInstance.getDefault().getTable("MotorConfig/" + name);
-        
-        TalonFXConfiguration talonConfig = getMotorConfig();
-        
-        configureMotor(talonConfig);
+                
+        configureMotor();
         
         if (debug) {
-            setElasticValues(talonConfig);
+            setElasticValues();
         }
     }
 
-    private void setElasticValues(TalonFXConfiguration talonConfig){
+    private double degreesToRotations(double degrees) {
+        return degrees / (360 / gearRatio);
+    }
+
+    private double rotationsToDegrees(double rotations) {
+        return rotations * (360 / gearRatio);
+    }
+
+    public void setNeutralMode(NeutralModeValue mode){
+        motor.setNeutralMode(mode);
+        if (followerMotor != null){
+            followerMotor.setNeutralMode(mode);
+        }
+    }
+
+    private void setElasticValues(){
         configTable.getEntry("kP").setDouble(talonConfig.Slot0.kP);
         configTable.getEntry("kI").setDouble(talonConfig.Slot0.kI);
         configTable.getEntry("kD").setDouble(talonConfig.Slot0.kD);
@@ -65,7 +183,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
 
-    public void goToPosition(double targetPosition) {
+    public void goToPosition(double targetPositionDegrees) {
+        double targetPosition = degreesToRotations(targetPositionDegrees);
         MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
 
         SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
@@ -99,18 +218,18 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             
             
             if (updatePressed()) {
-                TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+                // TalonFXConfiguration newTalonConfig = new TalonFXConfiguration();
                 motor.getConfigurator().refresh(talonConfig);   
                 
-                getConfigFromElastic(talonConfig);
+                getConfigFromElastic();
 
-                updateTalonConfig(talonConfig);
+                updateTalonConfig();
 
                 resetUpdateStatus();
             }
         }
     }
-    private void getConfigFromElastic(TalonFXConfiguration talonConfig) {
+    private void getConfigFromElastic() {
         double p = configTable.getEntry("kP").getDouble(talonConfig.Slot0.kP);
         double i = configTable.getEntry("kI").getDouble(talonConfig.Slot0.kI);
         double d = configTable.getEntry("kD").getDouble(talonConfig.Slot0.kD);
@@ -147,7 +266,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
     protected double getPosition(){
-        return motor.getPosition().getValueAsDouble();
+        double rotationPosition = motor.getPosition().getValueAsDouble();
+        return rotationsToDegrees(rotationPosition);
     }
     protected double getVelocity(){
         return motor.getVelocity().getValueAsDouble();
@@ -159,15 +279,18 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         return motor.getMotorVoltage().getValueAsDouble();
     }
     protected double getOffset() {
-        return getAbsPosition() * getEncoderConversion();
+        double offset = getAbsPosition();
+        if (offset > 0.5){
+            offset -= 1;
+        }
+        return offset * encoderRatio;
     }
     protected double getAbsPosition() {
-        DutyCycleEncoder encoder = getEncoder();
         return encoder.get();
     }
-    public boolean atPosition(double targetPosition) {
+    public boolean atPosition() {
         double error = Math.abs(motor.getClosedLoopError().getValueAsDouble());
-        return error <= getPositionTolerance();
+        return error <= positionTolerance;
         // double velocity = Math.abs(motor.getVelocity().getValueAsDouble());
         // return error <= positionTolerance && velocity <= velocityTolerance;
     }
@@ -209,7 +332,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
     }
     
-    protected void updateTalonConfig(TalonFXConfiguration talonConfig) {
+    protected void updateTalonConfig() {
         motor.getConfigurator().apply(talonConfig);
 
         if(followerMotor != null){
@@ -217,10 +340,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
     }
 
-    protected void configureMotor(TalonFXConfiguration config) {
-        motor.getConfigurator().apply(config);
+    protected void configureMotor() {
+        motor.getConfigurator().apply(talonConfig);
         if (followerMotor != null){
-            followerMotor.getConfigurator().apply(config);
+            followerMotor.getConfigurator().apply(talonConfig);
         }
     }
     public void setPosition() {

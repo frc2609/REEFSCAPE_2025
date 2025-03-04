@@ -24,7 +24,7 @@ public class MoveClimberToPositionJog extends Command {
     @Override
     public boolean isFinished() {
         // return false;
-       return climber.atPosition(targetPositionSupplier.get());
+       return climber.atPosition();
     }
 
     @Override

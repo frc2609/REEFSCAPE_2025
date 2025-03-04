@@ -13,184 +13,344 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.AlignCommand;
+import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.ZeroPCM;
-import frc.robot.commands.climber.MoveClimberToPosition;
+import frc.robot.commands.Intake.DeployIntakeCommand;
+import frc.robot.commands.Intake.RetractIntakeCommand;
+import frc.robot.commands.Intake.RunRollCommand;
+import frc.robot.commands.Intake.StopRollCommand;
+import frc.robot.commands.arm.MoveArmToGrabAlgaeCommand;
+import frc.robot.commands.arm.MoveArmToGrabCoralCommand;
+import frc.robot.commands.arm.MoveArmToHumanLoadCommand;
+import frc.robot.commands.arm.MoveArmToNetCommand;
+import frc.robot.commands.arm.MoveArmToScoreCommand;
+import frc.robot.commands.arm.MoveArmToScoreL1Command;
+import frc.robot.commands.climber.ClimbCommand;
+import frc.robot.commands.climber.DeployClimberCommand;
+import frc.robot.commands.elevator.DeployElevatorHumanCommand;
+import frc.robot.commands.elevator.DeployElevatorL1Command;
+import frc.robot.commands.elevator.DeployElevatorL2Command;
+import frc.robot.commands.elevator.DeployElevatorL3Command;
+import frc.robot.commands.elevator.DeployElevatorL4Command;
+import frc.robot.commands.gripper.GripCoral;
+import frc.robot.commands.gripper.ReleaseCoral;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.PathPlannerAlignmentCommand;
+import frc.robot.commands.ResetGyro;
+import frc.robot.commands.AlignCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.IntakeRoll;
+import frc.robot.subsystems.IntakeFlop;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
+import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.6).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+    // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    // // kSpeedAt12Volts desired top speed
+    // private double MaxAngularRate =
+    // RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+    // second
+    // // max angular velocity
 
     // /* Setting up bindings for necessary control of the swerve drive platform */
+    // private final SwerveRequest.FieldCentric drive = new
+    // SwerveRequest.FieldCentric()
+    // .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) //
+    // Add a 10% deadband
+    // .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop
+    // control for drive motors
+    // private final SwerveRequest.SwerveDriveBrake brake = new
+    // SwerveRequest.SwerveDriveBrake();
+    // // private final SwerveRequest.PointWheelsAt point = new
+    // SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.RobotCentric forwardStraight = new
+    // SwerveRequest.RobotCentric()
+    // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second //
+                                                                                      // max angular velocity
+
+    private SendableChooser<Command> autoChooser;
+
+    /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1); // Add a 10% deadband
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric();
-    private final SwerveRequest.FieldCentricFacingAngle facingAngle = new SwerveRequest.FieldCentricFacingAngle();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    // The robot's subsystems and commands are defined here...
+    public final CommandSwerveDrivetrain swerve = TunerConstants.createDrivetrain();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    private final SwerveRequest.FieldCentricFacingAngle facingAngle = new SwerveRequest.FieldCentricFacingAngle();
+
+    private static final CommandXboxController driverController = new CommandXboxController(0);
+    public static final CommandXboxController operatorController = new CommandXboxController(1);
+  
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final Limelight seaweed = new Limelight("limelight-seaweed");
-    private final Pigeon2 pidgey = new Pigeon2(0, "CANivore");
-
+    // public final Limelight seaweed = new Limelight("limelight-seaweed");
+    // private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on
+    // roboRIO CAN Bus with device ID 0
+    // // private final ResetGyro resetGyro = new ResetGyro(drivetrain, seaweed,
+    // pidgey)
     // /* Path follower */
-    private final SendableChooser<Command> autoChooser;
+    // private final SendableChooser<Command> autoChooser;
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Climber climber = new Climber();
-    private final Intake intake = new Intake(); 
+    private final IntakeRoll intakeRoll = new IntakeRoll();
+    private final IntakeFlop intakeFlop = new IntakeFlop();
+    public static InstantCommand instantCommand = new InstantCommand();
 
-    private double targetPosition = 0.1;
+    private double targetPosition = 0.0;
+    private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
+    private final String limeLightName = "limelight-seaweed";
+    private Field2d m_field = new Field2d();
 
-    public RobotContainer() {
+    private static double REEF_SIDE = 0.813;
 
-        autoChooser = AutoBuilder.buildAutoChooser("Tests");
-        SmartDashboard.putData("Auto Mode", autoChooser);
-        pidgey.clearStickyFault_BootDuringEnable();
-        configureDrivetrainBindings();
-        configureBindings();
-
-
-    }
-
-    private void configureBindings() {
-     
-        // joystick.a()
-        // .whileTrue(
-        //     new InstantCommand(() -> intake.setSpeed(0.1))
-
-        //     ).onFalse(
-        //         new InstantCommand(() -> intake.stop())
-        //     );
+    public final Limelight seaweed = new Limelight("limelight-seaweed");
+    private Gripper gripper = new Gripper();
     
-        // joystick.b()
-        // .whileTrue(
-        //     new InstantCommand(() -> intake.setSpeed(-0.1))
-        
-        //     ).onFalse(
-        //         new InstantCommand(() -> intake.stop())
-        //     ); 
+        /**
+         * The container for the robot. Contains subsystems, OI devices, and commands.
+         */
+        public RobotContainer() {
+            // Register named commands
+            NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
+            NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
+            NamedCommands.registerCommand("print hello", Commands.print("hello"));
+    
+            // Use event markers as triggers
+            new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
+            pidgey.clearStickyFault_BootDuringEnable();
+            // Configure the trigger b indings
+            configureBindings();
+            configureDrivetrainBindings();
+        }
+    
+        private void configureBindings() {
+    
+            // driverController.a()
+            //         .whileTrue(
+            //                 new InstantCommand(() -> intakeRoll.setSpeed(0.1))
+    
+            //         ).onFalse(
+            //                 new InstantCommand(() -> intakeRoll.stop()));
+    
+            // driverController.b()
+            //         .whileTrue(
+            //                 new InstantCommand(() -> intakeRoll.setSpeed(-0.1)))
+            //         .onFalse(
+            //                 new InstantCommand(() -> intakeRoll.stop()));
+    
+            // driverController.b()
+            //         .onTrue(
+            //                 new ZeroPCM(arm));
+    
+            // driverController.x()
+            //         .onTrue(
+            //                 new MoveArmToGrabAlgaeCommand(arm));
+    
+            // driverController.a()
+            //         .onTrue(
+            //                 new MoveArmToGrabCoralCommand(arm));
+    
+            // driverController.y()
+            //         .onTrue(
+            //                 new MoveArmToHumanLoadCommand(arm));
+    
+            driverController.b()
+                    .onTrue(
+                            new ParallelCommandGroup(
+                                    new ZeroPCM(elevator),
+                                    new ZeroPCM(arm),
+                                    new ZeroPCM(climber)
+                            )
+                            );
+    
+            driverController.povRight()
+                    .onTrue(
+                            // new RunRollCommand(intakeRoll));
+                            new DeployIntakeCommand(intakeFlop).withTimeout(1.5).andThen(new RunRollCommand(intakeRoll)));
+                        //     new DeployClimberCommand(climber));[]\
+        driverController.povLeft()
+                .onTrue(
+                        new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
+                
+
+    
+            driverController.a()
+                    .onTrue(
+                            // new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
+                            new MoveArmToScoreCommand(arm));
+                        // new InstantCommand(() -> {
+                        //         intakeRoll.setSpeed(0.5);
+                        // })
+                //     );
+    
+            driverController.y()
+                    .onTrue(
+                            new DeployElevatorL4Command(elevator));
+            
+            driverController.povUp().whileTrue(
+                // new InstantCommand(() -> {
+                //         gripper.setCoralSpeed(.5);
+                // }));
+                //     new GripCoral(gripper));
+                new GripCoral(gripper));
+
+                
 
 
-        
 
-        joystick.x()
-        .onTrue(
-            new MoveClimberToPosition(climber, 300.0)
-        );
+        // // Target adjustment bindings
+        // driverController.povUp().whileTrue(
+        //         new MoveArmToNetCommand(arm));
+        driverController.povDown().whileTrue(
+                new ReleaseCoral(gripper));
+        // driverController.povLeft().whileTrue(
+        //         new MoveArmToScoreL1Command(arm));
+        // driverController.povRight().whileTrue(
+        //         new DeployElevatorL4Command(elevator));
 
-        joystick.a()
-        .onTrue(
-            new MoveClimberToPosition(climber, 0.0)
-        );
-
-        joystick.b()
-        .onTrue(
-            new ZeroPCM(climber)
-        );
-
-
-
-        // Target adjustment bindings
-        joystick.povUp().whileTrue(
-            new RunCommand(() -> 
-                adjustTargetPosition(1)          
-        ));
-        joystick.povDown().whileTrue(
-            new RunCommand(() -> 
-                adjustTargetPosition(-1)
-        ));
-        joystick.povLeft().whileTrue(
-            new RunCommand(() -> 
-                adjustTargetPosition(-10)
-        ));
-        joystick.povRight().whileTrue(
-            new RunCommand(() -> 
-                adjustTargetPosition(10)
-        ));
     }
 
     private void configureDrivetrainBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
+        // drivetrain.setDefaultCommand(
+        //         // Drivetrain will execute this command periodically
+        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
+        //                                                                                            // negative Y
+        //                                                                                            // (forward)
+        //                 .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+        //                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with
+        //                                                                             // negative X (left)
+        //         ));
+
+        // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driverController.b().whileTrue(drivetrain.applyRequest(
+        // () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
+        // -driverController.getLeftX()))));
+        // autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+        // SmartDashboard.putData("Auto Mode", autoChooser);
+        // swerve.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+
+        /**
+         * Use this method to define your trigger->command mappings. Triggers can be
+         * created via the
+         * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+         * an arbitrary
+         * predicate, or via the named factories in {@link
+         * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+         * {@link
+         * CommandXboxController
+         * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+         * PS4} controllers or
+         * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+         * driverControllers}.
+         */
+
+        swerve.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                                   // negative Y
-                                                                                                   // (forward)
-                        .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
-                                                                                    // negative X (left)
-                ));
-                
+                swerve.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
+                                                                                               // negative Y
+                                                                                               // (forward)
+                        .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate)) // Drive counterclockwise with
+                                                                                     // negative X (left)
 
-        joystick.rightBumper().and(joystick.a().whileTrue(drivetrain.applyRequest(() -> brake))
         );
+        // driverController.a().whileTrue(swerve.applyRequest(() -> brake));
+        // driverController.b().whileTrue(swerve.applyRequest(
+        //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
+        //                 -driverController.getLeftX()))));
 
-        joystick.rightBumper().and(joystick.b()
-            .whileTrue(
-                new SequentialCommandGroup(
-                    new InstantCommand(() ->
-                        drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(45)))
-                    ).withTimeout(0.1),
-                    drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-joystick.getLeftY() * MaxSpeed).withVelocityY(-joystick.getLeftX() * MaxSpeed))
-                )
-            )
-        );
+        // double ID = 18;
+        // double distanceOffset = 1.5;
+        // double coralOffset = REEF_SIDE * -1 / 2;
 
-        joystick.rightBumper().and(joystick.povUp()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)))
-        );
-        joystick.rightBumper().and(joystick.povUpRight()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5)))
-        );
-        joystick.rightBumper().and(joystick.povUpLeft()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5)))
-        );
+        // AprilTagFieldLayout fieldLayout =
+        // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
-        joystick.rightBumper().and(joystick.povDown()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)))
-        );
-        joystick.rightBumper().and(joystick.povDownRight()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(-.5)))
-        );
-        joystick.rightBumper().and(joystick.povDownLeft()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(.5)))
-        );
+        // driverController.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
+        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() +
+        // Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() +
+        // Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+        // new
+        // Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians()
+        // - Math.PI)
+        // )));
 
+        // driverController.y().onTrue(new ResetGyro(swerve, seaweed,
+        // pidgey).withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
+        // pidgey)).withTimeout(5));
 
-        joystick.rightBumper().and(joystick.povRight()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5)))
-        );
-        joystick.rightBumper().and(joystick.povLeft()
-            .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)))
-        );
+        // driverController.rightBumper().and(driverController.povUp()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+        // driverController.rightBumper().and(driverController.povUpRight()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
+        // driverController.rightBumper().and(driverController.povUpLeft()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
 
-        // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // driverController.rightBumper().and(driverController.povDown()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
+        // driverController.rightBumper().and(driverController.povDownRight()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(-.5))));
+        // driverController.rightBumper().and(driverController.povDownLeft()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(.5))));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // driverController.rightBumper().and(driverController.povRight()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5))));
+        // driverController.rightBumper().and(driverController.povLeft()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+
+        // // reset the field-centric heading on left bumper press
+        // driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        // drivetrain.registerTelemetry(logger::telemeterize);
+        // }
+
     }
 
     public void robotInit() {
@@ -208,5 +368,10 @@ public class RobotContainer {
     private void adjustTargetPosition(double delta) {
         this.targetPosition += delta;
         SmartDashboard.putNumber("Target Position", targetPosition);
+
+        // If the motor is currently moving, update the target immediately
+        // if (driverController.rightBumper().getAsBoolean()) {
+        // climber.positionControlledMotor.goToPosition(this.targetPosition);
+        // }
     }
 }

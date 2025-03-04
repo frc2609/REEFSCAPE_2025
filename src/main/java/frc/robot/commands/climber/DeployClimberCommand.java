@@ -12,15 +12,8 @@ public class DeployClimberCommand extends Command {
     }
 
     @Override
-    public void initialize() {
-        // Move climber to deploy position
-        climber.goToPosition(300.0);
-    }
-
-    @Override
-    public boolean isFinished() {
-        // Finish when climber reaches target position
-        return climber.atPosition(300.0);
+    public void execute() {
+        climber.goToPosition(180);
     }
 
     @Override

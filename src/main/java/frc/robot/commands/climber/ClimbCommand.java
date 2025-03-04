@@ -11,16 +11,10 @@ public class ClimbCommand extends Command {
         addRequirements(climber);
     }
 
-    @Override
-    public void initialize() {
-        // Move climber to climb position
-        climber.goToPosition(0.0);
-    }
 
     @Override
-    public boolean isFinished() {
-        // Finish when climber reaches target position
-        return climber.atPosition(0.0);
+    public void execute() {
+        climber.goToPosition(0.0);
     }
 
     @Override

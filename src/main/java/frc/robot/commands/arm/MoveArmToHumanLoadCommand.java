@@ -13,7 +13,7 @@ public class MoveArmToHumanLoadCommand extends Command {
 
     @Override
     public void execute() {
-        arm.goToPosition(-6.62);
+        arm.goToPosition(-80);
     }
 
     @Override

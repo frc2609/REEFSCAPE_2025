@@ -21,8 +21,8 @@ public class Arm extends PositionControlledMotor{
     private final static double maxAcceleration = 160;
     private final static Boolean invertEncoder = true;
     private final static double maxVelocity = 80;
-    private final static double minPosition = -8.04;
-    private final static double maxPosition = 33;
+    private final static double minPosition = -360;
+    private final static double maxPosition = 360;
     private final static String name = "Arm";
     private final static Double encoderRatio = 25.0;
     private final static Double gearRatio = 50.0;
@@ -58,8 +58,8 @@ public class Arm extends PositionControlledMotor{
             )
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs()
-                    .withForwardSoftLimitEnable(true)
-                    .withReverseSoftLimitEnable(true)
+                    .withForwardSoftLimitEnable(false)
+                    .withReverseSoftLimitEnable(false)
                     .withForwardSoftLimitThreshold(maxPosition)
                     .withReverseSoftLimitThreshold(minPosition)
             )

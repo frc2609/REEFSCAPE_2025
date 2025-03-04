@@ -13,7 +13,7 @@ public class MoveArmToScoreCommand extends Command {
 
     @Override
     public void execute() {
-        arm.goToPosition(21.34);
+        arm.goToPosition(-225);
     }
 
     @Override

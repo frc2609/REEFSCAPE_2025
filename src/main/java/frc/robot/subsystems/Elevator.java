@@ -17,20 +17,20 @@ import frc.robot.utils.Constants;
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final double positionTolerance = 0.1;
+    private final static double positionTolerance = 0.1;
     private final static double maxAcceleration = 5;
-    private final Boolean invertEncoder = true;
-    private final double zeroPosition = 0.48;
+    private final static Boolean invertEncoder = true;
     private final static double maxVelocity = 10;
     private final static String name = "ELEVATOR";
     private final static double minPosition = 0;
     private final static double maxPosition = 37.1;
-    private final int encoderID = 2;
-    private final static int motorID = 60;
-    private final static int followerID = 61;
-    private final Double encoderConversion = 9.921;
+    private final static int encoderId = 2;
+    private final static int motorId = 60;
+    private final static int followerId = 61;
+    private final static Double gearRatio = 9.921;
+    private final static double zeroPosition = -0.466;
 
-    private final DutyCycleEncoder encoder;
+    private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
@@ -70,32 +70,14 @@ public class Elevator extends PositionControlledMotor {
     
     public Elevator() {
         super(
-            name, 
-            new TalonFX(motorID, Constants.CANBUS), 
-            new TalonFX(followerID, Constants.CANBUS), 
-            true
-        );
-
-        encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
-        encoder.setInverted(invertEncoder);
-
-    }
-
-    protected TalonFXConfiguration getMotorConfig() {
-        return talonConfig;
-    }
-
-    protected Double getEncoderConversion(){
-        return encoderConversion;
-    }
-
-    protected double getPositionTolerance() {
-        return positionTolerance;
-    }
-
-    protected DutyCycleEncoder getEncoder() {
-        return encoder;
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            followerId,
+            gearRatio,
+            positionTolerance,
+            true);
     }
 }
-
-

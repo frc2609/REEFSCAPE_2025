@@ -17,20 +17,21 @@ import frc.robot.utils.Constants;
 public class Arm extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final double positionTolerance = 0.01;
+    private final static double positionTolerance = 0.01;
     private final static double maxAcceleration = 160;
-    private final Boolean invertEncoder = false;
+    private final static Boolean invertEncoder = true;
     private final static double maxVelocity = 80;
     private final static double minPosition = -8.04;
     private final static double maxPosition = 33;
     private final static String name = "Arm";
-    private final Double encoderConversion = 25.0;
-    private final static int motorID = 7;
-    private final int encoderID = 1;
-    private final double zeroPosition = 0.65;
+    private final static Double encoderRatio = 25.0;
+    private final static Double gearRatio = 50.0;
+    private final static int motorId = 7;
+    private final static int encoderId = 1;
+    private final static double zeroPosition = -0.36;// 0.64;
 
     
-    private final DutyCycleEncoder encoder;
+    private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
@@ -70,27 +71,14 @@ public class Arm extends PositionControlledMotor{
 
     public Arm() {
         super(
-            name, 
-            new TalonFX(motorID, Constants.CANBUS), 
-            true
-        );
-        encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
-        encoder.setInverted(invertEncoder);
-    }
-
-    protected TalonFXConfiguration getMotorConfig() {
-        return talonConfig;
-    }
-
-    protected Double getEncoderConversion(){
-        return encoderConversion;
-    }
-
-    protected double getPositionTolerance() {
-        return positionTolerance;
-    }
-
-    protected DutyCycleEncoder getEncoder() {
-        return encoder;
-    }
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            gearRatio,
+            encoderRatio,
+            positionTolerance,
+            true);
+    } 
 }

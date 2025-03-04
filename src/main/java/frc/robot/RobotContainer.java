@@ -198,22 +198,25 @@ public class RobotContainer {
                 .onTrue(
                         new ParallelCommandGroup(
                                 new ZeroPCM(elevator),
-                                new ZeroPCM(arm)
+                                new ZeroPCM(arm),
+                                new ZeroPCM(climber)
                         )
                         );
 
         driverController.x()
                 .onTrue(
                         // new RunRollCommand(intakeRoll));
-                        new DeployIntakeCommand(intakeFlop).withTimeout(1.5).andThen(new RunRollCommand(intakeRoll)));
+                        // new DeployIntakeCommand(intakeFlop).withTimeout(1.5).andThen(new RunRollCommand(intakeRoll)));
+                        new DeployClimberCommand(climber));
 
         driverController.a()
                 .onTrue(
-                        new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
+                        // new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
+                        new MoveArmToScoreCommand(arm));
 
         driverController.y()
                 .onTrue(
-                        new DeployElevatorL3Command(elevator));
+                        new DeployElevatorL4Command(elevator));
         
         driverController.povUp().onTrue(
                 new DeployElevatorL4Command(elevator));

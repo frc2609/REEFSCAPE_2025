@@ -18,19 +18,19 @@ public class Climber extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
     private final double positionTolerance = 0.01;
-    private final double maxAcceleration = 50;
+    private final static double maxAcceleration = 50;
     private final Boolean invertEncoder = false;
-    private final double maxVelocity = 100;
-    private final double minPosition = -20;
-    private final double maxPosition = 400;
+    private final static double maxVelocity = 100;
+    private final static double minPosition = -20;
+    private final static double maxPosition = 400;
     private final static String name = "Climber";
-    private final Double encoderConversion = null;
+    private final Double encoderConversion = 648.148;
     private final static int motorID = 5;
     private final int encoderID = 0;
     public final static double zeroPosition = 0.39;
 
     private final DutyCycleEncoder encoder;
-    private TalonFXConfiguration talonConfig = 
+    private static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()

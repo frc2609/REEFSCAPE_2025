@@ -18,9 +18,9 @@ import frc.robot.utils.Constants;
 
 public class IntakeFlop extends PositionControlledMotor {
     public final static double zeroPosition = 0.39;
-    private final Double encoderConversion = null;
+    private final Double encoderConversion = 88.888;
     private final static int motorID = 9;
-    private final int encoderID = 1;
+    private final int encoderID = 3;
         private DutyCycleEncoder encoder;
         public final static double positionTolerance = 0.01;
         private final static double maxAcceleration = 50;

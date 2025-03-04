@@ -18,25 +18,25 @@ public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
     private final double positionTolerance = 0.1;
-    private final double maxAcceleration = 5;
-    private final Boolean invertEncoder = false;
-    private final double zeroPosition = 0;
-    private final double maxVelocity = 10;
+    private final static double maxAcceleration = 5;
+    private final Boolean invertEncoder = true;
+    private final double zeroPosition = 0.48;
+    private final static double maxVelocity = 10;
     private final static String name = "ELEVATOR";
-    private final double minPosition = 0;
-    private final double maxPosition = 12.9;
+    private final static double minPosition = 0;
+    private final static double maxPosition = 37.1;
     private final int encoderID = 2;
     private final static int motorID = 60;
     private final static int followerID = 61;
-    private final Double encoderConversion = null;
+    private final Double encoderConversion = 9.921;
 
     private final DutyCycleEncoder encoder;
-    public TalonFXConfiguration talonConfig = 
+    public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Coast)
             )
             .withMotionMagic(
                 new MotionMagicConfigs()

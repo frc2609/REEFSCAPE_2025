@@ -159,7 +159,11 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         return motor.getMotorVoltage().getValueAsDouble();
     }
     protected double getOffset() {
-        return getAbsPosition() * getEncoderConversion();
+        double offset = getAbsPosition();
+        if (offset > 0.5){
+            offset -= 1;
+        }
+        return offset * getEncoderConversion();
     }
     protected double getAbsPosition() {
         DutyCycleEncoder encoder = getEncoder();

@@ -18,20 +18,20 @@ public class Arm extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
     private final double positionTolerance = 0.01;
-    private final double maxAcceleration = 160;
+    private final static double maxAcceleration = 160;
     private final Boolean invertEncoder = false;
-    private final double maxVelocity = 80;
-    private final double minPosition = -33;
-    private final double maxPosition = 3.85;
+    private final static double maxVelocity = 80;
+    private final static double minPosition = -33;
+    private final static double maxPosition = 3.85;
     private final static String name = "Arm";
-    private final Double encoderConversion = null;
+    private final Double encoderConversion = 25.0;
     private final static int motorID = 7;
     private final int encoderID = 1;
     private final double zeroPosition = 0.63;
 
     
     private final DutyCycleEncoder encoder;
-    public TalonFXConfiguration talonConfig = 
+    public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()

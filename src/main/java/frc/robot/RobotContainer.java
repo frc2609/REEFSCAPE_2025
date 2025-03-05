@@ -156,18 +156,18 @@ public class RobotContainer {
         public RobotContainer() {
                 boolean jog = false;
 
-            pidgey.clearStickyFault_BootDuringEnable();
-            // Configure the trigger b indings
-            if (jog == false){
-                configureBindings();
-                configureDrivetrainBindings();
-            } else {
-                configureJogBindings();
-            }
+                pidgey.clearStickyFault_BootDuringEnable();
 
-            autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
-            SmartDashboard.putData("Auto Mode", autoChooser);
-            drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+                if (jog == true){
+                        configureJogBindings();
+                } else {
+                        configureBindings();
+                }
+                configureDrivetrainBindings();
+
+                autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+                SmartDashboard.putData("Auto Mode", autoChooser);
+                drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
         }
 
         private void configureJogBindings() {

@@ -1,13 +1,13 @@
-package frc.robot.commands;
+package frc.robot.commands.pcmUtils;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.utils.PositionControlledMotor;
 
-public class JogPCMCommand extends Command {
+public class JogPCM extends Command {
     private double jogStep;
     private PositionControlledMotor pcm;
         
-    public JogPCMCommand(PositionControlledMotor pcm, double jogStep){
+    public JogPCM(PositionControlledMotor pcm, double jogStep){
         this.pcm = pcm;
         this.jogStep = jogStep;
         addRequirements(pcm);

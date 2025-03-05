@@ -12,11 +12,11 @@ public class ReleaseCoralCommand extends Command {
 
     @Override
     public void execute(){
-        gripper.setCoralSpeed(1);
+        gripper.setSpeed(-1);
     }
 
     @Override
     public void end(boolean interrupted){
-        gripper.stopCoral();
+        gripper.stop();
     }
 }

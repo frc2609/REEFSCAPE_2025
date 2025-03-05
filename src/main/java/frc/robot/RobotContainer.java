@@ -35,10 +35,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
-import frc.robot.commands.JogPCMCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
-import frc.robot.commands.ZeroPCM;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.RunRollCommand;
@@ -58,6 +56,8 @@ import frc.robot.commands.elevator.DeployElevatorL3Command;
 import frc.robot.commands.elevator.DeployElevatorL4Command;
 import frc.robot.commands.gripper.GripCoral;
 import frc.robot.commands.gripper.ReleaseCoral;
+import frc.robot.commands.pcmUtils.JogPCM;
+import frc.robot.commands.pcmUtils.ZeroPCM;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.PathPlannerAlignmentCommand;
 import frc.robot.commands.ResetGyro;
@@ -172,17 +172,17 @@ public class RobotContainer {
 
         private void configureJogBindings() {
 
-                driverController.a().and(driverController.povUp().whileTrue(new JogPCMCommand(arm, 1)));
-                driverController.a().and(driverController.povDown().whileTrue(new JogPCMCommand(arm, -1)));
+                driverController.a().and(driverController.povUp().whileTrue(new JogPCM(arm, 1)));
+                driverController.a().and(driverController.povDown().whileTrue(new JogPCM(arm, -1)));
 
-                driverController.x().and(driverController.povUp().whileTrue(new JogPCMCommand(climber, 1)));
-                driverController.x().and(driverController.povDown().whileTrue(new JogPCMCommand(climber, -1)));
+                driverController.x().and(driverController.povUp().whileTrue(new JogPCM(climber, 1)));
+                driverController.x().and(driverController.povDown().whileTrue(new JogPCM(climber, -1)));
 
-                driverController.y().and(driverController.povUp().whileTrue(new JogPCMCommand(elevator, 1)));
-                driverController.y().and(driverController.povDown().whileTrue(new JogPCMCommand(elevator, -1)));
+                driverController.y().and(driverController.povUp().whileTrue(new JogPCM(elevator, 1)));
+                driverController.y().and(driverController.povDown().whileTrue(new JogPCM(elevator, -1)));
 
-                driverController.b().and(driverController.povUp().whileTrue(new JogPCMCommand(intakeFlop, 1)));
-                driverController.b().and(driverController.povDown().whileTrue(new JogPCMCommand(intakeFlop, -1)));
+                driverController.b().and(driverController.povUp().whileTrue(new JogPCM(intakeFlop, 1)));
+                driverController.b().and(driverController.povDown().whileTrue(new JogPCM(intakeFlop, -1)));
 
         }
     

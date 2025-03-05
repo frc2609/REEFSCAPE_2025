@@ -168,27 +168,28 @@ public class RobotContainer {
                 // Configure the trigger b indings
                 configureBindings();
                 configureDrivetrainBindings();
-            }
+            
         
-        //boolean jog = false;
+        boolean jog = false;
         
-        // CommandScheduler.getInstance().schedule(new ZeroPCM(elevator));
-        // CommandScheduler.getInstance().schedule(new ZeroPCM(arm));
-        // CommandScheduler.getInstance().schedule(new ZeroPCM(climber));
-        // CommandScheduler.getInstance().schedule(new ZeroPCM(intakeFlop));
+        CommandScheduler.getInstance().schedule(new ZeroPCM(elevator));
+        CommandScheduler.getInstance().schedule(new ZeroPCM(arm));
+        CommandScheduler.getInstance().schedule(new ZeroPCM(climber));
+        CommandScheduler.getInstance().schedule(new ZeroPCM(intakeFlop));
         
-        //pidgey.clearStickyFault_BootDuringEnable();
+        pidgey.clearStickyFault_BootDuringEnable();
         
-        // if (jog == true){
-        //         configureJogBindings();
-        // } else {
-        //         configureBindings();
-        // }
-        // configureDrivetrainBindings();
+        if (jog == true){
+                configureJogBindings();
+        } else {
+                configureBindings();
+        }
+        configureDrivetrainBindings();
         
         autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
         SmartDashboard.putData("Auto Mode", autoChooser);
         drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+}
         
         private void configureBindings() {
                 

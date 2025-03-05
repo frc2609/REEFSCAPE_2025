@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
+import frc.robot.commands.JogPCMCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.ZeroPCM;
@@ -153,13 +154,36 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
+                boolean jog = false;
+
             pidgey.clearStickyFault_BootDuringEnable();
             // Configure the trigger b indings
-            configureBindings();
-            configureDrivetrainBindings();
+            if (jog == false){
+                configureBindings();
+                configureDrivetrainBindings();
+            } else {
+                configureJogBindings();
+            }
+
             autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
             SmartDashboard.putData("Auto Mode", autoChooser);
             drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+        }
+
+        private void configureJogBindings() {
+
+                driverController.a().and(driverController.povUp().whileTrue(new JogPCMCommand(arm, 1)));
+                driverController.a().and(driverController.povDown().whileTrue(new JogPCMCommand(arm, -1)));
+
+                driverController.x().and(driverController.povUp().whileTrue(new JogPCMCommand(climber, 1)));
+                driverController.x().and(driverController.povDown().whileTrue(new JogPCMCommand(climber, -1)));
+
+                driverController.y().and(driverController.povUp().whileTrue(new JogPCMCommand(elevator, 1)));
+                driverController.y().and(driverController.povDown().whileTrue(new JogPCMCommand(elevator, -1)));
+
+                driverController.b().and(driverController.povUp().whileTrue(new JogPCMCommand(intakeFlop, 1)));
+                driverController.b().and(driverController.povDown().whileTrue(new JogPCMCommand(intakeFlop, -1)));
+
         }
     
         private void configureBindings() {
@@ -234,7 +258,6 @@ public class RobotContainer {
                 new GripCoral(gripper));
 
                 
-
 
 
         // // Target adjustment bindings

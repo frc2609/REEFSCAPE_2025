@@ -55,11 +55,11 @@ import frc.robot.commands.elevator.DeployElevatorL1Command;
 import frc.robot.commands.elevator.DeployElevatorL2Command;
 import frc.robot.commands.elevator.DeployElevatorL3Command;
 import frc.robot.commands.elevator.DeployElevatorL4Command;
-import frc.robot.commands.gripper.GripCoralCommand;
-import frc.robot.commands.gripper.ReleaseCoralCommand;
+import frc.robot.commands.gripper.GripCommand;
+import frc.robot.commands.gripper.ReleaseCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.ZeroPCM;
-import frc.robot.commands.gripper.ReleaseCoralCommand;
+import frc.robot.commands.gripper.ReleaseCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.PathPlannerAlignmentCommand;
 import frc.robot.commands.ResetGyro;
@@ -170,26 +170,26 @@ public class RobotContainer {
                 configureDrivetrainBindings();
             
         
-        boolean jog = false;
-        
-        CommandScheduler.getInstance().schedule(new ZeroPCM(elevator));
-        CommandScheduler.getInstance().schedule(new ZeroPCM(arm));
-        CommandScheduler.getInstance().schedule(new ZeroPCM(climber));
-        CommandScheduler.getInstance().schedule(new ZeroPCM(intakeFlop));
-        
-        pidgey.clearStickyFault_BootDuringEnable();
-        
-        if (jog == true){
-                configureJogBindings();
-        } else {
-                configureBindings();
+                boolean jog = false;
+                
+                CommandScheduler.getInstance().schedule(new ZeroPCM(elevator));
+                CommandScheduler.getInstance().schedule(new ZeroPCM(arm));
+                CommandScheduler.getInstance().schedule(new ZeroPCM(climber));
+                CommandScheduler.getInstance().schedule(new ZeroPCM(intakeFlop));
+                
+                pidgey.clearStickyFault_BootDuringEnable();
+                
+                if (jog == true){
+                        configureJogBindings();
+                } else {
+                        configureBindings();
+                }
+                configureDrivetrainBindings();
+                
+                autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+                SmartDashboard.putData("Auto Mode", autoChooser);
+                drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
         }
-        configureDrivetrainBindings();
-        
-        autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
-        SmartDashboard.putData("Auto Mode", autoChooser);
-        drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
-}
         
         private void configureBindings() {
                 
@@ -313,15 +313,17 @@ public class RobotContainer {
         //Gripper
          driverController.leftBumper()//Scoring
                 .onTrue(
-new ReleaseCoralCommand(gripper)
+new ReleaseCommand(gripper)
                 );
 
          // driverController.rightBumper()//reef side chooser
 
-         //operatorController.povUp()//coral gripper intake
-         //operatorController.povRight()//algae gripper intake
-         //operatorController.povDown()//algae gripper outtake
-         //operatorController.povLeft()//coral gripper outtake
+         operatorController.povUp().whileTrue(
+                new GripCommand(gripper)
+         );//coral gripper intake
+         operatorController.povDown().whileTrue(
+                new ReleaseCommand(gripper)
+         );//algae gripper outtake
         
         //Intake
         driverController.rightTrigger()

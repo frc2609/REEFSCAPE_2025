@@ -1,42 +1,39 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Constants;
 
 public class Gripper extends SubsystemBase  {
-    private final SparkMax coralMotor;
+    private final TalonFX gripMotor;
+    private final TalonFXConfiguration motorConfig = 
+        new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(80)
+                    .withSupplyCurrentLimit(3)
+            );
     // private final SparkMax algaeMotor;
     public Gripper() {
-        coralMotor = new SparkMax(8, MotorType.kBrushless);
-        // SparkMaxConfig motorConfig = new SparkMaxConfig();
-        // motorConfig.inverted(false);
-        
-        // coralMotor.configure(motorConfig, null, null);
-        coralMotor.set(0);
-
-        // algaeMotor = new SparkMax(18, MotorType.kBrushless);
-        // SparkMaxConfig motorsConfig = new SparkMaxConfig();
-        // motorsConfig.inverted(false);
-
-        // algaeMotor.configure(motorConfig, null, null);
-        // algaeMotor.set(0);
+        gripMotor = new TalonFX(8, Constants.CANBUS);
+        gripMotor.getConfigurator().apply(motorConfig);
 
      } 
-    public void setCoralSpeed(double speed) {
-        coralMotor.set(speed);
+    public void setSpeed(double speed) {
+        gripMotor.set(speed);
     }
-    public void stopCoral() {
-        coralMotor.set(0);
-    }
-    // public void setAlgaeSpeed(double speed) {
-    //     algaeMotor.set(speed);
-    // }
-    // public void stopAlgae() {
-    //     algaeMotor.set(0);
-    // }
-
-    
+    public void stop() {
+        gripMotor.set(0);
+    }    
 }

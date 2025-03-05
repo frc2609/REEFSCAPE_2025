@@ -29,7 +29,7 @@ public class Elevator extends PositionControlledMotor {
     private final static int followerId = 61;
     private final static Double gearRatio = 9.921;
     private final static double zeroPosition = -0.466;
-    private final double rotationsPerInch = 2;
+    private final double rotationsPerInch = 0.905;
 
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 

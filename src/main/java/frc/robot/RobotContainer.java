@@ -37,10 +37,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignCommand;
 import frc.robot.commands.PathToAprilTagCommand;
 import frc.robot.commands.ResetGyro;
-import frc.robot.commands.Intake.DeployIntakeCommand;
-import frc.robot.commands.Intake.RetractIntakeCommand;
-import frc.robot.commands.Intake.RunRollCommand;
-import frc.robot.commands.Intake.StopRollCommand;
+import frc.robot.commands.Intake.flop.DeployFlopCommand;
+import frc.robot.commands.Intake.flop.RetractFlopCommand;
+import frc.robot.commands.Intake.roll.IntakeRollCommand;
+import frc.robot.commands.Intake.roll.StopRollCommand;
 import frc.robot.commands.arm.MoveArmToGrabAlgaeCommand;
 import frc.robot.commands.arm.MoveArmToGrabCoralCommand;
 import frc.robot.commands.arm.MoveArmToHumanLoadCommand;
@@ -54,8 +54,8 @@ import frc.robot.commands.elevator.DeployElevatorL1Command;
 import frc.robot.commands.elevator.DeployElevatorL2Command;
 import frc.robot.commands.elevator.DeployElevatorL3Command;
 import frc.robot.commands.elevator.DeployElevatorL4Command;
-import frc.robot.commands.gripper.GripCoral;
-import frc.robot.commands.gripper.ReleaseCoral;
+import frc.robot.commands.gripper.GripCoralCommand;
+import frc.robot.commands.gripper.ReleaseCoralCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.ZeroPCM;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -229,11 +229,11 @@ public class RobotContainer {
             driverController.povRight()
                     .onTrue(
                             // new RunRollCommand(intakeRoll));
-                            new DeployIntakeCommand(intakeFlop).withTimeout(1.5).andThen(new RunRollCommand(intakeRoll)));
+                            new DeployFlopCommand(intakeFlop).withTimeout(1.5).andThen(new IntakeRollCommand(intakeRoll)));
                         //     new DeployClimberCommand(climber));[]\
         driverController.povLeft()
                 .onTrue(
-                        new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
+                        new StopRollCommand(intakeRoll).andThen(new RetractFlopCommand(intakeFlop)));
                 
 
     
@@ -255,7 +255,7 @@ public class RobotContainer {
                 //         gripper.setCoralSpeed(.5);
                 // }));
                 //     new GripCoral(gripper));
-                new GripCoral(gripper));
+                new GripCoralCommand(gripper));
 
                 
 
@@ -264,7 +264,7 @@ public class RobotContainer {
         // driverController.povUp().whileTrue(
         //         new MoveArmToNetCommand(arm));
         driverController.povDown().whileTrue(
-                new ReleaseCoral(gripper));
+                new ReleaseCoralCommand(gripper));
         // driverController.povLeft().whileTrue(
         //         new MoveArmToScoreL1Command(arm));
         // driverController.povRight().whileTrue(

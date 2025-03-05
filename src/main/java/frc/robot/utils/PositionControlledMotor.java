@@ -265,7 +265,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private void resetUpdateStatus() {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
-    protected double getPosition(){
+    public double getPosition(){
         double rotationPosition = motor.getPosition().getValueAsDouble();
         return rotationsToDegrees(rotationPosition);
     }

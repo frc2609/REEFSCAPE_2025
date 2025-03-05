@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -50,12 +51,10 @@ import frc.robot.commands.arm.MoveArmToScoreCommand;
 import frc.robot.commands.arm.MoveArmToScoreL1Command;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
-import frc.robot.commands.elevator.DeployElevatorHumanCommand;
 import frc.robot.commands.elevator.DeployElevatorL1Command;
 import frc.robot.commands.elevator.DeployElevatorL2Command;
 import frc.robot.commands.elevator.DeployElevatorL3Command;
 import frc.robot.commands.elevator.DeployElevatorL4Command;
-import frc.robot.commands.gripper.GripCoral;
 import frc.robot.commands.gripper.ReleaseCoral;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.PathPlannerAlignmentCommand;
@@ -72,6 +71,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
+import frc.robot.utils.Constants.OperatorConstants;
 
 public class RobotContainer {
 
@@ -148,105 +148,231 @@ public class RobotContainer {
     private static double REEF_SIDE = 0.813;
 
     public final Limelight seaweed = new Limelight("limelight-seaweed");
-    private Gripper gripper = new Gripper();
-    
-        /**
-         * The container for the robot. Contains subsystems, OI devices, and commands.
-         */
-        public RobotContainer() {
-            // Register named commands
-            NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
-            NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
-            NamedCommands.registerCommand("print hello", Commands.print("hello"));
-    
-            // Use event markers as triggers
-            new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
-            pidgey.clearStickyFault_BootDuringEnable();
-            // Configure the trigger b indings
-            configureBindings();
-            configureDrivetrainBindings();
-        }
-    
-        private void configureBindings() {
-    
-            // driverController.a()
-            //         .whileTrue(
-            //                 new InstantCommand(() -> intakeRoll.setSpeed(0.1))
-    
-            //         ).onFalse(
-            //                 new InstantCommand(() -> intakeRoll.stop()));
-    
-            // driverController.b()
-            //         .whileTrue(
-            //                 new InstantCommand(() -> intakeRoll.setSpeed(-0.1)))
-            //         .onFalse(
-            //                 new InstantCommand(() -> intakeRoll.stop()));
-    
-            // driverController.b()
-            //         .onTrue(
-            //                 new ZeroPCM(arm));
-    
-            // driverController.x()
-            //         .onTrue(
-            //                 new MoveArmToGrabAlgaeCommand(arm));
-    
-            // driverController.a()
-            //         .onTrue(
-            //                 new MoveArmToGrabCoralCommand(arm));
-    
-            // driverController.y()
-            //         .onTrue(
-            //                 new MoveArmToHumanLoadCommand(arm));
-    
-            driverController.b()
-                    .onTrue(
-                            new ParallelCommandGroup(
-                                    new ZeroPCM(elevator),
-                                    new ZeroPCM(arm),
-                                    new ZeroPCM(climber)
-                            )
-                            );
-    
-            driverController.povRight()
-                    .onTrue(
-                            // new RunRollCommand(intakeRoll));
-                            new DeployIntakeCommand(intakeFlop).withTimeout(1.5).andThen(new RunRollCommand(intakeRoll)));
-                        //     new DeployClimberCommand(climber));[]\
-        driverController.povLeft()
+    private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
+        private final Gripper gripper = new Gripper();
+    /**
+     * The container for the robot.f Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        // Register named commands
+        NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
+        NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
+        NamedCommands.registerCommand("print hello", Commands.print("hello"));
+
+        // Use event markers as triggers
+        new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
+        pidgey.clearStickyFault_BootDuringEnable();
+        // Configure the trigger b indings
+        configureBindings();
+        configureDrivetrainBindings();
+}
+
+private void configureBindings() {
+
+        //Vison alignment
+        // operatorController.start().onTrue(new ResetGyro(swerve, seaweed,
+        // pidgey));
+        //.withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
+        // pidgey)).withTimeout(5));
+        //operatorController.rightStickButton().onTrue(new AlignCommand(swerve, seaweed, pidgey));
+        
+        //Drive Train
+       // driverController.start()// reset gyro/ yaw
+        swerve.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                swerve.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
+                // negative Y
+                // (forward)
+                .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate)) // Drive counterclockwise with
+                        // negative X (left)
+                        
+        );
+        
+        // Climber
+         operatorController.leftTrigger()
                 .onTrue(
-                        new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
-                
+                        new DeployClimberCommand(climber));
 
-    
-            driverController.a()
-                    .onTrue(
-                            // new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
-                            new MoveArmToScoreCommand(arm));
-                        // new InstantCommand(() -> {
-                        //         intakeRoll.setSpeed(0.5);
-                        // })
-                //     );
-    
-            driverController.y()
-                    .onTrue(
-                            new DeployElevatorL4Command(elevator));
-            
-            driverController.povUp().whileTrue(
-                // new InstantCommand(() -> {
-                //         gripper.setCoralSpeed(.5);
-                // }));
-                //     new GripCoral(gripper));
-                new GripCoral(gripper));
+        //operatorController.rightTrigger()//down
 
+
+        // Elevator
+        //do again for operator controller
+                 driverController.y()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL4Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreCommand(arm)
+                )));
+
+                driverController.x()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL3Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreCommand(arm)
+                )));
+
+                  driverController.b()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL2Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreCommand(arm)
+                )));
+         
+        
+                  driverController.a()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL1Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreL1Command(arm)
+                )));
+        
+                 operatorController.y()
+                        .onTrue(
+                                Commands.parallel(
+                                        new DeployElevatorL4Command(elevator),
+                                        new ParallelDeadlineGroup(
+                                                Commands.waitUntil(elevatorAboveIntake),
+                                                new MoveArmToScoreCommand(arm)
+                        )));
+         
+
+                operatorController.x()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL3Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreCommand(arm)
+                )));
+         
+                  operatorController.b()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL2Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreCommand(arm)
+                )));
+        
+                  operatorController.a()
+                        .onTrue( Commands.parallel(
+                                new DeployElevatorL1Command(elevator),
+                                new ParallelDeadlineGroup(
+                                        Commands.waitUntil(elevatorAboveIntake),
+                                        new MoveArmToScoreL1Command(arm)
+                )));
+
+                // Arm
+        driverController.b()
+         .onTrue(
+                new ParallelCommandGroup(
+                      new ZeroPCM(arm),
+                      new ZeroPCM(elevator)));
+
+        // driverController.x()
+        //         .onTrue(
+                //                 new MoveArmToGrabAlgaeCommand(arm));
+
+                // driverController.a()
+                //         .onTrue(
+        //                 new MoveArmToGrabCoralCommand(arm));
+
+        // driverController.y()
+        //         .onTrue(
+        //                 new MoveArmToHumanLoadCommand(arm));
+
+
+        //Gripper
+         driverController.leftBumper()//Scoring
+                .onTrue(
+new ReleaseCoral(gripper)
+                );
+
+         // driverController.rightBumper()//reef side chooser
+
+         //operatorController.povUp()//coral gripper intake
+         //operatorController.povRight()//algae gripper intake
+         //operatorController.povDown()//algae gripper outtake
+         //operatorController.povLeft()//coral gripper outtake
+        
+        //Intake
+        driverController.rightTrigger()
+                 .whileTrue(
+                        new SequentialCommandGroup(
+                             new InstantCommand(() -> intakeRoll.setSpeed(0.1))
+                        )
                 
+                  ).onFalse(
+                                new InstantCommand(() -> intakeRoll.stop()));
+                                
+                                //         .whileTrue(
+                //                 new InstantCommand(() -> intakeRoll.setSpeed(-0.1)))
+                //         .onFalse(
+                //                 new InstantCommand(() -> intakeRoll.stop()));
+         
+                driverController.leftTrigger()//coral station 
+                    .whileTrue(
+                 new MoveArmToHumanLoadCommand(arm)); 
+        
+       // Algae
+        driverController.povUp()// net algae scoring
+                .onTrue(
+                 new MoveArmToNetCommand(arm)        
+                );
+
+
+       // driverController.povRight()// L3 Algae pickup
+       // driverController.povDown()// L2 Algae pickup
+       // driverController.povLeft()// prossecer scoring
+
+
+
+
+
+
+       // Coral
+        //driverController.y()/L4 reef arm + elevator movement
+        //driverController.x()/L3  reef arm + elevator movement
+        //driverController.b()/L2  reef arm + elevator movement
+        //driverController.a()/L1  reef arm + elevator movement
+        
+        
+        
+        
+
+
+        driverController.b()
+                .onTrue(
+                        new ParallelCommandGroup(
+                                new ZeroPCM(elevator),
+                                new ZeroPCM(arm),
+                                new ZeroPCM(climber)
+                        )
+                        );
+
+        driverController.x()
+                .onTrue(
+                        // new RunRollCommand(intakeRoll));
+                        // new DeployIntakeCommand(intakeFlop).withTimeout(1.5).andThen(new RunRollCommand(intakeRoll)));
+                        new DeployClimberCommand(climber));
+
+        driverController.a()
+                .onTrue(
+                        // new StopRollCommand(intakeRoll).andThen(new RetractIntakeCommand(intakeFlop)));
+                        new MoveArmToScoreCommand(arm));
+
 
 
 
         // // Target adjustment bindings
         // driverController.povUp().whileTrue(
         //         new MoveArmToNetCommand(arm));
-        driverController.povDown().whileTrue(
-                new ReleaseCoral(gripper));
+        driverController.povDown().onTrue(
+                new MoveArmToScoreCommand(arm));
         // driverController.povLeft().whileTrue(
         //         new MoveArmToScoreL1Command(arm));
         // driverController.povRight().whileTrue(
@@ -290,16 +416,6 @@ public class RobotContainer {
          * driverControllers}.
          */
 
-        swerve.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                swerve.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                               // negative Y
-                                                                                               // (forward)
-                        .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate)) // Drive counterclockwise with
-                                                                                     // negative X (left)
-
-        );
         // driverController.a().whileTrue(swerve.applyRequest(() -> brake));
         // driverController.b().whileTrue(swerve.applyRequest(
         //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
@@ -322,9 +438,6 @@ public class RobotContainer {
         // - Math.PI)
         // )));
 
-        // driverController.y().onTrue(new ResetGyro(swerve, seaweed,
-        // pidgey).withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
-        // pidgey)).withTimeout(5));
 
         // driverController.rightBumper().and(driverController.povUp()
         //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));

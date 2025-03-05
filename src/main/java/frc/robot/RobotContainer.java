@@ -72,6 +72,8 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 
 public class RobotContainer {
 
@@ -114,7 +116,6 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     // The robot's subsystems and commands are defined here...
-    public final CommandSwerveDrivetrain swerve = TunerConstants.createDrivetrain();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -126,13 +127,11 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // public final Limelight seaweed = new Limelight("limelight-seaweed");
-    // private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on
+
+
     // roboRIO CAN Bus with device ID 0
-    // // private final ResetGyro resetGyro = new ResetGyro(drivetrain, seaweed,
     // pidgey)
     // /* Path follower */
-    // private final SendableChooser<Command> autoChooser;
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Climber climber = new Climber();
@@ -154,17 +153,13 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-            // Register named commands
-            NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
-            NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
-            NamedCommands.registerCommand("print hello", Commands.print("hello"));
-    
-            // Use event markers as triggers
-            new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
             pidgey.clearStickyFault_BootDuringEnable();
             // Configure the trigger b indings
             configureBindings();
             configureDrivetrainBindings();
+            autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+            SmartDashboard.putData("Auto Mode", autoChooser);
+            drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
         }
     
         private void configureBindings() {
@@ -257,15 +252,15 @@ public class RobotContainer {
     private void configureDrivetrainBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        // drivetrain.setDefaultCommand(
-        //         // Drivetrain will execute this command periodically
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
-        //                                                                                            // negative Y
-        //                                                                                            // (forward)
-        //                 .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-        //                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with
-        //                                                                             // negative X (left)
-        //         ));
+         drivetrain.setDefaultCommand(
+                 // Drivetrain will execute this command periodically
+                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
+                                                                                                    // negative Y
+                                                                                                    // (forward)
+                         .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                         .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with
+                                                                                     // negative X (left)
+                 ));
 
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(
@@ -290,68 +285,59 @@ public class RobotContainer {
          * driverControllers}.
          */
 
-        swerve.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                swerve.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                               // negative Y
-                                                                                               // (forward)
-                        .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate)) // Drive counterclockwise with
-                                                                                     // negative X (left)
-
-        );
         // driverController.a().whileTrue(swerve.applyRequest(() -> brake));
         // driverController.b().whileTrue(swerve.applyRequest(
         //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
         //                 -driverController.getLeftX()))));
 
-        // double ID = 18;
-        // double distanceOffset = 1.5;
-        // double coralOffset = REEF_SIDE * -1 / 2;
+         double ID = 18;
+         double distanceOffset = 1.5;
+         double coralOffset = REEF_SIDE * -1 / 2;
+        AprilTagFieldLayout fieldLayout =
+         AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-        // AprilTagFieldLayout fieldLayout =
-        // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+        driverController.x().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+         fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() +
+         Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+         fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() +
+         Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+         new
+         Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians()
+         - Math.PI)
+         )));
+         driverController.rightBumper().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
-        // driverController.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() +
-        // Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
-        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() +
-        // Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
-        // new
-        // Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians()
-        // - Math.PI)
-        // )));
 
         // driverController.y().onTrue(new ResetGyro(swerve, seaweed,
         // pidgey).withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
         // pidgey)).withTimeout(5));
 
-        // driverController.rightBumper().and(driverController.povUp()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
-        // driverController.rightBumper().and(driverController.povUpRight()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
-        // driverController.rightBumper().and(driverController.povUpLeft()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
+         driverController.rightBumper().and(driverController.povUp()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+         driverController.rightBumper().and(driverController.povUpRight()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
+         driverController.rightBumper().and(driverController.povUpLeft()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
 
-        // driverController.rightBumper().and(driverController.povDown()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
-        // driverController.rightBumper().and(driverController.povDownRight()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(-.5))));
-        // driverController.rightBumper().and(driverController.povDownLeft()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(.5))));
+         driverController.rightBumper().and(driverController.povDown()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
+         driverController.rightBumper().and(driverController.povDownRight()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(-.5))));
+         driverController.rightBumper().and(driverController.povDownLeft()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(.5))));
 
-        // driverController.rightBumper().and(driverController.povRight()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5))));
-        // driverController.rightBumper().and(driverController.povLeft()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+         driverController.rightBumper().and(driverController.povRight()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5))));
+         driverController.rightBumper().and(driverController.povLeft()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
 
         // // reset the field-centric heading on left bumper press
-        // driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+         driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // drivetrain.registerTelemetry(logger::telemeterize);
-        // }
+         drivetrain.registerTelemetry(logger::telemeterize);
+         }
 
-    }
+    
 
     public void robotInit() {
         for (int port = 5800; port <= 5810; port++) {

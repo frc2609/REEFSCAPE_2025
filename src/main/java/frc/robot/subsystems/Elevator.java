@@ -29,6 +29,7 @@ public class Elevator extends PositionControlledMotor {
     private final static int followerId = 61;
     private final static Double gearRatio = 9.921;
     private final static double zeroPosition = -0.466;
+    private final double rotationsPerInch = 2;
 
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 
@@ -80,4 +81,21 @@ public class Elevator extends PositionControlledMotor {
             positionTolerance,
             true);
     }
+
+    @Override
+    public void goToPosition(double targetHeightInInches) {
+        double targetRotations = targetHeightInInches * rotationsPerInch;
+        double targetDegrees = targetRotations * (360.0 / gearRatio);
+
+        super.goToPosition(targetDegrees);
+    }
+
+    @Override
+    public double getPosition() {
+        double currentDegrees = super.getPosition();
+        double currentRotations = currentDegrees / (360.0 / gearRatio);
+
+        return currentRotations / rotationsPerInch;
+    }
+
 }

@@ -43,8 +43,8 @@ public class AlignCommand extends Command {
     private final Pigeon2 m_Pigeon2;
     private Pose2d taPose2d;
     private JSONObject map;
-    final double HEIGHT_OF_LIMELIGHT = 0.5; // meters
-    final double HEIGHT_OF_TARGET = 2.0; // meters
+    final double HEIGHT_OF_LIMELIGHT = 0.2; // meters
+    final double HEIGHT_OF_TARGET = 0.16; // meters
     PIDController m_pidController = new PIDController(0.06, 0.0, 0.0);
     final double PITCH = 100;
 
@@ -79,6 +79,7 @@ public class AlignCommand extends Command {
         double kP = 0.01;
     
         // Get the "tx" value from the Limelight
+        double distanceX  = Math.tan(Math.toRadians(m_limelight.get_tx()))*Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
         double targetingAngularVelocity = m_limelight.get_tx() * m_pidController.getP();
 
         SmartDashboard.putNumber("limelightX: ", m_limelight.get_tx());
@@ -132,6 +133,7 @@ public class AlignCommand extends Command {
         // Store the ID of the AprilTag the Limelight is seeing
         // double tagID = LimelightHelpers.getFiducialID("limelight-seaweed");
          double xSpeed = limelightRangeProportional(); 
+         //use this for the aming if the april tag is able to still see the target
          double yspeed = limelightAimProportional();
         System.out.println(xSpeed);
 

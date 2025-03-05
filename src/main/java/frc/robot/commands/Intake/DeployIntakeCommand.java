@@ -1,34 +1,16 @@
 package frc.robot.commands.Intake;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.commands.Intake.flop.DeployFlopCommand;
+import frc.robot.commands.Intake.roll.IntakeRollCommand;
 import frc.robot.subsystems.IntakeFlop;
+import frc.robot.subsystems.IntakeRoll;
 
-public class DeployIntakeCommand extends Command {
-    private final IntakeFlop intakeFlop;
-    private final double target = 23.0;
-
-    public DeployIntakeCommand(IntakeFlop intakeFlop) {
-        this.intakeFlop = intakeFlop;
-        addRequirements(intakeFlop);
-    }
-
-    @Override
-    public void execute() {
-        intakeFlop.setNeutralMode(NeutralModeValue.Coast);
-        intakeFlop.goToPosition(target);
-    }
-
-    // @Override
-    // public boolean isFinished() {
-    //     // return false;
-    //    return true;
-    // }
-
-    @Override
-    public void end(boolean interrupted) {
-        // Stop intakeFlop when command ends
-        intakeFlop.stop();
+public class DeployIntakeCommand extends ParallelCommandGroup {
+    public DeployIntakeCommand(IntakeFlop intakeFlop, IntakeRoll intakeRoll) {
+        addCommands(
+            new DeployFlopCommand(intakeFlop),  // Deploys the intake (goes to position 23.0)
+            new IntakeRollCommand(intakeRoll)          // Runs the roll at -0.5 speed
+        );
     }
 }

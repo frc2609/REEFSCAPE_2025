@@ -3,16 +3,16 @@ package frc.robot.commands.gripper;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Gripper;
 
-public class GripCoral extends Command {
+public class ReleaseCoralCommand extends Command {
     private final Gripper gripper;
-    public GripCoral(Gripper gripper) {
+    public ReleaseCoralCommand(Gripper gripper) {
         this.gripper = gripper;
         addRequirements(gripper);
     }
 
     @Override
     public void execute(){
-        gripper.setCoralSpeed(-0.5);
+        gripper.setCoralSpeed(1);
     }
 
     @Override

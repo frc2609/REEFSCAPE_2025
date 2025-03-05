@@ -215,6 +215,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             SmartDashboard.putNumber(name + " Current", getCurrent());
             SmartDashboard.putNumber(name + " Voltage", getVoltage());
             SmartDashboard.putNumber(name + " Abs pos", getAbsPosition());
+            SmartDashboard.putNumber(name + " Raw pos", getRawPosition());
             
             
             if (updatePressed()) {
@@ -268,6 +269,9 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     public double getPosition(){
         double rotationPosition = motor.getPosition().getValueAsDouble();
         return rotationsToDegrees(rotationPosition);
+    }
+    public double getRawPosition() {
+        return motor.getPosition().getValueAsDouble();
     }
     protected double getVelocity(){
         return motor.getVelocity().getValueAsDouble();

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -155,6 +156,11 @@ public class RobotContainer {
          */
         public RobotContainer() {
                 boolean jog = false;
+
+                CommandScheduler.getInstance().schedule(new ZeroPCM(elevator));
+                CommandScheduler.getInstance().schedule(new ZeroPCM(arm));
+                CommandScheduler.getInstance().schedule(new ZeroPCM(climber));
+                CommandScheduler.getInstance().schedule(new ZeroPCM(intakeFlop));
 
                 pidgey.clearStickyFault_BootDuringEnable();
 

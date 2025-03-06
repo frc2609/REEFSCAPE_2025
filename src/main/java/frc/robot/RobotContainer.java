@@ -31,7 +31,7 @@ import frc.robot.commands.ElevateAndRotate;
 import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
-import frc.robot.commands.ResetGyro;
+import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
@@ -123,12 +123,12 @@ public class RobotContainer {
 
     private double targetPosition = 0.0;
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
-    private final String limeLightName = "limelight-seaweed";
+    private final String limeLightName = "limelight";
     private Field2d m_field = new Field2d();
 
     private static double REEF_SIDE = 0.813;
 
-    public final Limelight seaweed = new Limelight("limelight-seaweed");
+    public final Limelight seaweed = new Limelight("limelight");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
     private final Gripper gripper = new Gripper();
 
@@ -160,17 +160,17 @@ public class RobotContainer {
 
     private void configureJogBindings() {
 
-        operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 5));
-        operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -5));
+        // operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 5));
+        // operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -5));
 
-        operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
-        operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
+        // operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
+        // operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
 
-        operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
-        operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
+        // operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
+        // operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
 
-        operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
-        operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
+        // operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
+        // operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
     }
     /*
      * Ele L4 40
@@ -494,8 +494,6 @@ public class RobotContainer {
 
     private void configureDrivetrainBindings() {
                 //Vison alignment
-        operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed,
-         pidgey));
         //.withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
         // pidgey)).withTimeout(5));
         //operatorController.rightStickButton().onTrue(new AlignCommand(swerve, seaweed, pidgey));
@@ -543,21 +541,24 @@ public class RobotContainer {
         //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
         //                 -driverController.getLeftX()))));
 
-         double ID = 18;
-         double distanceOffset = 1.5;
-         double coralOffset = REEF_SIDE * -1 / 2;
-        AprilTagFieldLayout fieldLayout =
-         AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        int ID = 18;
+        double distanceOffset = 1;
+        double coralOffset = REEF_SIDE * -1 / 2;
+       AprilTagFieldLayout fieldLayout =
+        AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-        // driverController.x().onTrue(swerve.getPathPlannerCommandToAprilTag(new Pose2d(
-        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() +
-        // Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
-        // fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() +
-        // Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
-        // new
-        // Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians()
-        // - Math.PI)
-        // )));
+       driverController.x().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() +
+        Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+        fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() +
+        Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+        new
+        Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians()
+        - Math.PI)
+        )));
+
+        driverController.y().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
+        driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
 
 
 
@@ -582,6 +583,7 @@ public class RobotContainer {
 
         // // reset the field-centric heading on left bumper press
          driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+         driverController.rightBumper().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
          drivetrain.registerTelemetry(logger::telemeterize);
          }

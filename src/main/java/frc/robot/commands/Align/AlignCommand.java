@@ -1,4 +1,4 @@
-package frc.robot.commands.Align;
+package frc.robot.commands;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -43,10 +43,10 @@ public class AlignCommand extends Command {
     private final Pigeon2 m_Pigeon2;
     private Pose2d taPose2d;
     private JSONObject map;
-    final double HEIGHT_OF_LIMELIGHT = 0.2; // meters
+    final double HEIGHT_OF_LIMELIGHT = 0.47; // meters
     final double HEIGHT_OF_TARGET = 0.16; // meters
     PIDController m_pidController = new PIDController(0.06, 0.0, 0.0);
-    final double PITCH = 100;
+    final double PITCH = 10;
 
     private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
    .withDeadband(4.73 * 0.1).withRotationalDeadband(2 * 0.1); // Add a 10% deadband
@@ -59,15 +59,6 @@ public class AlignCommand extends Command {
         m_limelight = limelight;
         m_Pigeon2 = pidgey;
 
-        String fileLocation =  String.format("%s%s", Filesystem.getDeployDirectory(), "/frc2025r2.json");
-        SmartDashboard.putString("print", fileLocation);
-        try (FileReader reader = new FileReader(fileLocation)) {
-            JSONParser jsonParser = new JSONParser();
-            map = (JSONObject) jsonParser.parse(reader);
-            SmartDashboard.putString("map", map.toJSONString());
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
         addRequirements(swerve, limelight);
     }
 
@@ -77,10 +68,10 @@ public class AlignCommand extends Command {
         // kP (constant of proportionality)
         // Determines the aggressiveness of the proportional control loop
         double kP = 0.01;
-    
+        double goalDistance = 0.1; // meters
         // Get the "tx" value from the Limelight
         double distanceX  = Math.tan(Math.toRadians(m_limelight.get_tx()))*Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
-        double targetingAngularVelocity = m_limelight.get_tx() * m_pidController.getP();
+        double targetingAngularVelocity = (distanceX-goalDistance) * m_pidController.getP();
 
         SmartDashboard.putNumber("limelightX: ", m_limelight.get_tx());
 
@@ -103,7 +94,7 @@ public class AlignCommand extends Command {
         // Get the "ty" value from the Limelight
         // double targetingForwardSpeed = m_Vision.getTY() * kP;
 
-        double goalDistance = 0.2; // meters
+        double goalDistance = 0.5; // meters
         double distance = Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
 
         double targetingForwardSpeed = (distance-goalDistance) * m_pidController.getP();
@@ -129,9 +120,8 @@ public class AlignCommand extends Command {
     public void execute(){
         // double rot = limelightAimProportional();
 
-        LimelightHelpers.setPipelineIndex("limelight-seaweed", 1);
+        LimelightHelpers.setPipelineIndex("limelight", 2);
         // Store the ID of the AprilTag the Limelight is seeing
-        // double tagID = LimelightHelpers.getFiducialID("limelight-seaweed");
          double xSpeed = limelightRangeProportional(); 
          //use this for the aming if the april tag is able to still see the target
          double yspeed = limelightAimProportional();
@@ -146,7 +136,7 @@ public class AlignCommand extends Command {
     }
 
     public void end(boolean interrupted){
-        LimelightHelpers.setPipelineIndex("limelight-seaweed", 0);
+        LimelightHelpers.setPipelineIndex("limelight", 1);
     }
 }
 

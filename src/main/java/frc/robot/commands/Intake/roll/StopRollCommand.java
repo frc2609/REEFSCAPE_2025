@@ -5,6 +5,7 @@ import frc.robot.subsystems.IntakeRoll;
 
 public class StopRollCommand extends Command {
     private final IntakeRoll roll;
+    
     public StopRollCommand(IntakeRoll roll){
         this.roll = roll;
         addRequirements(roll);

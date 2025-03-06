@@ -11,59 +11,40 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.AlignCommand;
-import frc.robot.commands.PathToAprilTagCommand;
-import frc.robot.commands.ResetGyro;
-import frc.robot.commands.Intake.flop.DeployFlopCommand;
+import frc.robot.commands.CoralHandOff;
+import frc.robot.commands.ElevateAndRotate;
+import frc.robot.commands.HumanIntakeCommand;
+import frc.robot.commands.PickAlgaeL2Command;
+import frc.robot.commands.PickAlgaeL3Command;
+import frc.robot.commands.ScoreL2Command;
+import frc.robot.commands.ScoreL3Command;
+import frc.robot.commands.ScoreL4Command;
+import frc.robot.commands.Intake.DeployIntakeCommand;
+import frc.robot.commands.Intake.RetractIntaceCommand;
 import frc.robot.commands.Intake.flop.RetractFlopCommand;
-import frc.robot.commands.Intake.roll.IntakeRollCommand;
-import frc.robot.commands.Intake.roll.StopRollCommand;
-import frc.robot.commands.arm.MoveArmToGrabAlgaeCommand;
-import frc.robot.commands.arm.MoveArmToGrabCoralCommand;
-import frc.robot.commands.arm.MoveArmToHumanLoadCommand;
-import frc.robot.commands.arm.MoveArmToNetCommand;
-import frc.robot.commands.arm.MoveArmToScoreCommand;
-import frc.robot.commands.arm.MoveArmToScoreL1Command;
-import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
-import frc.robot.commands.elevator.DeployElevatorL1Command;
-import frc.robot.commands.elevator.DeployElevatorL2Command;
-import frc.robot.commands.elevator.DeployElevatorL3Command;
-import frc.robot.commands.elevator.DeployElevatorL4Command;
+import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.gripper.GripCommand;
-import frc.robot.commands.gripper.ReleaseCommand;
+import frc.robot.commands.gripper.ReleaseGripperCommand;
+import frc.robot.commands.gripper.SlowGripCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
-import frc.robot.commands.pcmUtils.ZeroPCM;
-import frc.robot.commands.gripper.ReleaseCommand;
+import frc.robot.commands.pcmUtils.MovePCM;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.PathPlannerAlignmentCommand;
-import frc.robot.commands.ResetGyro;
-import frc.robot.commands.AlignCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeRoll;
 import frc.robot.subsystems.IntakeFlop;
@@ -75,9 +56,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import frc.robot.utils.Constants.OperatorConstants;
 
 public class RobotContainer {
 
@@ -104,9 +82,9 @@ public class RobotContainer {
     // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     // private final Telemetry logger = new Telemetry(MaxSpeed);
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second //
-                                                                                      // max angular velocity
+
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     private SendableChooser<Command> autoChooser;
 
@@ -134,13 +112,12 @@ public class RobotContainer {
 
 
     // roboRIO CAN Bus with device ID 0
-    // pidgey)
     // /* Path follower */
-    private final Arm arm = new Arm();
-    private final Elevator elevator = new Elevator();
-    private final Climber climber = new Climber();
-    private final IntakeRoll intakeRoll = new IntakeRoll();
-    private final IntakeFlop intakeFlop = new IntakeFlop();
+    public final Arm arm = new Arm();
+    public final Elevator elevator = new Elevator();
+    public final Climber climber = new Climber();
+    public final IntakeRoll intakeRoll = new IntakeRoll();
+    public final IntakeFlop intakeFlop = new IntakeFlop();
     public static InstantCommand instantCommand = new InstantCommand();
 
     private double targetPosition = 0.0;
@@ -152,150 +129,208 @@ public class RobotContainer {
 
     public final Limelight seaweed = new Limelight("limelight-seaweed");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
-        private final Gripper gripper = new Gripper();
-        /**
-         * The container for the robot.f Contains subsystems, OI devices, and commands.
-         */
-        public RobotContainer() {
-                // Register named commands
-                NamedCommands.registerCommand("marker1", Commands.print("Passed marker 1"));
-                NamedCommands.registerCommand("marker2", Commands.print("Passed marker 2"));
-                NamedCommands.registerCommand("print hello", Commands.print("hello"));
+    private final Gripper gripper = new Gripper();
+
+    /**
+     * The container for the robot.f Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
                 
-                // Use event markers as triggers
-                new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
-                pidgey.clearStickyFault_BootDuringEnable();
-                // Configure the trigger b indings
-                configureBindings();
-                configureDrivetrainBindings();
-            
+        // Use event markers as triggers
+        new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
+        pidgey.clearStickyFault_BootDuringEnable();
+
+        boolean jog = false;
+                
+        pidgey.clearStickyFault_BootDuringEnable();
         
-                boolean jog = false;
-                
-                CommandScheduler.getInstance().schedule(new ZeroPCM(elevator));
-                CommandScheduler.getInstance().schedule(new ZeroPCM(arm));
-                CommandScheduler.getInstance().schedule(new ZeroPCM(climber));
-                CommandScheduler.getInstance().schedule(new ZeroPCM(intakeFlop));
-                
-                pidgey.clearStickyFault_BootDuringEnable();
-                
-                if (jog == true){
-                        configureJogBindings();
-                } else {
-                        configureBindings();
-                }
-                configureDrivetrainBindings();
-                
-                autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
-                SmartDashboard.putData("Auto Mode", autoChooser);
-                drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+        if (jog == true){
+            configureJogBindings();
+        } else {
+            configureBindings();
+            configureDrivetrainBindings();
         }
         
-        private void configureBindings() {
+        autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+        SmartDashboard.putData("Auto Mode", autoChooser);
+        drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+    }
+
+
+    private void configureJogBindings() {
+
+        operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 5));
+        operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -5));
+
+        operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
+        operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
+
+        operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
+        operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
+
+        operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
+        operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
+    }
+    /*
+     * Ele L4 40
+     * Ele L3 14
+     * Ele L2 0
+     * Arm L4 - L2 222.66
+     * Ele human 71
+     * Arm human -8.5
+     */
+        
+    private void configureBindings() {
+
+        intakeFlop.setDefaultCommand(new RetractIntaceCommand(intakeFlop, intakeRoll));
+        elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
+        arm.setDefaultCommand(new MovePCM(arm, 0));
+        gripper.setDefaultCommand(new SlowGripCommand(gripper));
+        climber.setDefaultCommand(new RetractClimberCommand(climber));        
+        
+        // Climbe
+
+        operatorController.rightTrigger()
+            .whileTrue(
+                new DeployClimberCommand(climber));
+
+        operatorController.rightBumper()
+            .whileTrue(
+                new DeployIntakeCommand(intakeFlop, intakeRoll)
+            );
                 
-                //Vison alignment
-                // operatorController.start().onTrue(new ResetGyro(swerve, seaweed,
-        // pidgey));
-        //.withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
-        // pidgey)).withTimeout(5));
-        //operatorController.rightStickButton().onTrue(new AlignCommand(swerve, seaweed, pidgey));
+
+        operatorController.povDown()
+            .whileTrue(
+                new GripCommand(gripper)
+            );
+
+        operatorController.povUp()
+            .whileTrue(
+                new ReleaseGripperCommand(gripper)
+            );
         
-        //Drive Train
-       // driverController.start()// reset gyro/ yaw
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
-                // negative Y
-                // (forward)
-                .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate)) // Drive counterclockwise with
-                        // negative X (left)
-                        
-        );
+        operatorController.a()
+            .whileTrue(
+                new HumanIntakeCommand(arm, gripper)
+            );
         
-        // Climber
-         operatorController.leftTrigger()
-                .onTrue(
-                        new DeployClimberCommand(climber));
+        operatorController.x()
+            .whileTrue(
+                new ScoreL2Command(arm).alongWith(
+                    new SequentialCommandGroup(
+                        new WaitCommand(0.5),
+                        new MovePCM(elevator, 0)
+                    )
+                )
+            );
+
+        operatorController.b()
+            .whileTrue(
+                new ScoreL3Command(elevator, arm)
+            );
+
+        operatorController.y()
+            .whileTrue(
+                new ScoreL4Command(elevator, arm)
+            );
+
+        operatorController.leftBumper()
+            .onTrue(
+                new CoralHandOff(elevator, arm, gripper)
+            );
+
+        operatorController.povLeft()
+            .whileTrue(
+                new PickAlgaeL2Command(elevator, arm, gripper)
+            );
+        
+        operatorController.povRight()
+            .whileTrue(
+                new PickAlgaeL3Command(elevator, arm, gripper)
+            );
 
         //operatorController.rightTrigger()//down
 
 
         // Elevator
         //do again for operator controller
-                 driverController.y()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL4Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreCommand(arm)
-                )));
+                //  driverController.y()
+                //         .onTrue( Commands.parallel(
+                //                 new DeployElevatorToPositionCommand(elevator),
+                //                 new ParallelDeadlineGroup(
+                //                         Commands.waitUntil(elevatorAboveIntake),
+                //                         new MoveArmToScoreCommand(arm)
+                // )));
 
-                driverController.x()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL3Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreCommand(arm)
-                )));
+                // driverController.x()
+                //         .onTrue( Commands.parallel(
+                //                 new DeployElevatorL3Command(elevator),
+                //                 new ParallelDeadlineGroup(
+                //                         Commands.waitUntil(elevatorAboveIntake),
+                //                         new MoveArmToScoreCommand(arm)
+                // )));
 
-                  driverController.b()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL2Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreCommand(arm)
-                )));
+                //   driverController.b()
+                //         .onTrue( Commands.parallel(
+                //                 new DeployElevatorL2Command(elevator),
+                //                 new ParallelDeadlineGroup(
+                //                         Commands.waitUntil(elevatorAboveIntake),
+                //                         new MoveArmToScoreCommand(arm)
+                // )));
          
         
-                  driverController.a()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL1Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreL1Command(arm)
-                )));
+                //   driverController.a()
+                //         .onTrue( Commands.parallel(
+                //                 new DeployElevatorL1Command(elevator),
+                //                 new ParallelDeadlineGroup(
+                //                         Commands.waitUntil(elevatorAboveIntake),
+                //                         new MoveArmToScoreL1Command(arm)
+                // )));
         
-                 operatorController.y()
-                        .onTrue(
-                                Commands.parallel(
-                                        new DeployElevatorL4Command(elevator),
-                                        new ParallelDeadlineGroup(
-                                                Commands.waitUntil(elevatorAboveIntake),
-                                                new MoveArmToScoreCommand(arm)
-                        )));
+                //  operatorController.y()
+                //         .onTrue(
+                //                 Commands.parallel(
+                //                         // new DeployElevatorL4Command(elevator),
+                //                         // new ParallelDeadlineGroup(
+                //                         //         Commands.waitUntil(elevatorAboveIntake),
+                //                                 new MoveArmToScoreCommand(arm)
+                //         ));//);
          
 
-                operatorController.x()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL3Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreCommand(arm)
-                )));
+                // operatorController.x()
+                //         .onTrue( Commands.parallel(
+                //                 // new DeployElevatorL3Command(elevator),
+                //                 // new ParallelDeadlineGroup(
+                //                 //         Commands.waitUntil(elevatorAboveIntake),
+                //                        // new MoveArmToScoreCommand(arm)
+                //                         new MoveArmToPosition(arm, 0  )
+                // ));//);
          
-                  operatorController.b()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL2Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreCommand(arm)
-                )));
+                //   operatorController.b()
+                //         .onTrue( Commands.parallel(
+                //                // new DeployElevatorL2Command(elevator)//,
+                //                 // new ParallelDeadlineGroup(
+                //                 //         Commands.waitUntil(elevatorAboveIntake),
+                                       
+                //                 new MoveArmToPosition(arm, 90)
+                // ));//);
         
-                  operatorController.a()
-                        .onTrue( Commands.parallel(
-                                new DeployElevatorL1Command(elevator),
-                                new ParallelDeadlineGroup(
-                                        Commands.waitUntil(elevatorAboveIntake),
-                                        new MoveArmToScoreL1Command(arm)
-                )));
+                //   operatorController.a()
+                //         .onTrue( Commands.parallel(
+                //                 // new DeployElevatorL1Command(elevator),
+                //                 // new ParallelDeadlineGroup(
+                //                 //         Commands.waitUntil(elevatorAboveIntake),
+                //                         new MoveArmToScoreL1Command(arm)
+                // ));//);
 
                 // Arm
-        driverController.b()
-         .onTrue(
-                new ParallelCommandGroup(
-                      new ZeroPCM(arm),
-                      new ZeroPCM(elevator)));
+        // driverController.b()
+        //  .onTrue(
+        //         new ParallelCommandGroup(
+        //               new ZeroPCM(arm),
+        //               new ZeroPCM(elevator),
+        //               new ZeroPCM(climber)));
 
         // driverController.x()
         //         .onTrue(
@@ -310,45 +345,49 @@ public class RobotContainer {
         //                 new MoveArmToHumanLoadCommand(arm));
 
 
-        //Gripper
-         driverController.leftBumper()//Scoring
-                .onTrue(
-new ReleaseCommand(gripper)
-                );
+//         //Gripper
+//          driverController.leftBumper()//Scoring
+//                 .onTrue(
+// new ReleaseCommand(gripper)
+//                 );
 
          // driverController.rightBumper()//reef side chooser
 
-         operatorController.povUp().whileTrue(
-                new GripCommand(gripper)
-         );//coral gripper intake
-         operatorController.povDown().whileTrue(
-                new ReleaseCommand(gripper)
-         );//algae gripper outtake
+        //  operatorController.povUp().whileTrue(
+        //         new GripCommand(gripper)
+        //  );//coral gripper intake
+        //  operatorController.povDown().whileTrue(
+        //         new ReleaseCommand(gripper)
+        //  );//algae gripper outtake
         
-        //Intake
-        driverController.rightTrigger()
-                 .whileTrue(
-                        new SequentialCommandGroup(
-                             new InstantCommand(() -> intakeRoll.setSpeed(0.1))
-                        )
+        // //Intake
+        // driverController.rightTrigger()
+        //          .onTrue(
+        //                 new DeployClimberCommand(climber)
                 
-                  ).onFalse(
-                                new InstantCommand(() -> intakeRoll.stop()));
+                //   );
+                  
+                //   .onFalse( 
+                //         new SequentialCommandGroup(
+                //         new RetractFlopCommand(intakeFlop)
+                //    )
+                 // );   
+
                                 
                                 //         .whileTrue(
                 //                 new InstantCommand(() -> intakeRoll.setSpeed(-0.1)))
                 //         .onFalse(
                 //                 new InstantCommand(() -> intakeRoll.stop()));
          
-                driverController.leftTrigger()//coral station 
-                    .whileTrue(
-                 new MoveArmToHumanLoadCommand(arm)); 
+        // driverController.leftTrigger()//coral station 
+        //         .onTrue(
+        //          new RetractClimberCommand(climber)); 
         
        // Algae
-        driverController.povUp()// net algae scoring
-                .onTrue(
-                 new MoveArmToNetCommand(arm)        
-                );
+        // driverController.povUp()// net algae scoring
+        //         .onTrue(
+        //          new MoveArmToNetCommand(arm)        
+        //         );
          // driverController.povRight()// L3 Algae pickup
        // driverController.povDown()// L2 Algae pickup
        // driverController.povLeft()// prossecer scoring
@@ -360,90 +399,83 @@ new ReleaseCommand(gripper)
         //driverController.a()/L1  reef arm + elevator movement
         
         
-        }
+                // driverController.b()
+                //         .onTrue(
+                //                 new ParallelCommandGroup(
+                //                         new ZeroPCM(elevator),
+                //                         new ZeroPCM(arm),
+                //                         new ZeroPCM(climber)
+                //                 )
+                //                 );
         
-
-
-        // driverController.b()
-        //         .onTrue(
-        //                 new ParallelCommandGroup(
-        //                         new ZeroPCM(elevator),
-        //                         new ZeroPCM(arm),
-        //                         new ZeroPCM(climber)
-        //                 )
-        //                 );
-
-        //driverController.x()
-    //private Gripper gripper = new Gripper();
-    
-        /**
-         * The container for the robot. Contains subsystems, OI devices, and commands.
-         */
-
+                //driverController.x()
+            //private Gripper gripper = new Gripper();
+            
+                /**
+                 * The container for the robot. Contains subsystems, OI devices, and commands.
+                 */
         
-
-        private void configureJogBindings() {
-
-                driverController.a().and(driverController.povUp().whileTrue(new JogPCM(arm, 1)));
-                driverController.a().and(driverController.povDown().whileTrue(new JogPCM(arm, -1)));
-
-                driverController.x().and(driverController.povUp().whileTrue(new JogPCM(climber, 1)));
-                driverController.x().and(driverController.povDown().whileTrue(new JogPCM(climber, -1)));
-
-                driverController.y().and(driverController.povUp().whileTrue(new JogPCM(elevator, 1)));
-                driverController.y().and(driverController.povDown().whileTrue(new JogPCM(elevator, -1)));
-
-                driverController.b().and(driverController.povUp().whileTrue(new JogPCM(intakeFlop, 1)));
-                driverController.b().and(driverController.povDown().whileTrue(new JogPCM(intakeFlop, -1)));
-
-        }
-    
-
-    
-            // driverController.a()
-            //         .whileTrue(
-            //                 new InstantCommand(() -> intakeRoll.setSpeed(0.1))
-    
-            //         ).onFalse(
-            //                 new InstantCommand(() -> intakeRoll.stop()));
-    
-            // driverController.b()
-            //         .whileTrue(
-            //                 new InstantCommand(() -> intakeRoll.setSpeed(-0.1)))
-            //         .onFalse(
-            //                 new InstantCommand(() -> intakeRoll.stop()));
-    
-            // driverController.b()
-            //         .onTrue(
-            //                 new ZeroPCM(arm));
-    
-            // driverController.x()
-            //         .onTrue(
-            //                 new MoveArmToGrabAlgaeCommand(arm));
-    
-            // driverController.a()
-            //         .onTrue(
-            //                 new MoveArmToGrabCoralCommand(arm));
-    
-            // driverController.y()
-            //         .onTrue(
-            //                 new MoveArmToHumanLoadCommand(arm));
-
-
-
-
-
-        // // Target adjustment bindings
-        // driverController.povUp().whileTrue(
-        //         new MoveArmToNetCommand(arm));
-        // driverController.povDown().whileTrue(
-        //         new ReleaseCoralCommand(gripper));
-        // driverController.povLeft().whileTrue(
-        //         new MoveArmToScoreL1Command(arm));
-        // driverController.povRight().whileTrue(
-        //         new DeployElevatorL4Command(elevator));
+                
+        
+            
+                    // driverController.a()
+                    //         .whileTrue(
+                    //                 new InstantCommand(() -> intakeRoll.setSpeed(0.1))
+            
+                    //         ).onFalse(
+                    //                 new InstantCommand(() -> intakeRoll.stop()));
+            
+                    // driverController.b()
+                    //         .whileTrue(
+                    //                 new InstantCommand(() -> intakeRoll.setSpeed(-0.1)))
+                    //         .onFalse(
+                    //                 new InstantCommand(() -> intakeRoll.stop()));
+            
+                    // driverController.b()
+                    //         .onTrue(
+                    //                 new ZeroPCM(arm));
+            
+                    // driverController.x()
+                    //         .onTrue(
+                    //                 new MoveArmToGrabAlgaeCommand(arm));
+            
+                    // driverController.a()
+                    //         .onTrue(
+                    //                 new MoveArmToGrabCoralCommand(arm));
+            
+                    // driverController.y()
+                    //         .onTrue(
+                    //                 new MoveArmToHumanLoadCommand(arm));
+        
+        
+        
+        
+        
+                // // Target adjustment bindings
+                // driverController.povUp().whileTrue(
+                //         new MoveArmToNetCommand(arm));
+                // driverController.povDown().whileTrue(
+                //         new ReleaseCoralCommand(gripper));
+                // driverController.povLeft().whileTrue(
+                //         new MoveArmToScoreL1Command(arm));
+                // driverController.povRight().whileTrue(
+                //         new DeployElevatorL4Command(elevator));
+        
+        
+    }
+        
 
     private void configureDrivetrainBindings() {
+                //Vison alignment
+        // operatorController.start().onTrue(new ResetGyro(swerve, seaweed,
+        // pidgey));
+        //.withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
+        // pidgey)).withTimeout(5));
+        //operatorController.rightStickButton().onTrue(new AlignCommand(swerve, seaweed, pidgey));
+        
+        //Drive Train
+       // driverController.start()// reset gyro/ yaw
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
          drivetrain.setDefaultCommand(

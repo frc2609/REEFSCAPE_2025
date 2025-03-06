@@ -12,9 +12,13 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utils.PositionControlledMotor;
 import frc.robot.utils.Constants;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 
 public class IntakeFlop extends PositionControlledMotor {
     private final static double zeroPosition = 0.39;
@@ -23,25 +27,28 @@ public class IntakeFlop extends PositionControlledMotor {
     private final static int encoderId = 3;
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     private final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 50;
+    private final static double maxAcceleration = 300;
     private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 100;
+    private final static double maxVelocity = 1000;
     private final static double minPosition = -20;
     private final static double maxPosition = 400;
     private final static String name = "IntakeFlop";
+
+    public final Trigger deployedTrigger;
+    public final Trigger coralTriggrt;
 
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withNeutralMode(NeutralModeValue.Coast)
             )
             .withMotionMagic(
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(maxVelocity)
                     .withMotionMagicAcceleration(maxAcceleration)
-                    .withMotionMagicJerk(10)
+                    .withMotionMagicJerk(10000)
             )
             .withSlot0(
                 new Slot0Configs()
@@ -64,9 +71,10 @@ public class IntakeFlop extends PositionControlledMotor {
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(80)
-                    .withSupplyCurrentLimit(30)
+                    .withSupplyCurrentLimit(120)
             );
         
+    private final DigitalInput intakeBeam = new DigitalInput(4);
     public IntakeFlop() {
         super(
         talonConfig,
@@ -77,5 +85,20 @@ public class IntakeFlop extends PositionControlledMotor {
         gearRatio,
         positionTolerance,
         true);
+
+        deployedTrigger = new Trigger(() -> getPosition() >= 90);
+        coralTriggrt = new Trigger(() -> coralPresent());
+
+        setPosition();
     }
+
+    public boolean coralPresent() {
+        return intakeBeam.get();
+    }
+
+    @Override
+    public void setPosition() {
+        motor.setPosition(0);
+    }
+
 }

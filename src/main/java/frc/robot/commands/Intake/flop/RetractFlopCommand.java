@@ -2,26 +2,19 @@ package frc.robot.commands.Intake.flop;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.IntakeFlop;
 
-public class RetractFlopCommand extends Command {
-    private final IntakeFlop intakeFlop;
+public class RetractFlopCommand extends SequentialCommandGroup {
+    private final double target = 0;
 
     public RetractFlopCommand(IntakeFlop intakeFlop) {
-        this.intakeFlop = intakeFlop;
         addRequirements(intakeFlop);
-    }
-
-    @Override
-    public void execute() {
-        intakeFlop.setNeutralMode(NeutralModeValue.Brake);
-        intakeFlop.goToPosition(0.0);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        // Stop intakeFlop when command ends
-        intakeFlop.stop();
+        addCommands(
+            new MovePCM(intakeFlop, target)
+        );
     }
 }

@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -11,16 +12,18 @@ import frc.robot.utils.PositionControlledMotor;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.utils.Constants;
 
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final static double positionTolerance = 0.1;
-    private final static double maxAcceleration = 5;
+    private final static double positionTolerance = 1.0;
+    private final static double maxAcceleration = 100;
     private final static Boolean invertEncoder = true;
-    private final static double maxVelocity = 10;
+    private final static double maxVelocity = 500;
     private final static String name = "ELEVATOR";
     private final static double minPosition = 0;
     private final static double maxPosition = 37.1;
@@ -43,17 +46,17 @@ public class Elevator extends PositionControlledMotor {
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(maxVelocity)
                     .withMotionMagicAcceleration(maxAcceleration)
-                    .withMotionMagicJerk(10)
+                    .withMotionMagicJerk(10000)
             )
             .withSlot0(
                 new Slot0Configs()
-                    .withKP(.5)
+                    .withKP(.2)
                     .withKI(0)
                     .withKD(0)
-                    .withKS(0)
-                    .withKG(0.06)
+                    .withKS(0.2)
+                    .withKG(0.03)
                     .withKV(0)
-                    .withKA(0)
+                    .withKA(0)    
                     .withGravityType(GravityTypeValue.Elevator_Static)
             )
             .withSoftwareLimitSwitch(
@@ -66,7 +69,7 @@ public class Elevator extends PositionControlledMotor {
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(80)
-                    .withSupplyCurrentLimit(30)
+                    .withSupplyCurrentLimit(20)
             );
     
     public Elevator() {
@@ -96,6 +99,20 @@ public class Elevator extends PositionControlledMotor {
         double currentRotations = currentDegrees / (360.0 / gearRatio);
 
         return currentRotations / rotationsPerInch;
+    }
+
+    @Override
+    public void setPosition() {
+        StatusCode stat = motor.setPosition(0);
+
+        SmartDashboard.putString("Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("posAfterReset", getPosition());
+        
+        if (followerMotor != null) {
+            stat = followerMotor.setPosition(0);
+            SmartDashboard.putString("Follower Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("Follower posAfterReset", getPosition());
+        }    
     }
 
 }

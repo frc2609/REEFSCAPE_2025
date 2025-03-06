@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.Align;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;

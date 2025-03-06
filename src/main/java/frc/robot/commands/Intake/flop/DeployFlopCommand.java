@@ -13,10 +13,11 @@ public class DeployFlopCommand extends SequentialCommandGroup {
 
     public DeployFlopCommand(IntakeFlop intakeFlop) {
         addCommands(
-            new MovePCM(intakeFlop,target),
+            new MovePCM(intakeFlop,target).withTimeout(0.7),
             new SequentialCommandGroup(
                 new WaitUntilCommand(intakeFlop.deployedTrigger),
-                new InstantCommand(() -> intakeFlop.stop())
+                new InstantCommand(() -> intakeFlop.stop()),
+                new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Coast))
             ),
             new SequentialCommandGroup(
                 new WaitUntilCommand(intakeFlop.coralTriggrt),

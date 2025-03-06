@@ -14,7 +14,7 @@ public class RetractClimberCommand extends Command {
 
     @Override
     public void execute() {
-        climber.goToPosition(4.0);
+        climber.goToPosition(-47.0);
     }
 
     @Override

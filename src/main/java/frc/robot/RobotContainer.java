@@ -31,6 +31,7 @@ import frc.robot.commands.ElevateAndRotate;
 import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
+import frc.robot.commands.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
@@ -186,36 +187,47 @@ public class RobotContainer {
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
+
         climber.setDefaultCommand(new RetractClimberCommand(climber));        
         
-        // Climbe
+        // Climber
 
         operatorController.rightTrigger()
             .whileTrue(
                 new DeployClimberCommand(climber));
 
-        operatorController.rightBumper()
-            .whileTrue(
+        driverController.leftTrigger()
+            .whileTrue(  
                 new DeployIntakeCommand(intakeFlop, intakeRoll)
             );
                 
 
-        operatorController.povDown()
+        driverController.rightBumper()
             .whileTrue(
                 new GripCommand(gripper)
             );
 
-        operatorController.povUp()
+        driverController.leftBumper()
             .whileTrue(
                 new ReleaseGripperCommand(gripper)
             );
         
-        operatorController.a()
+        driverController.rightTrigger()
             .whileTrue(
                 new HumanIntakeCommand(arm, gripper)
             );
         
-        operatorController.x()
+        operatorController.a()
+            .whileTrue(
+                new ScoreL2Command(arm).alongWith(
+                    new SequentialCommandGroup(
+                        new WaitCommand(0.5),
+                        new MovePCM(elevator, 0)
+                    )
+                )
+            );
+
+            driverController.a()
             .whileTrue(
                 new ScoreL2Command(arm).alongWith(
                     new SequentialCommandGroup(
@@ -230,7 +242,17 @@ public class RobotContainer {
                 new ScoreL3Command(elevator, arm)
             );
 
+            driverController.b()
+            .whileTrue(
+                new ScoreL3Command(elevator, arm)
+            );
+
         operatorController.y()
+            .whileTrue(
+                new ScoreL4Command(elevator, arm)
+            );
+
+            driverController.y()
             .whileTrue(
                 new ScoreL4Command(elevator, arm)
             );
@@ -240,12 +262,17 @@ public class RobotContainer {
                 new CoralHandOff(elevator, arm, gripper)
             );
 
-        operatorController.povLeft()
+            driverController.povLeft()
+            .onTrue(
+                new CoralHandOff(elevator, arm, gripper)
+            );
+
+        driverController.povRight()
             .whileTrue(
                 new PickAlgaeL2Command(elevator, arm, gripper)
             );
         
-        operatorController.povRight()
+        driverController.povUp()
             .whileTrue(
                 new PickAlgaeL3Command(elevator, arm, gripper)
             );
@@ -467,8 +494,8 @@ public class RobotContainer {
 
     private void configureDrivetrainBindings() {
                 //Vison alignment
-        // operatorController.start().onTrue(new ResetGyro(swerve, seaweed,
-        // pidgey));
+        operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed,
+         pidgey));
         //.withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
         // pidgey)).withTimeout(5));
         //operatorController.rightStickButton().onTrue(new AlignCommand(swerve, seaweed, pidgey));

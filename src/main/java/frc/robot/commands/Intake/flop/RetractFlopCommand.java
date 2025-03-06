@@ -14,7 +14,11 @@ public class RetractFlopCommand extends SequentialCommandGroup {
     public RetractFlopCommand(IntakeFlop intakeFlop) {
         addRequirements(intakeFlop);
         addCommands(
+            new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Brake)),
             new MovePCM(intakeFlop, target)
         );
     }
+
+
+
 }

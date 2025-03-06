@@ -82,7 +82,7 @@ public class Elevator extends PositionControlledMotor {
             followerId,
             gearRatio,
             positionTolerance,
-            true);
+            false);
     }
 
     @Override

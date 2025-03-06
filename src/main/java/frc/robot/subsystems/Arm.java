@@ -79,6 +79,6 @@ public class Arm extends PositionControlledMotor{
             gearRatio,
             encoderRatio,
             positionTolerance,
-            true);
+            false);
     } 
 }

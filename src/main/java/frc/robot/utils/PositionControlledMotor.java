@@ -16,6 +16,8 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 
 public abstract class PositionControlledMotor extends SubsystemBase {
     protected Boolean debug = false;
+    private MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
+
 
     private final NetworkTable configTable;
     protected final TalonFX followerMotor;
@@ -27,6 +29,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private final double positionTolerance;
     private final double gearRatio;
     private final double encoderRatio;
+    
+    private double minPosition;
+        
+    private double maxPosition;
 
     public PositionControlledMotor(
         TalonFXConfiguration talonConfig, 
@@ -139,7 +145,13 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
 
         configTable = NetworkTableInstance.getDefault().getTable("MotorConfig/" + name);
-                
+
+        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
+        motor.getConfigurator().refresh(softLimitConfigs);
+
+        minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
+        maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
+
         configureMotor();
         
         if (debug) {
@@ -182,13 +194,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     public void goToPosition(double targetPositionDegrees) {
         double targetPosition = degreesToRotations(targetPositionDegrees);
-        MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
-
-        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-        motor.getConfigurator().refresh(softLimitConfigs);
-
-        double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-        double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
 
         targetPosition = Math.min(Math.max(targetPosition, minPosition), maxPosition);// Clamp target to a valid range
         motionMagicDutyCycle.withPosition(targetPosition);
@@ -362,26 +367,26 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             followerMotor.stopMotor();
         }
     }
-    protected void setVoltage(double volts) {
-        VoltageOut voltageRequest = new VoltageOut(0);
-        double position = getPosition();
+    // protected void setVoltage(double volts) {
+    //     VoltageOut voltageRequest = new VoltageOut(0);
+    //     double position = getPosition();
 
-        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-        motor.getConfigurator().refresh(softLimitConfigs);
+    //     SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
+    //     motor.getConfigurator().refresh(softLimitConfigs);
 
-        double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-        double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
+    //     double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
+    //     double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
         
-        if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
-            stop();
-            return;
-        }
+    //     if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
+    //         stop();
+    //         return;
+    //     }
 
-        motor.setControl(voltageRequest.withOutput(volts));
-        if (followerMotor != null){
-            followerMotor.setControl(voltageRequest);
-        }
-    }
+    //     motor.setControl(voltageRequest.withOutput(volts));
+    //     if (followerMotor != null){
+    //         followerMotor.setControl(voltageRequest);
+    //     }
+    // }
 
     protected void resetPosition() {
         StatusCode stat = motor.setPosition(0);

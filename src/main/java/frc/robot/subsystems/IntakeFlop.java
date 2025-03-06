@@ -84,7 +84,7 @@ public class IntakeFlop extends PositionControlledMotor {
         motorId,
         gearRatio,
         positionTolerance,
-        true);
+        false);
 
         deployedTrigger = new Trigger(() -> getPosition() >= 90);
         coralTriggrt = new Trigger(() -> coralPresent());

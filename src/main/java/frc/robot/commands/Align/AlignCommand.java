@@ -67,11 +67,12 @@ public class AlignCommand extends Command {
     private double limelightAimProportional() {
         // kP (constant of proportionality)
         // Determines the aggressiveness of the proportional control loop
-        double kP = 0.01;
+        double kP = 1;
         double goalDistance = 0.1; // meters
         // Get the "tx" value from the Limelight
         double distanceX  = Math.tan(Math.toRadians(m_limelight.get_tx()))*Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
-        double targetingAngularVelocity = (distanceX-goalDistance) * m_pidController.getP();
+        //double targetingAngularVelocity = (distanceX-goalDistance) * kP;
+        double targetingAngularVelocity = m_limelight.get_tx() * kP;
 
         SmartDashboard.putNumber("limelightX: ", m_limelight.get_tx());
 
@@ -89,7 +90,7 @@ public class AlignCommand extends Command {
     // Works best if the Limelight's mount height and target mount height are different.
     private double limelightRangeProportional() {
     
-        double kP = 0.06;
+        double kP = 1;
 
         // Get the "ty" value from the Limelight
         // double targetingForwardSpeed = m_Vision.getTY() * kP;
@@ -97,11 +98,12 @@ public class AlignCommand extends Command {
         double goalDistance = 0.5; // meters
         double distance = Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
 
-        double targetingForwardSpeed = (distance-goalDistance) * m_pidController.getP();
+        //double targetingForwardSpeed = (distance-goalDistance) * kP;
+        double targetingForwardSpeed = m_limelight.get_ty() * kP;
 
 
     
-        // Convert to meters per second for the drivetrain
+        // Convert to meters per second for the dr[]\ivetrain
         targetingForwardSpeed *= -TunerConstants.kSpeedAt12Volts.magnitude();
     
         // Invert the direction for proper control
@@ -129,8 +131,8 @@ public class AlignCommand extends Command {
 
         m_Swerve.setControl(
             m_driveRequest
-                .withVelocityX(xSpeed)  
-                .withVelocityY(yspeed)
+                .withVelocityX(limelightRangeProportional())  
+                .withVelocityY(limelightAimProportional())
         );
 
     }

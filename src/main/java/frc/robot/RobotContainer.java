@@ -143,6 +143,7 @@ public class RobotContainer {
         // Use event markers as triggers
         new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
         pidgey.clearStickyFault_BootDuringEnable();
+
             
 
         boolean jog = false;
@@ -591,8 +592,7 @@ public class RobotContainer {
 
         driverController.y().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
         driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
-
-
+        
 
         // driverController.rightBumper().and(driverController.povUp()
         //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));

@@ -16,6 +16,8 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +33,7 @@ import frc.robot.commands.ElevateAndRotate;
 import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
+import frc.robot.commands.Align.AlignCommand;
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
@@ -140,7 +143,7 @@ public class RobotContainer {
         // Use event markers as triggers
         new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
         pidgey.clearStickyFault_BootDuringEnable();
-
+        pidgey.setYaw(90);
         boolean jog = false;
                 
         pidgey.clearStickyFault_BootDuringEnable();

@@ -18,9 +18,9 @@ public class Arm extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
     private final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 160;
+    private final static double maxAcceleration = 200;
     private final static Boolean invertEncoder = true;
-    private final static double maxVelocity = 80;
+    private final static double maxVelocity = 150;
     private final static double minPosition = -360;
     private final static double maxPosition = 360;
     private final static String name = "Arm";
@@ -43,18 +43,18 @@ public class Arm extends PositionControlledMotor{
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(maxVelocity)
                     .withMotionMagicAcceleration(maxAcceleration)
-                    .withMotionMagicJerk(10)
+                    .withMotionMagicJerk(10000)
             )
             .withSlot0(
                 new Slot0Configs()
-                    .withKP(.5)
+                    .withKP(.05)
                     .withKI(0)
                     .withKD(0)
-                    .withKS(0)
-                    .withKG(0.06)
+                    .withKS(0.01)
+                    .withKG(0.015)
                     .withKV(0)
                     .withKA(0)
-                    .withGravityType(GravityTypeValue.Elevator_Static)
+                    .withGravityType(GravityTypeValue.Arm_Cosine)
             )
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs()
@@ -79,6 +79,6 @@ public class Arm extends PositionControlledMotor{
             gearRatio,
             encoderRatio,
             positionTolerance,
-            true);
+            false);
     } 
 }

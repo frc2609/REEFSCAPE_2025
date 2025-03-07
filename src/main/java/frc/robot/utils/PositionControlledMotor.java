@@ -16,19 +16,23 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 
 public abstract class PositionControlledMotor extends SubsystemBase {
     protected Boolean debug = false;
+    private MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
+
 
     private final NetworkTable configTable;
-    private final TalonFX followerMotor;
-    private final TalonFX motor;
+    protected final TalonFX followerMotor;
+    protected final TalonFX motor;
 
     private final TalonFXConfiguration talonConfig;
     private final DutyCycleEncoder encoder;
     private final String name;
-    private final int motorId;
-    private final int followerId;
     private final double positionTolerance;
     private final double gearRatio;
     private final double encoderRatio;
+    
+    private double minPosition;
+        
+    private double maxPosition;
 
     public PositionControlledMotor(
         TalonFXConfiguration talonConfig, 
@@ -119,8 +123,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         this.talonConfig = talonConfig;
         this.encoder = encoder;
         this.name = name;
-        this.motorId = motorId;
-        this.followerId = followerId;
         this.gearRatio = gearRatio;
         this.positionTolerance = positionTolerance;
         this.debug = debug;
@@ -143,19 +145,26 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
 
         configTable = NetworkTableInstance.getDefault().getTable("MotorConfig/" + name);
-                
+
+        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
+        motor.getConfigurator().refresh(softLimitConfigs);
+
+        minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
+        maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
+
         configureMotor();
         
         if (debug) {
             setElasticValues();
         }
+        setPosition();
     }
 
-    private double degreesToRotations(double degrees) {
+    protected double degreesToRotations(double degrees) {
         return degrees / (360 / gearRatio);
     }
 
-    private double rotationsToDegrees(double rotations) {
+    protected double rotationsToDegrees(double rotations) {
         return rotations * (360 / gearRatio);
     }
 
@@ -185,13 +194,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     public void goToPosition(double targetPositionDegrees) {
         double targetPosition = degreesToRotations(targetPositionDegrees);
-        MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
-
-        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-        motor.getConfigurator().refresh(softLimitConfigs);
-
-        double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-        double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
 
         targetPosition = Math.min(Math.max(targetPosition, minPosition), maxPosition);// Clamp target to a valid range
         motionMagicDutyCycle.withPosition(targetPosition);
@@ -215,7 +217,17 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             SmartDashboard.putNumber(name + " Current", getCurrent());
             SmartDashboard.putNumber(name + " Voltage", getVoltage());
             SmartDashboard.putNumber(name + " Abs pos", getAbsPosition());
+            SmartDashboard.putNumber(name + " Raw pos", getRawPosition());
+            SmartDashboard.putNumber(name + " Rotor pos", getRotorPosition());
             
+            if(followerMotor != null){
+                SmartDashboard.putNumber(name + "Follower Position", getPositionFollower());
+                SmartDashboard.putNumber(name + "Follower Velocity", getVelocityFollower());
+                SmartDashboard.putNumber(name + "Follower Current", getCurrentFollower());
+                SmartDashboard.putNumber(name + "Follower Voltage", getVoltageFollower());
+                SmartDashboard.putNumber(name + "Follower Raw pos", getRawPositionFollower());
+                SmartDashboard.putNumber(name + "Follower Rotor pos", getRotorPositionFollower());
+            }
             
             if (updatePressed()) {
                 // TalonFXConfiguration newTalonConfig = new TalonFXConfiguration();
@@ -265,9 +277,15 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private void resetUpdateStatus() {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
-    protected double getPosition(){
+    public double getPosition(){
         double rotationPosition = motor.getPosition().getValueAsDouble();
         return rotationsToDegrees(rotationPosition);
+    }
+    public double getRawPosition() {
+        return motor.getPosition().getValueAsDouble();
+    }
+    public double getRotorPosition() {
+        return motor.getRotorPosition().getValueAsDouble();
     }
     protected double getVelocity(){
         return motor.getVelocity().getValueAsDouble();
@@ -278,15 +296,63 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     protected double getVoltage(){
         return motor.getMotorVoltage().getValueAsDouble();
     }
+    protected double getAbsPosition() {
+        return encoder.get();
+    }
+    public double getPositionFollower(){
+        if (followerMotor != null){
+            double rotationPosition = followerMotor.getPosition().getValueAsDouble();
+            return rotationsToDegrees(rotationPosition);
+        } else {
+            return -1;
+        }
+    }
+    public double getRawPositionFollower() {
+        if (followerMotor != null){
+
+            return followerMotor.getPosition().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    public double getRotorPositionFollower() {
+        if (followerMotor != null){
+
+            return followerMotor.getRotorPosition().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getVelocityFollower(){
+        if (followerMotor != null){
+
+            return followerMotor.getVelocity().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getCurrentFollower(){
+        if (followerMotor != null){
+
+            return followerMotor.getStatorCurrent().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getVoltageFollower(){
+        if (followerMotor != null){
+
+            return followerMotor.getMotorVoltage().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
     protected double getOffset() {
         double offset = getAbsPosition();
         if (offset > 0.5){
             offset -= 1;
         }
         return offset * encoderRatio;
-    }
-    protected double getAbsPosition() {
-        return encoder.get();
     }
     public boolean atPosition() {
         double error = Math.abs(motor.getClosedLoopError().getValueAsDouble());
@@ -301,26 +367,26 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             followerMotor.stopMotor();
         }
     }
-    protected void setVoltage(double volts) {
-        VoltageOut voltageRequest = new VoltageOut(0);
-        double position = getPosition();
+    // protected void setVoltage(double volts) {
+    //     VoltageOut voltageRequest = new VoltageOut(0);
+    //     double position = getPosition();
 
-        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-        motor.getConfigurator().refresh(softLimitConfigs);
+    //     SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
+    //     motor.getConfigurator().refresh(softLimitConfigs);
 
-        double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-        double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
+    //     double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
+    //     double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
         
-        if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
-            stop();
-            return;
-        }
+    //     if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
+    //         stop();
+    //         return;
+    //     }
 
-        motor.setControl(voltageRequest.withOutput(volts));
-        if (followerMotor != null){
-            followerMotor.setControl(voltageRequest);
-        }
-    }
+    //     motor.setControl(voltageRequest.withOutput(volts));
+    //     if (followerMotor != null){
+    //         followerMotor.setControl(voltageRequest);
+    //     }
+    // }
 
     protected void resetPosition() {
         StatusCode stat = motor.setPosition(0);
@@ -347,10 +413,15 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
     }
     public void setPosition() {
-        motor.setPosition(getOffset());
+        StatusCode stat = motor.setPosition(getOffset());
+
+        SmartDashboard.putString("Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("posAfterReset", getPosition());
         
         if (followerMotor != null) {
-            followerMotor.setPosition(getOffset());
+            stat = followerMotor.setPosition(getOffset());
+            SmartDashboard.putString("Follower Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("Follower posAfterReset", getPosition());
         }    
     }
 }

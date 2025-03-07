@@ -59,15 +59,18 @@ public class AlignCommand extends Command {
         m_limelight = limelight;
         m_Pigeon2 = pidgey;
 
+
+        SmartDashboard.putNumber("kpRange", 0.03);
+        SmartDashboard.putNumber("kpAim", 0.03);
         addRequirements(swerve, limelight);
     }
 
 
 
-    private double limelightAimProportional() {
+    private double limelightAimProportional(double m_kpAim) {
         // kP (constant of proportionality)
         // Determines the aggressiveness of the proportional control loop
-        double kP = 1;
+        double kP = m_kpAim;
         double goalDistance = 0.1; // meters
         // Get the "tx" value from the Limelight
         double distanceX  = Math.tan(Math.toRadians(m_limelight.get_tx()))*Math.tan(Math.toRadians(PITCH) + Math.toRadians(m_limelight.get_ty()))*(HEIGHT_OF_TARGET - HEIGHT_OF_LIMELIGHT);
@@ -88,9 +91,10 @@ public class AlignCommand extends Command {
     
     // Proportional ranging control with Limelight's "ty" value
     // Works best if the Limelight's mount height and target mount height are different.
-    private double limelightRangeProportional() {
+    private double limelightRangeProportional(double m_kpRange) {
     
-        double kP = 1;
+        double kP = m_kpRange;
+
 
         // Get the "ty" value from the Limelight
         // double targetingForwardSpeed = m_Vision.getTY() * kP;
@@ -119,20 +123,23 @@ public class AlignCommand extends Command {
 
     }
 
+
+    
     public void execute(){
         // double rot = limelightAimProportional();
-
+        double kpRange = SmartDashboard.getNumber("kpRange", 0.03);
+        double kpAim = SmartDashboard.getNumber("kpAim", 0.05);
         LimelightHelpers.setPipelineIndex("limelight", 2);
         // Store the ID of the AprilTag the Limelight is seeing
-         double xSpeed = limelightRangeProportional(); 
+         double xSpeed = limelightRangeProportional(kpRange); 
          //use this for the aming if the april tag is able to still see the target
-         double yspeed = limelightAimProportional();
+         double yspeed = limelightAimProportional(kpAim);
         System.out.println(xSpeed);
 
         m_Swerve.setControl(
             m_driveRequest
-                .withVelocityX(limelightRangeProportional())  
-                .withVelocityY(limelightAimProportional())
+                .withVelocityX(limelightAimProportional(-0.1))  
+                .withVelocityY(limelightRangeProportional(kpAim))
         );
 
 

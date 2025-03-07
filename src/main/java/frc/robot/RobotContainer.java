@@ -209,10 +209,10 @@ public class RobotContainer {
                 new GripCommand(gripper)
             );
 
-        // driverController.leftBumper()
-        //     .whileTrue(
-        //         new ReleaseGripperCommand(gripper)
-        //     );
+        driverController.leftBumper()
+            .whileTrue(
+                new ReleaseGripperCommand(gripper)
+            );
         
         driverController.rightTrigger()
             .whileTrue(
@@ -231,7 +231,7 @@ public class RobotContainer {
 
             driverController.a()
             .whileTrue(
-                new ScoreL2Command(arm).alongWith(
+                new ScoreL4Command(elevator, arm).alongWith(
                     new SequentialCommandGroup(
                         new WaitCommand(0.5),
                         new MovePCM(elevator, 0)
@@ -574,7 +574,8 @@ public class RobotContainer {
         //                 -driverController.getLeftX()))));
 
         int ID = 18;
-        double distanceOffset = 1;
+        double distanceOffset = 0.3
+        ;
         double coralOffset = REEF_SIDE * -1 / 2;
        AprilTagFieldLayout fieldLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
@@ -583,12 +584,13 @@ public class RobotContainer {
         fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getX() +
         Math.cos(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
         fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getY() +
-        Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset,
+        Math.sin(fieldLayout.getTagPose((int)Math.round(ID)).get().getRotation().getAngle())*distanceOffset + 0.05,
         new
         Rotation2d(fieldLayout.getTagPose((int)Math.round(ID)).get().toPose2d().getRotation().getRadians()
-        - Math.PI/2)
+        - Math.PI)
         )));
 
+        
         driverController.y().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
         driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
         

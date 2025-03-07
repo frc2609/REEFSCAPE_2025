@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.Align;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;

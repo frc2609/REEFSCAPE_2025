@@ -10,7 +10,7 @@ import frc.robot.subsystems.Elevator;
 public class ScoreL2Command extends SequentialCommandGroup{
     public ScoreL2Command(Arm arm){
         addCommands(
-            new MovePCM(arm, -222)
+            new MovePCM(arm, -227)
         );
     }
 

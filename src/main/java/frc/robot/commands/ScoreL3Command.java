@@ -10,7 +10,7 @@ import frc.robot.subsystems.Elevator;
 public class ScoreL3Command extends ParallelCommandGroup{
     public ScoreL3Command(Elevator elevator, Arm arm){
         addCommands(
-            new MovePCM(elevator, 14),
+            new MovePCM(elevator, 12),
             new SequentialCommandGroup(
                 new WaitCommand(.5),
                 new MovePCM(arm, -222)

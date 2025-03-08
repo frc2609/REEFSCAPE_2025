@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -43,6 +44,7 @@ import frc.robot.commands.Intake.RetractIntaceCommand;
 import frc.robot.commands.Intake.flop.RetractFlopCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
+import frc.robot.commands.climber.ZeroClimber;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
@@ -135,14 +137,21 @@ public class RobotContainer {
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
+
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {
-                
+    public RobotContainer() {  
+            
         // Use event markers as triggers
-        new EventTrigger("Example Marker").onTrue(Commands.print("Passed an event marker"));
-        pidgey.clearStickyFault_BootDuringEnable();
+        new EventTrigger("L4 Score").onTrue(
+            new SequentialCommandGroup(
+                new ScoreL4Command(elevator, arm),
+                new WaitCommand(0.5),
+                new ReleaseGripperCommand(gripper)
+          )
+        );
+
 
         boolean jog = false;
                 
@@ -213,14 +222,17 @@ public class RobotContainer {
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
+        climber.setDefaultCommand(new ZeroClimber(climber));
 
-        climber.setDefaultCommand(new RetractClimberCommand(climber));        
+
+        //climber.setDefaultCommand(new RetractClimberCommand(climber));        
         
         // Climber
 
         operatorController.rightTrigger()
             .whileTrue(
                 new DeployClimberCommand(climber));
+
 
         driverController.leftTrigger()
             .whileTrue(  
@@ -305,26 +317,26 @@ public class RobotContainer {
         
         
     }
-        
-
+    
+    
+    public double smootherJoystick(double x) {
+        x = Math.max(-1.0, Math.min(1.0, x));
+        double absX = Math.abs(x);
+        // SmootherStep: 6|x|^5 - 15|x|^4 + 10|x|^3
+        double smooth = 6 * Math.pow(absX, 5) - 15 * Math.pow(absX, 4) + 10 * Math.pow(absX, 3);
+        return Math.copySign(smooth, x);
+    }
     private void configureDrivetrainBindings() {
-                //Vison alignment
-        //.withTimeout(0.75).andThen(new AlignCommand(swerve, seaweed,
-        // pidgey)).withTimeout(5));
-        //operatorController.rightStickButton().onTrue(new AlignCommand(swerve, seaweed, pidgey));
-        
-        //Drive Train
-       // driverController.start()// reset gyro/ yaw
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
          drivetrain.setDefaultCommand(
                  // Drivetrain will execute this command periodically
-                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
+                 drivetrain.applyRequest(() -> drive.withVelocityX(smootherJoystick(-driverController.getLeftY()) * MaxSpeed) // Drive forward with
                                                                                                     // negative Y
                                                                                                     // (forward)
-                         .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                         .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with
+                         .withVelocityY(smootherJoystick(-driverController.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
+                         .withRotationalRate(smootherJoystick(-driverController.getRightX()) * MaxAngularRate) // Drive counterclockwise with
                                                                                      // negative X (left)
                  ));
 
@@ -360,7 +372,7 @@ public class RobotContainer {
         ;
         double coralOffset = 0.27;
        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-        Integer selectedID = ID.getSelected();
+        Integer selectedID = 18;
         if(isRight){
                 if(selectedID == 18 || selectedID == 21){
                         operatorController.rightBumper().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
@@ -417,7 +429,7 @@ public class RobotContainer {
 
         
         operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
-        driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
+        //driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
         
 
         // driverController.rightBumper().and(driverController.povUp()

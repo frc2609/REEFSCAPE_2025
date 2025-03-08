@@ -18,11 +18,11 @@ public class DeployFlopCommand extends SequentialCommandGroup {
                 new WaitUntilCommand(intakeFlop.deployedTrigger),
                 new InstantCommand(() -> intakeFlop.stop()),
                 new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Coast))
-            ),
-            new SequentialCommandGroup(
-                new WaitUntilCommand(intakeFlop.coralTriggrt),
-                new RetractFlopCommand(intakeFlop)
-            )
+            )//,
+            // new SequentialCommandGroup(
+            //     new WaitUntilCommand(intakeFlop.coralTriggrt),
+            //     new RetractFlopCommand(intakeFlop)
+            // )
         );
     }
 }

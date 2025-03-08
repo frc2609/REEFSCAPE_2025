@@ -16,22 +16,55 @@
     },
     {
       "anchor": {
-        "x": 5.4,
-        "y": 5.3
+        "x": 5.526331967213115,
+        "y": 5.1098872950819665
       },
       "prevControl": {
-        "x": 5.915471311475409,
-        "y": 5.899385245901639
+        "x": 5.790479619850777,
+        "y": 5.363032983921816
+      },
+      "nextControl": {
+        "x": 5.262184314575452,
+        "y": 4.856741606242117
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.579303278688525,
+        "y": 5.937038934426229
+      },
+      "prevControl": {
+        "x": 5.559751996637246,
+        "y": 5.988641498528793
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.8315565031982975,
+      "rotationDegrees": -123.48259669820565
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "L4 Score",
+      "waypointRelativePos": 1.0641458474004184,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": []
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -45,10 +78,10 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "Orbit",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 174.79709821701766
   },
   "useDefaultConstraints": true
 }

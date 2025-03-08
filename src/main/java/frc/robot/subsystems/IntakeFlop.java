@@ -27,7 +27,7 @@ public class IntakeFlop extends PositionControlledMotor {
     private final static int encoderId = 3;
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     private final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 300;
+    private final static double maxAcceleration = 200;
     private final static Boolean invertEncoder = false;
     private final static double maxVelocity = 1000;
     private final static double minPosition = -20;
@@ -84,7 +84,7 @@ public class IntakeFlop extends PositionControlledMotor {
         motorId,
         gearRatio,
         positionTolerance,
-        false);
+        true);
 
         deployedTrigger = new Trigger(() -> getPosition() >= 90);
         coralTriggrt = new Trigger(() -> coralPresent());

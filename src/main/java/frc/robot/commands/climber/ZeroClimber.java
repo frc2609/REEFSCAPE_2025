@@ -3,18 +3,18 @@ package frc.robot.commands.climber;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
-public class RetractClimberCommand extends Command {
+
+public class ZeroClimber extends Command {
     private final Climber climber;
 
-    public RetractClimberCommand(Climber climber) {
+    public ZeroClimber(Climber climber) {
         this.climber = climber;
         addRequirements(climber);
     }
 
-
     @Override
     public void execute() {
-        climber.goToPosition(0.0);
+        climber.goToPosition(-20);
     }
 
     @Override

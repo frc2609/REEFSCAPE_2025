@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,6 +23,17 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
   }
+
+  @Override
+  public void robotInit() {
+DataLogManager.start();
+// Record both DS control and joystick data
+DriverStation.startDataLog(DataLogManager.getLog());
+  }
+
+
+
+
 
   @Override
   public void disabledInit() {}

@@ -372,20 +372,18 @@ public class RobotContainer {
         //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
         //                 -driverController.getLeftX()))));
 
-        double distanceOffset = 0.25
+        double distanceOffset = 1
         ;
         double coralOffset = 0.27;
        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         Integer selectedID = 18;
         operatorController.povUp().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            fieldLayout.getTagPose(4).get().toPose2d().getX() +
-            Math.sin(fieldLayout.getTagPose(4).get().getRotation().getAngle()) * coralOffset,
-            Math.cos(fieldLayout.getTagPose(4).get().getRotation().getAngle())*distanceOffset + 
-            fieldLayout.getTagPose(4).get().toPose2d().getY() +
-            Math.sin(fieldLayout.getTagPose(4).get().getRotation().getAngle())*distanceOffset + 0.05 + 
-            Math.cos(fieldLayout.getTagPose(4).get().getRotation().getAngle()) * coralOffset,
+            fieldLayout.getTagPose(10).get().toPose2d().getX() +
+            Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
+            fieldLayout.getTagPose(10).get().toPose2d().getY() +
+            Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
             new
-            Rotation2d(fieldLayout.getTagPose(4).get().toPose2d().getRotation().getRadians()
+            Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians()
             - Math.PI)
             )));
         

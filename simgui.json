@@ -7,6 +7,7 @@
       "/SmartDashboard/Auto Mode": "String Chooser",
       "/SmartDashboard/Example Auto": "Command",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/ID Chooser": "String Chooser",
       "/SmartDashboard/Module 0": "Mechanism2d",
       "/SmartDashboard/Module 1": "Mechanism2d",
       "/SmartDashboard/Module 2": "Mechanism2d",
@@ -75,7 +76,10 @@
     "transitory": {
       "SmartDashboard": {
         "Auto Mode": {
-          "open": true
+          "open": true,
+          "string[]##v_/SmartDashboard/Auto Mode/options": {
+            "open": true
+          }
         },
         "Example Auto": {
           "open": true

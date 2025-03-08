@@ -19,6 +19,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -150,8 +152,8 @@ public class RobotContainer {
                 new WaitCommand(0.5),
                 new ReleaseGripperCommand(gripper)
           )
-        );
 
+        );
 
         boolean jog = false;
                 
@@ -224,6 +226,8 @@ public class RobotContainer {
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
         climber.setDefaultCommand(new ZeroClimber(climber));
 
+
+        
 
         //climber.setDefaultCommand(new RetractClimberCommand(climber));        
         
@@ -373,59 +377,18 @@ public class RobotContainer {
         double coralOffset = 0.27;
        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         Integer selectedID = 18;
-        if(isRight){
-                if(selectedID == 18 || selectedID == 21){
-                        operatorController.rightBumper().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getX() +
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * coralOffset,
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getY() +
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 0.05 + 
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * coralOffset,
-                                new
-                                Rotation2d(fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getRotation().getRadians()
-                                - Math.PI)
-                                )));
-                }else{
-                        operatorController.rightBumper().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getX() +
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * -coralOffset,
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getY() +
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 0.05 + 
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * -coralOffset,
-                                new
-                                Rotation2d(fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getRotation().getRadians()
-                                - Math.PI)
-                                )));
-                }
-        }else{
-                if(selectedID == 18 || selectedID == 21){
-                        operatorController.rightBumper().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getX() +
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * -coralOffset,
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getY() +
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 0.05 + 
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * -coralOffset,
-                                new
-                                Rotation2d(fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getRotation().getRadians()
-                                - Math.PI)
-                                )));
-                }else{
-                        operatorController.rightBumper().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getX() +
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * coralOffset,
-                                fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getY() +
-                                Math.sin(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle())*distanceOffset + 0.05 + 
-                                Math.cos(fieldLayout.getTagPose((int)Math.round(selectedID)).get().getRotation().getAngle()) * coralOffset,
-                                new
-                                Rotation2d(fieldLayout.getTagPose((int)Math.round(selectedID)).get().toPose2d().getRotation().getRadians()
-                                - Math.PI)
-                                )));
-                }
-        }
+        operatorController.povUp().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+            fieldLayout.getTagPose(4).get().toPose2d().getX() +
+            Math.sin(fieldLayout.getTagPose(4).get().getRotation().getAngle()) * coralOffset,
+            Math.cos(fieldLayout.getTagPose(4).get().getRotation().getAngle())*distanceOffset + 
+            fieldLayout.getTagPose(4).get().toPose2d().getY() +
+            Math.sin(fieldLayout.getTagPose(4).get().getRotation().getAngle())*distanceOffset + 0.05 + 
+            Math.cos(fieldLayout.getTagPose(4).get().getRotation().getAngle()) * coralOffset,
+            new
+            Rotation2d(fieldLayout.getTagPose(4).get().toPose2d().getRotation().getRadians()
+            - Math.PI)
+            )));
+        
 
         
         operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));

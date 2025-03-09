@@ -323,12 +323,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Command getPathPlannerCommandToAprilTag(Pose2d targetPose) {
-        LimelightHelpers.setPipelineIndex("limelight", 1);
+        LimelightHelpers.setPipelineIndex("limelight-april", 1);
         System.out.println("entra");
         return AutoBuilder.pathfindToPose(
             targetPose, 
             new PathConstraints(
-                1, 1.0, 
+                0.5, 1.0, 
                 Units.degreesToRadians(360),
                 Units.degreesToRadians(540)
             ), 

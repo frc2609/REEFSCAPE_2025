@@ -19,7 +19,7 @@ public class Climber extends PositionControlledMotor{
     private final static double maxAcceleration = 50;
     private final static Boolean invertEncoder = false;
     private final static double maxVelocity = 100;
-    private final static double minPosition = -20;
+    private final static double minPosition = -200;
     private final static double maxPosition = 400;
     private final static String name = "Climber";
     private final static Double gearRatio = 648.148;

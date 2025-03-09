@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.net.PortForwarder;
@@ -64,6 +65,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
+
 
 public class RobotContainer {
 
@@ -128,37 +130,61 @@ public class RobotContainer {
 
     private double targetPosition = 0.0;
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
-    private final String limeLightName = "limelight";
+    private final String limeLightName = "limelight-april";
     private Field2d m_field = new Field2d();
 
     private static double REEF_SIDE = 0.813;
 
-    public final Limelight seaweed = new Limelight("limelight");
+    public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
     private final Gripper gripper = new Gripper();
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
-
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {  
-            
+        double distanceOffset = 0.25
+        ;
+        double coralOffset = 0.27;
+       AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        Integer selectedID = 6;
         // Use event markers as triggers
+        new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
         new EventTrigger("L4 Score").onTrue(
             new SequentialCommandGroup(
                 new ScoreL4Command(elevator, arm),
+                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
                 new WaitCommand(0.5),
-                new ReleaseGripperCommand(gripper)
+                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                    fieldLayout.getTagPose(6).get().toPose2d().getX() +
+                    Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle()) * distanceOffset,
+                    fieldLayout.getTagPose(6).get().toPose2d().getY() +
+                    Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*distanceOffset,
+                    new
+                    Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians()
+                    - Math.PI)
+                    )),
+                new WaitCommand(0.5),
+
+                new ReleaseGripperCommand(gripper),
+                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(6.1, 4.1, new Rotation2d())),
+                new WaitCommand(0.5)
           )
 
         );
+        new EventTrigger("Wait").onTrue(new WaitCommand(8));
+
+
+
+
 
         boolean jog = false;
                 
         
         if (jog == true){
+
             configureJogBindings();
         } else {
             configureBindings();    
@@ -224,7 +250,6 @@ public class RobotContainer {
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
-        climber.setDefaultCommand(new ZeroClimber(climber));
 
 
         
@@ -235,7 +260,13 @@ public class RobotContainer {
 
         operatorController.rightTrigger()
             .whileTrue(
-                new DeployClimberCommand(climber));
+                new DeployClimberCommand(climber))
+                .onFalse(
+                    new RetractClimberCommand(climber)
+                );
+
+                
+         
 
 
         driverController.leftTrigger()
@@ -331,16 +362,16 @@ public class RobotContainer {
         return Math.copySign(smooth, x);
     }
     private void configureDrivetrainBindings() {
-
+        int power = 3;
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
          drivetrain.setDefaultCommand(
                  // Drivetrain will execute this command periodically
-                 drivetrain.applyRequest(() -> drive.withVelocityX(smootherJoystick(-driverController.getLeftY()) * MaxSpeed) // Drive forward with
+                 drivetrain.applyRequest(() -> drive.withVelocityX(Math.copySign(Math.pow(-driverController.getLeftY(), power), -driverController.getLeftY()) * MaxSpeed) // Drive forward with
                                                                                                     // negative Y
                                                                                                     // (forward)
-                         .withVelocityY(smootherJoystick(-driverController.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
-                         .withRotationalRate(smootherJoystick(-driverController.getRightX()) * MaxAngularRate) // Drive counterclockwise with
+                         .withVelocityY(Math.copySign(Math.pow(-driverController.getLeftX(), power), -driverController.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
+                         .withRotationalRate(Math.copySign(Math.pow(-driverController.getRightX(), power), -driverController.getRightX()) * MaxAngularRate) // Drive counterclockwise with
                                                                                      // negative X (left)
                  ));
 
@@ -372,18 +403,18 @@ public class RobotContainer {
         //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
         //                 -driverController.getLeftX()))));
 
-        double distanceOffset = 1
+        double distanceOffset = 0.25
         ;
         double coralOffset = 0.27;
        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-        Integer selectedID = 18;
+        Integer selectedID = 6;
         operatorController.povUp().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            fieldLayout.getTagPose(10).get().toPose2d().getX() +
-            Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
-            fieldLayout.getTagPose(10).get().toPose2d().getY() +
-            Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
+            fieldLayout.getTagPose(6).get().toPose2d().getX() +
+            Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle()) * distanceOffset,
+            fieldLayout.getTagPose(6).get().toPose2d().getY() +
+            Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*distanceOffset,
             new
-            Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians()
+            Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians()
             - Math.PI)
             )));
         
@@ -414,14 +445,17 @@ public class RobotContainer {
 
         // // reset the field-centric heading on left bumper press\[]
          driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+         if(LimelightHelpers.getTargetPose3d_CameraSpace(limeLightName)!= null){
          operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
+         operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
+         }
 
          drivetrain.registerTelemetry(logger::telemeterize);
          }
 
     public void robotInit() {
         for (int port = 5800; port <= 5810; port++) {
-            PortForwarder.add(port, "limelight.local", port);
+            PortForwarder.add(port, "limelight-april.local", port);
         }
 
     }

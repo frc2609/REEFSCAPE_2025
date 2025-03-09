@@ -5,23 +5,35 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
+import edu.wpi.first.wpilibj.DutyCycle;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private final DigitalSource sourcePWMX = new DigitalInput(9);
+  private final DutyCycle dutyPWMX = new DutyCycle(sourcePWMX);
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+    
+
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    SmartDashboard.putNumber("Reef", dutyPWMX.getOutput());
   }
 
   @Override
@@ -51,6 +63,7 @@ DriverStation.startDataLog(DataLogManager.getLog());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.climber.goToPosition(-50);
   }
 
   @Override
@@ -64,6 +77,7 @@ DriverStation.startDataLog(DataLogManager.getLog());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.climber.goToPosition(-50);
   }
 
   @Override

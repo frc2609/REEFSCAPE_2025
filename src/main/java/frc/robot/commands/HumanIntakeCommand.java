@@ -9,7 +9,7 @@ import frc.robot.subsystems.Gripper;
 public class HumanIntakeCommand extends ParallelCommandGroup {
     public HumanIntakeCommand(Arm arm, Gripper gripper){
         addCommands(
-            new MovePCM(arm, -70),
+            new MovePCM(arm, -72),
             new GripCommand(gripper)
         );
     }

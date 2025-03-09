@@ -113,12 +113,14 @@ public class ResetGyro extends Command {
 
     public void execute(){
 
-        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight")[5];
+        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-april")[5];
+        if(LimelightHelpers.getBotPose("limelight-april") != null){
+            m_Swerve.setControl(
+                m_driveRequest
+                    .withRotationalRate(-tagYaw * 0.06)
+            );
+        }
 
-        m_Swerve.setControl(
-            m_driveRequest
-                .withRotationalRate(-tagYaw * 0.06)
-        );
         SmartDashboard.putNumber("Angle",m_Pigeon2.getAccumGyroY().getValueAsDouble());
         //m_Swerve.applyRequest(()->m_driveRequest.withVelocityX(xSpeed));
     }

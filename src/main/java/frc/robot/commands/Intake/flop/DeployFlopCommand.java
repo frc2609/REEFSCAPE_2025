@@ -9,7 +9,7 @@ import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.IntakeFlop;
 
 public class DeployFlopCommand extends SequentialCommandGroup {
-    private final double target = 95;
+    private final double target = 195;
 
     public DeployFlopCommand(IntakeFlop intakeFlop) {
         addCommands(

@@ -11,7 +11,7 @@ import frc.robot.subsystems.Gripper;
 public class PickAlgaeL3Command extends ParallelCommandGroup{
     public PickAlgaeL3Command(Elevator elevator, Arm arm, Gripper gripper) {
         addCommands(
-            new MovePCM(elevator, 18),
+            new MovePCM(elevator, 20),
             new MovePCM(arm, 45),
             new GripCommand(gripper)
         );

@@ -367,26 +367,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             followerMotor.stopMotor();
         }
     }
-    // protected void setVoltage(double volts) {
-    //     VoltageOut voltageRequest = new VoltageOut(0);
-    //     double position = getPosition();
-
-    //     SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-    //     motor.getConfigurator().refresh(softLimitConfigs);
-
-    //     double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-    //     double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
-        
-    //     if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
-    //         stop();
-    //         return;
-    //     }
-
-    //     motor.setControl(voltageRequest.withOutput(volts));
-    //     if (followerMotor != null){
-    //         followerMotor.setControl(voltageRequest);
-    //     }
-    // }
 
     protected void resetPosition() {
         StatusCode stat = motor.setPosition(0);

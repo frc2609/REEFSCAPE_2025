@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,6 +43,7 @@ import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
+import frc.robot.commands.ScoreL4CommandAuto;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntaceCommand;
 import frc.robot.commands.Intake.flop.RetractFlopCommand;
@@ -91,7 +93,9 @@ public class RobotContainer {
     // SwerveRequest.RobotCentric()
     // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
+    private double HalfMaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/2; 
+    private double TopSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     private SendableChooser<Command> autoChooser;
@@ -152,29 +156,71 @@ public class RobotContainer {
         Integer selectedID = 6;
         // Use event markers as triggers
         new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-        new EventTrigger("L4 Score").onTrue(
-            new SequentialCommandGroup(
-                new ScoreL4Command(elevator, arm),
-                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
-                new WaitCommand(0.5),
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose(6).get().toPose2d().getX() +
-                    Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle()) * distanceOffset,
-                    fieldLayout.getTagPose(6).get().toPose2d().getY() +
-                    Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*distanceOffset,
-                    new
-                    Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians()
-                    - Math.PI)
-                    )),
-                new WaitCommand(0.5),
+     //  new  NamedCommands("score suff", gripper.ReleaseGripperCommand()); 
+       
+        // new EventTrigger("L4 Score").onTrue(
+        //     new SequentialCommandGroup(
+        //         new ScoreL4Command(elevator, arm),
+        //         drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
+        //         new WaitCommand(0.5),
+        //         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+        //             fieldLayout.getTagPose(6).get().toPose2d().getX() +
+        //             Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle()) * distanceOffset,
+        //             fieldLayout.getTagPose(6).get().toPose2d().getY() +
+        //             Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*distanceOffset,
+        //             new
+        //             Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians()
+        //             - Math.PI)
+        //             )),
+        //         new WaitCommand(0.5),
 
-                new ReleaseGripperCommand(gripper),
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(6.1, 4.1, new Rotation2d())),
-                new WaitCommand(0.5)
-          )
+        //         new ReleaseGripperCommand(gripper),
+        //         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(6.1, 4.1, new Rotation2d())),
+        //         new WaitCommand(0.5)
+        //   )
 
-        );
+        // );
+        NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
+
+        new EventTrigger("align 21").onTrue( drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+            fieldLayout.getTagPose(10).get().toPose2d().getX() +
+            Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
+            fieldLayout.getTagPose(10).get().toPose2d().getY() +
+            Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
+            new
+            Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians()
+            - Math.PI)
+            )));
+        NamedCommands.registerCommand("Score L4 new", new SequentialCommandGroup(
+            new ScoreL4Command(elevator, arm),
+            new WaitCommand(0.75),
+            new ReleaseGripperCommand(gripper).withTimeout(1)
+
+        ));
+        NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+            4, 8, new Rotation2d(0))));
         new EventTrigger("Wait").onTrue(new WaitCommand(8));
+        /*NamedCommands.registerCommand("Align middle red", new SequentialCommandGroup( 
+        drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
+        new WaitCommand(0.5),
+        Commands.print("reset"),
+        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+            fieldLayout.getTagPose(10).get().toPose2d().getX() +
+            Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
+            fieldLayout.getTagPose(10).get().toPose2d().getY() +
+            Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
+            new
+            Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians()
+            - Math.PI)
+            ))));
+        NamedCommands.registerCommand("L4 Score middle", new SequentialCommandGroup(
+,
+            new WaitCommand(0.5),
+            new ScoreL4CommandAuto(elevator, arm, gripper),
+
+            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(7, 4, new Rotation2d())),
+            new WaitCommand(0.5)
+      ));*/
 
 
 
@@ -285,10 +331,10 @@ public class RobotContainer {
                 new ReleaseGripperCommand(gripper)
             );
         
-        driverController.rightTrigger()
-            .whileTrue(
-                new HumanIntakeCommand(arm, gripper)
-            );
+        // driverController.rightTrigger()
+        //     .whileTrue(
+        //         new HumanIntakeCommand(arm, gripper, elevator)
+        //     );
         
         operatorController.a()
             .whileTrue(
@@ -375,48 +421,16 @@ public class RobotContainer {
                                                                                      // negative X (left)
                  ));
 
-        // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driverController.b().whileTrue(drivetrain.applyRequest(
-        // () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
-        // -driverController.getLeftX()))));
-        // autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
-        // SmartDashboard.putData("Auto Mode", autoChooser);
-        // swerve.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
-
-        /**
-         * Use this method to define your trigger->command mappings. Triggers can be
-         * created via the
-         * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-         * an arbitrary
-         * predicate, or via the named factories in {@link
-         * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-         * {@link
-         * CommandXboxController
-         * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-         * PS4} controllers or
-         * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-         * driverControllers}.
-         */
-
-        // driverController.a().whileTrue(swerve.applyRequest(() -> brake));
-        // driverController.b().whileTrue(swerve.applyRequest(
-        //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(),
-        //                 -driverController.getLeftX()))));
+                 driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
+                 driverController.rightTrigger().whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
 
         double distanceOffset = 0.25
         ;
         double coralOffset = 0.27;
        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         Integer selectedID = 6;
-        operatorController.povUp().onTrue(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            fieldLayout.getTagPose(6).get().toPose2d().getX() +
-            Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle()) * distanceOffset,
-            fieldLayout.getTagPose(6).get().toPose2d().getY() +
-            Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*distanceOffset,
-            new
-            Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians()
-            - Math.PI)
-            )));
+        
+
         
 
         
@@ -424,31 +438,38 @@ public class RobotContainer {
         //driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
         
 
-        // driverController.rightBumper().and(driverController.povUp()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
-        // driverController.rightBumper().and(driverController.povUpRight()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
-        // driverController.rightBumper().and(driverController.povUpLeft()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
+        driverController.rightBumper().and(driverController.povUp()
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+        driverController.rightBumper().and(driverController.povRight()
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
+        driverController.rightBumper().and(driverController.povLeft()
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
 
-        //  driverController.rightBumper().and(driverController.povDown()
-        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
-        //  driverController.rightBumper().and(driverController.povDownRight()
-        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(-.5))));
-        //  driverController.rightBumper().and(driverController.povDownLeft()
-        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(.5))));
-
-        //  driverController.rightBumper().and(driverController.povRight()
-        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5))));
-        //  driverController.rightBumper().and(driverController.povLeft()
-        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+         driverController.rightBumper().and(driverController.povDown()
+                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
 
         // // reset the field-centric heading on left bumper press\[]
          driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-         if(LimelightHelpers.getTargetPose3d_CameraSpace(limeLightName)!= null){
-         operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-         operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
-         }
+
+
+                operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
+        
+                operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
+                try{
+                operatorController.povUp().onTrue(new ProxyCommand(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                    fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getX() +
+                    Math.cos(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle()) * distanceOffset,
+                    fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getY() +
+                    Math.sin(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle())*distanceOffset,
+                    new
+                    Rotation2d(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getRotation().getRadians()
+                    - Math.PI)
+                    ))));
+                }catch(Exception e){
+                    System.out.println("no targer");
+                }
+             
+
 
          drivetrain.registerTelemetry(logger::telemeterize);
          }

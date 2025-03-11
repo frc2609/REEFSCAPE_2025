@@ -2,7 +2,6 @@ package frc.robot.subsystems.elastic;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotContainer;
 
 public class PutIDChooser {
     public SendableChooser<Integer> ID = new SendableChooser<>();

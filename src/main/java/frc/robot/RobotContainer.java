@@ -12,7 +12,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 import edu.wpi.first.net.PortForwarder;
 import com.pathplanner.lib.events.EventTrigger;
@@ -21,13 +20,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -35,22 +31,16 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CoralHandOff;
-import frc.robot.commands.ElevateAndRotate;
-import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
-import frc.robot.commands.Align.AlignCommand;
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
-import frc.robot.commands.ScoreL4CommandAuto;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntaceCommand;
-import frc.robot.commands.Intake.flop.RetractFlopCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
-import frc.robot.commands.climber.ZeroClimber;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
@@ -72,35 +62,12 @@ import frc.robot.utils.Telemetry;
 
 public class RobotContainer {
 
-    // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    // // kSpeedAt12Volts desired top speed
-    // private double MaxAngularRate =
-    // RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-    // second
-    // // max angular velocity
-
-    // /* Setting up bindings for necessary control of the swerve drive platform */
-    // private final SwerveRequest.FieldCentric drive = new
-    // SwerveRequest.FieldCentric()
-    // .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) //
-    // Add a 10% deadband
-    // .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop
-    // control for drive motors
-    // private final SwerveRequest.SwerveDriveBrake brake = new
-    // SwerveRequest.SwerveDriveBrake();
-    // // private final SwerveRequest.PointWheelsAt point = new
-    // SwerveRequest.PointWheelsAt();
-    // private final SwerveRequest.RobotCentric forwardStraight = new
-    // SwerveRequest.RobotCentric()
-    // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
     private double HalfMaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/2; 
     private double TopSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-  // private final Telemetry logger = new Telemetry(MaxSpeed);
                                                                                     // max angular velocity
-    private final DigitalInput intakeBeam = new DigitalInput(4);
+    // private final DigitalInput intakeBeam = new DigitalInput(4);
 
 
     private SendableChooser<Command> autoChooser;
@@ -109,8 +76,6 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -118,7 +83,6 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final SwerveRequest.FieldCentricFacingAngle facingAngle = new SwerveRequest.FieldCentricFacingAngle();
 
     private static final CommandXboxController driverController = new CommandXboxController(0);
     public static final CommandXboxController operatorController = new CommandXboxController(1);
@@ -154,88 +118,43 @@ public class RobotContainer {
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {  
-        double distanceOffset = 0.25
-        ;
+        double distanceOffset = 0.25;
         double coralOffset = 0.27;
-       AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         Integer selectedID = 6;
         // Use event markers as triggers
         new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-     //  new  NamedCommands("score suff", gripper.ReleaseGripperCommand()); 
-       
-        // new EventTrigger("L4 Score").onTrue(
-        //     new SequentialCommandGroup(
-        //         new ScoreL4Command(elevator, arm),
-        //         drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
-        //         new WaitCommand(0.5),
-        //         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-        //             fieldLayout.getTagPose(6).get().toPose2d().getX() +
-        //             Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle()) * distanceOffset,
-        //             fieldLayout.getTagPose(6).get().toPose2d().getY() +
-        //             Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*distanceOffset,
-        //             new
-        //             Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians()
-        //             - Math.PI)
-        //             )),
-        //         new WaitCommand(0.5),
-
-        //         new ReleaseGripperCommand(gripper),
-        //         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(6.1, 4.1, new Rotation2d())),
-        //         new WaitCommand(0.5)
-        //   )
-
-        // );
+     
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
-        new EventTrigger("align 21").onTrue( drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            fieldLayout.getTagPose(10).get().toPose2d().getX() +
-            Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
-            fieldLayout.getTagPose(10).get().toPose2d().getY() +
-            Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-            new
-            Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians()
-            - Math.PI)
-            )));
+        new EventTrigger("align 21").onTrue( 
+            drivetrain.getPathPlannerCommandToAprilTag(
+                new Pose2d(
+                    fieldLayout.getTagPose(10).get().toPose2d().getX() +
+                    Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
+                    fieldLayout.getTagPose(10).get().toPose2d().getY() +
+                    Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
+                    new Rotation2d(
+                        fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
+        )));
+
         NamedCommands.registerCommand("Score L4 new", new SequentialCommandGroup(
             new ScoreL4Command(elevator, arm),
             new WaitCommand(0.75),
             new ReleaseGripperCommand(gripper).withTimeout(1)
 
         ));
-        NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            4, 8, new Rotation2d(0))));
+
+        NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(
+            new Pose2d(4, 8, new Rotation2d(0))
+        ));
+        
         new EventTrigger("Wait").onTrue(new WaitCommand(8));
-        /*NamedCommands.registerCommand("Align middle red", new SequentialCommandGroup( 
-        drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
-        new WaitCommand(0.5),
-        Commands.print("reset"),
-        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            fieldLayout.getTagPose(10).get().toPose2d().getX() +
-            Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
-            fieldLayout.getTagPose(10).get().toPose2d().getY() +
-            Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-            new
-            Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians()
-            - Math.PI)
-            ))));
-        NamedCommands.registerCommand("L4 Score middle", new SequentialCommandGroup(
-,
-            new WaitCommand(0.5),
-            new ScoreL4CommandAuto(elevator, arm, gripper),
-
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(7, 4, new Rotation2d())),
-            new WaitCommand(0.5)
-      ));*/
-
-
-
-
 
         boolean jog = false;
                 
         
         if (jog == true){
-
             configureJogBindings();
         } else {
             configureBindings();    
@@ -274,26 +193,19 @@ public class RobotContainer {
 
     private void configureJogBindings() {
 
-        // operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 5));
-        // operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -5));
+        operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 5));
+        operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -5));
 
-        // operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
-        // operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
+        operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
+        operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
 
-        // operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
-        // operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
+        operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
+        operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
 
-        // operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
-        // operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
+        operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
+        operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
     }
-    /*
-     * Ele L4 40
-     * Ele L3 14
-     * Ele L2 0
-     * Arm L4 - L2 222.66
-     * Ele human 71
-     * Arm human -8.5
-     */
+
         
     private void configureBindings() {
 
@@ -301,13 +213,6 @@ public class RobotContainer {
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
-
-
-        
-
-        //climber.setDefaultCommand(new RetractClimberCommand(climber));        
-        
-        // Climber
 
         operatorController.rightTrigger()
             .whileTrue(
@@ -336,10 +241,6 @@ public class RobotContainer {
                 new ReleaseGripperCommand(gripper)
             );
         
-        // driverController.rightTrigger()
-        //     .whileTrue(
-        //         new HumanIntakeCommand(arm, gripper, elevator)
-        //     );
         
         operatorController.a()
             .whileTrue(
@@ -414,34 +315,23 @@ public class RobotContainer {
     }
     private void configureDrivetrainBindings() {
         int power = 3;
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-         drivetrain.setDefaultCommand(
-                 // Drivetrain will execute this command periodically
-                 drivetrain.applyRequest(() -> drive.withVelocityX(Math.copySign(Math.pow(-driverController.getLeftY(), power), -driverController.getLeftY()) * MaxSpeed) // Drive forward with
-                                                                                                    // negative Y
-                                                                                                    // (forward)
-                         .withVelocityY(Math.copySign(Math.pow(-driverController.getLeftX(), power), -driverController.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
-                         .withRotationalRate(Math.copySign(Math.pow(-driverController.getRightX(), power), -driverController.getRightX()) * MaxAngularRate) // Drive counterclockwise with
-                                                                                     // negative X (left)
-                 ));
 
-                 driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
-                 driverController.rightTrigger().whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
+        drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(() -> drive
+                .withVelocityX(Math.copySign(Math.pow(-driverController.getLeftY(), power), -driverController.getLeftY()) * MaxSpeed) 
+                .withVelocityY(Math.copySign(Math.pow(-driverController.getLeftX(), power), -driverController.getLeftX()) * MaxSpeed) 
+                .withRotationalRate(Math.copySign(Math.pow(-driverController.getRightX(), power), -driverController.getRightX()) * MaxAngularRate)
+        ));
 
-        double distanceOffset = 0.25
-        ;
+        driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
+        driverController.rightTrigger().whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
+
+        double distanceOffset = 0.25;
         double coralOffset = 0.27;
-       AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         Integer selectedID = 6;
         
-
-        
-
-        
         operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
-        //driverController.b().onTrue(new AlignCommand(drivetrain, seaweed, pidgey).withTimeout(3.0));
-        
 
         driverController.rightBumper().and(driverController.povUp()
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
@@ -453,31 +343,32 @@ public class RobotContainer {
          driverController.rightBumper().and(driverController.povDown()
                  .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
 
-        // // reset the field-centric heading on left bumper press\[]
          driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
 
-                operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-        
-                operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
-                try{
-                operatorController.povUp().onTrue(new ProxyCommand(drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getX() +
-                    Math.cos(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle()) * distanceOffset,
-                    fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getY() +
-                    Math.sin(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle())*distanceOffset,
-                    new
-                    Rotation2d(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getRotation().getRadians()
-                    - Math.PI)
-                    ))));
-                }catch(Exception e){
-                    System.out.println("no targer");
-                }
+        operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
+
+        operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
+        try{
+            operatorController.povUp().onTrue(
+                new ProxyCommand(
+                    drivetrain.getPathPlannerCommandToAprilTag(
+                        new Pose2d(
+                            fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getX() +
+                            Math.cos(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle()) * distanceOffset,
+                            fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getY() +
+                            Math.sin(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle())*distanceOffset,
+                        new Rotation2d(
+                            fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                ))));
+        }catch(Exception e){
+            System.out.println("no targer");
+        }
              
 
 
-         drivetrain.registerTelemetry(logger::telemeterize);
-         }
+        drivetrain.registerTelemetry(logger::telemeterize);
+    }
 
     public void robotInit() {
         for (int port = 5800; port <= 5810; port++) {
@@ -489,15 +380,6 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
-    }
-
-    private void adjustTargetPosition(double delta) {
-        this.targetPosition += delta;
-        SmartDashboard.putNumber("Target Position", targetPosition);
-
-        // If the motor is currently moving, update the target immediately
-        // if (driverController.rightBumper().getAsBoolean()) {
-        // climber.positionControlledMotor.goToPosition(this.targetPosition);
     }
     
 }

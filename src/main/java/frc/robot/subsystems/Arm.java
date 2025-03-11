@@ -11,8 +11,6 @@ import frc.robot.utils.PositionControlledMotor;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import frc.robot.utils.Constants;
 
 public class Arm extends PositionControlledMotor{
     // Move the following to config and get gear ratios.

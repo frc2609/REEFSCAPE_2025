@@ -14,8 +14,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix6.hardware.TalonFX;
-import frc.robot.utils.Constants;
 
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.

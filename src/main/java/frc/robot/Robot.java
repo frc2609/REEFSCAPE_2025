@@ -4,45 +4,49 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
+import edu.wpi.first.wpilibj.DutyCycle;
+
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-
-  // private final boolean kUseLimelight = false;
+  private final DigitalSource sourcePWMX = new DigitalInput(9);
+  private final DutyCycle dutyPWMX = new DutyCycle(sourcePWMX);
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+    
+
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-
-    /*
-     * This example of adding Limelight is very simple and may not be sufficient for on-field use.
-     * Users typically need to provide a standard deviation that scales with the distance to target
-     * and changes with number of tags available.
-     *
-     * This example is sufficient to show that vision integration is possible, though exact implementation
-     * of how to use vision should be tuned per-robot and to the team's specification.
-     */
-    // if (kUseLimelight) {
-    //   var driveState = m_robotContainer.drivetrain.getState();
-    //   double headingDeg = driveState.Pose.getRotation().getDegrees();
-    //   double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-
-    //   LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
-    //   var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    //   if (llMeasurement != null && llMeasurement.tagCount > 0 && omegaRps < 2.0) {
-    //     m_robotContainer.drivetrain.addVisionMeasurement(llMeasurement.pose, Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
-    //   }
-    // }
+    SmartDashboard.putNumber("Reef", dutyPWMX.getOutput());
   }
+
+  @Override
+  public void robotInit() {
+DataLogManager.start();
+// Record both DS control and joystick data
+DriverStation.startDataLog(DataLogManager.getLog());
+  }
+
+
+
+
 
   @Override
   public void disabledInit() {}
@@ -60,6 +64,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.climber.goToPosition(-50);
   }
 
   @Override
@@ -73,6 +78,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.climber.goToPosition(-50);
   }
 
   @Override

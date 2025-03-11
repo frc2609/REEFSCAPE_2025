@@ -7,18 +7,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeRoll extends SubsystemBase {
     private final SparkMax motor;
-    
-    public Intake() {
-        motor = new SparkMax(9, MotorType.kBrushless);
-        SparkMaxConfig motorConfig = new SparkMaxConfig();
-        motorConfig.inverted(false);
-        motor.configure(motorConfig, null, null);
     public IntakeRoll() {
         motor = new SparkMax(9, MotorType.kBrushless);
         SparkMaxConfig motorConfig = new SparkMaxConfig();
         motorConfig.inverted(false);
 
-motor.configure(motorConfig, null, null);
+        motor.configure(motorConfig, null, null);
         motor.set(0);
 
     } 

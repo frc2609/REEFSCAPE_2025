@@ -64,6 +64,6 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public String getKeys(){
-        return NetworkTableInstance.getDefault().getTable("limelight").getKeys().toString();
+        return NetworkTableInstance.getDefault().getTable("limelight-april").getKeys().toString();
     }
 }

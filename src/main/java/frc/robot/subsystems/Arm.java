@@ -17,21 +17,22 @@ import frc.robot.utils.Constants;
 public class Arm extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final double positionTolerance = 0.01;
-    private final double maxAcceleration = 160;
-    private final Boolean invertEncoder = false;
-    private final double maxVelocity = 80;
-    private final double minPosition = -33;
-    private final double maxPosition = 3.85;
+    private final static double positionTolerance = 0.01;
+    private final static double maxAcceleration = 200;
+    private final static Boolean invertEncoder = true;
+    private final static double maxVelocity = 150;
+    private final static double minPosition = -360;
+    private final static double maxPosition = 360;
     private final static String name = "Arm";
-    private final Double encoderConversion = null;
-    private final static int motorID = 7;
-    private final int encoderID = 1;
-    private final double zeroPosition = 0.63;
+    private final static Double encoderRatio = 25.0;
+    private final static Double gearRatio = 50.0;
+    private final static int motorId = 7;
+    private final static int encoderId = 1;
+    private final static double zeroPosition = -0.36;// 0.64;
 
     
-    private final DutyCycleEncoder encoder;
-    public TalonFXConfiguration talonConfig = 
+    private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
+    public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
@@ -42,23 +43,23 @@ public class Arm extends PositionControlledMotor{
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(maxVelocity)
                     .withMotionMagicAcceleration(maxAcceleration)
-                    .withMotionMagicJerk(10)
+                    .withMotionMagicJerk(10000)
             )
             .withSlot0(
                 new Slot0Configs()
-                    .withKP(.5)
+                    .withKP(.05)
                     .withKI(0)
                     .withKD(0)
-                    .withKS(0)
-                    .withKG(0.06)
+                    .withKS(0.01)
+                    .withKG(0.015)
                     .withKV(0)
                     .withKA(0)
-                    .withGravityType(GravityTypeValue.Elevator_Static)
+                    .withGravityType(GravityTypeValue.Arm_Cosine)
             )
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs()
-                    .withForwardSoftLimitEnable(true)
-                    .withReverseSoftLimitEnable(true)
+                    .withForwardSoftLimitEnable(false)
+                    .withReverseSoftLimitEnable(false)
                     .withForwardSoftLimitThreshold(maxPosition)
                     .withReverseSoftLimitThreshold(minPosition)
             )
@@ -70,27 +71,14 @@ public class Arm extends PositionControlledMotor{
 
     public Arm() {
         super(
-            name, 
-            new TalonFX(motorID, Constants.CANBUS), 
-            true
-        );
-        encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
-        encoder.setInverted(invertEncoder);
-    }
-
-    protected TalonFXConfiguration getMotorConfig() {
-        return talonConfig;
-    }
-
-    protected Double getEncoderConversion(){
-        return encoderConversion;
-    }
-
-    protected double getPositionTolerance() {
-        return positionTolerance;
-    }
-
-    protected DutyCycleEncoder getEncoder() {
-        return encoder;
-    }
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            gearRatio,
+            encoderRatio,
+            positionTolerance,
+            true);
+    } 
 }

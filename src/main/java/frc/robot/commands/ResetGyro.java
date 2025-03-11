@@ -113,7 +113,7 @@ public class ResetGyro extends Command {
 
     public void execute(){
 
-        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-seaweed")[5];
+        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-april")[5];
 
         m_Swerve.setControl(
             m_driveRequest

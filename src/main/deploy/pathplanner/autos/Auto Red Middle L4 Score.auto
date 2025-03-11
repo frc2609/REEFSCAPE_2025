@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Leave Auto Line"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score L4 new"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "for auto red mid"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

@@ -1,37 +1,39 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Constants;
 
 public class Gripper extends SubsystemBase  {
-    private final SparkMax motor;
-    private final SparkMax motorB;
+    private final TalonFX gripMotor;
+    private final TalonFXConfiguration motorConfig = 
+        new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(15)
+                    .withSupplyCurrentLimit(15)
+            );
+    // private final SparkMax algaeMotor;
     public Gripper() {
-        motor = new SparkMax(8, MotorType.kBrushless);
-        SparkMaxConfig motorConfig = new SparkMaxConfig();
-        motorConfig.inverted(false);
-
-        motorB = new SparkMax(18, MotorType.kBrushless);
-        SparkMaxConfig motorsConfig = new SparkMaxConfig();
-        motorsConfig.inverted(false);
-
-motor.configure(motorConfig, null, null);
-        motor.set(0);
-
-        motorB.configure(motorConfig, null, null);
-        motorB.set(0);
+        gripMotor = new TalonFX(8, Constants.CANBUS);
+        gripMotor.getConfigurator().apply(motorConfig);
 
      } 
-public void setSpeed(double speed) {
-    motor.set(speed);
+    public void setSpeed(double speed) {
+        gripMotor.set(speed);
     }
-public void stop() {
-    motor.set(0);
-    }
-
-
-    
+    public void stop() {
+        gripMotor.set(0);
+    }    
 }

@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -11,48 +12,51 @@ import frc.robot.utils.PositionControlledMotor;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.utils.Constants;
 
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final double positionTolerance = 0.1;
-    private final double maxAcceleration = 5;
-    private final Boolean invertEncoder = false;
-    private final double zeroPosition = 0;
-    private final double maxVelocity = 10;
+    private final static double positionTolerance = 1.0;
+    private final static double maxAcceleration = 100;
+    private final static Boolean invertEncoder = true;
+    private final static double maxVelocity = 500;
     private final static String name = "ELEVATOR";
-    private final double minPosition = 0;
-    private final double maxPosition = 12.9;
-    private final int encoderID = 2;
-    private final static int motorID = 60;
-    private final static int followerID = 61;
-    private final Double encoderConversion = null;
+    private final static double minPosition = 0;
+    private final static double maxPosition = 37.1;
+    private final static int encoderId = 2;
+    private final static int motorId = 60;
+    private final static int followerId = 61;
+    private final static Double gearRatio = 9.921;
+    private final static double zeroPosition = -0.466;
+    private final double rotationsPerInch = 0.905;
 
-    private final DutyCycleEncoder encoder;
-    public TalonFXConfiguration talonConfig = 
+    private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
+    public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake)
             )
             .withMotionMagic(
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(maxVelocity)
                     .withMotionMagicAcceleration(maxAcceleration)
-                    .withMotionMagicJerk(10)
+                    .withMotionMagicJerk(10000)
             )
             .withSlot0(
                 new Slot0Configs()
-                    .withKP(.5)
+                    .withKP(.2)
                     .withKI(0)
                     .withKD(0)
-                    .withKS(0)
-                    .withKG(0.06)
+                    .withKS(0.2)
+                    .withKG(0.03)
                     .withKV(0)
-                    .withKA(0)
+                    .withKA(0)    
                     .withGravityType(GravityTypeValue.Elevator_Static)
             )
             .withSoftwareLimitSwitch(
@@ -65,37 +69,50 @@ public class Elevator extends PositionControlledMotor {
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(80)
-                    .withSupplyCurrentLimit(30)
+                    .withSupplyCurrentLimit(20)
             );
     
     public Elevator() {
         super(
-            name, 
-            new TalonFX(motorID, Constants.CANBUS), 
-            new TalonFX(followerID, Constants.CANBUS), 
-            true
-        );
-
-        encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
-        encoder.setInverted(invertEncoder);
-
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            followerId,
+            gearRatio,
+            positionTolerance,
+            true);
     }
 
-    protected TalonFXConfiguration getMotorConfig() {
-        return talonConfig;
+    @Override
+    public void goToPosition(double targetHeightInInches) {
+        double targetRotations = targetHeightInInches * rotationsPerInch;
+        double targetDegrees = targetRotations * (360.0 / gearRatio);
+
+        super.goToPosition(targetDegrees);
     }
 
-    protected Double getEncoderConversion(){
-        return encoderConversion;
+    @Override
+    public double getPosition() {
+        double currentDegrees = super.getPosition();
+        double currentRotations = currentDegrees / (360.0 / gearRatio);
+
+        return currentRotations / rotationsPerInch;
     }
 
-    protected double getPositionTolerance() {
-        return positionTolerance;
+    @Override
+    public void setPosition() {
+        StatusCode stat = motor.setPosition(0);
+
+        SmartDashboard.putString("Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("posAfterReset", getPosition());
+        
+        if (followerMotor != null) {
+            stat = followerMotor.setPosition(0);
+            SmartDashboard.putString("Follower Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("Follower posAfterReset", getPosition());
+        }    
     }
 
-    protected DutyCycleEncoder getEncoder() {
-        return encoder;
-    }
 }
-
-

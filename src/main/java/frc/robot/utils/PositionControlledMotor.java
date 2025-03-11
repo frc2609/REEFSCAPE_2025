@@ -4,6 +4,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -15,40 +16,166 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 
 public abstract class PositionControlledMotor extends SubsystemBase {
     protected Boolean debug = false;
+    private MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
+
 
     private final NetworkTable configTable;
-    private final TalonFX followerMotor;
-    private final TalonFX motor;
+    protected final TalonFX followerMotor;
+    protected final TalonFX motor;
+
+    private final TalonFXConfiguration talonConfig;
+    private final DutyCycleEncoder encoder;
     private final String name;
+    private final double positionTolerance;
+    private final double gearRatio;
+    private final double encoderRatio;
+    
+    private double minPosition;
+        
+    private double maxPosition;
 
-    // Abstract methods for subclasses to implement
-    protected abstract TalonFXConfiguration getMotorConfig();
-    protected abstract Double getEncoderConversion();
-    protected abstract double getPositionTolerance();
-    protected abstract DutyCycleEncoder getEncoder();
-
-    public PositionControlledMotor(String name, TalonFX motor, boolean debug) {
-        this(name, motor, null, debug);
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        double gearRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this(
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            -1,
+            gearRatio,
+            -1,
+            positionTolerance,
+            debug);
     }
 
     
-    public PositionControlledMotor(String name, TalonFX motor, TalonFX follower, boolean debug) {
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        int followerId,
+        double gearRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this(
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            followerId,
+            gearRatio,
+            -1,
+            positionTolerance,
+            debug);
+    }
+
+
+    
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        double gearRatio,
+        double encoderRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this(
+            talonConfig,
+            encoder,
+            invertEncoder,
+            name,
+            motorId,
+            -1,
+            gearRatio,
+            encoderRatio,
+            positionTolerance,
+            debug);
+    }
+
+    public PositionControlledMotor(
+        TalonFXConfiguration talonConfig, 
+        DutyCycleEncoder encoder, 
+        Boolean invertEncoder,
+        String name, 
+        int motorId, 
+        int followerId,
+        double gearRatio,
+        double encoderRatio,
+        double positionTolerance, 
+        boolean debug) 
+    {
+        this.talonConfig = talonConfig;
+        this.encoder = encoder;
         this.name = name;
-        this.motor = motor;
-        this.followerMotor = follower;
+        this.gearRatio = gearRatio;
+        this.positionTolerance = positionTolerance;
         this.debug = debug;
+
+        encoder.setInverted(invertEncoder);
+
+        this.motor = new TalonFX(motorId, Constants.CANBUS);
+
+        if (followerId != -1){
+            followerMotor = new TalonFX(followerId, Constants.CANBUS);
+        } else {
+            followerMotor = null;
+        }
+        
+
+        if(encoderRatio == -1 ){
+            this.encoderRatio = gearRatio;
+        } else {
+            this.encoderRatio = encoderRatio;
+        }
+
         configTable = NetworkTableInstance.getDefault().getTable("MotorConfig/" + name);
-        
-        TalonFXConfiguration talonConfig = getMotorConfig();
-        
-        configureMotor(talonConfig);
+
+        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
+        motor.getConfigurator().refresh(softLimitConfigs);
+
+        minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
+        maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
+
+        configureMotor();
         
         if (debug) {
-            setElasticValues(talonConfig);
+            setElasticValues();
+        }
+        setPosition();
+    }
+
+    protected double degreesToRotations(double degrees) {
+        return degrees / (360 / gearRatio);
+    }
+
+    protected double rotationsToDegrees(double rotations) {
+        return rotations * (360 / gearRatio);
+    }
+
+    public void setNeutralMode(NeutralModeValue mode){
+        motor.setNeutralMode(mode);
+        if (followerMotor != null){
+            followerMotor.setNeutralMode(mode);
         }
     }
 
-    private void setElasticValues(TalonFXConfiguration talonConfig){
+    private void setElasticValues(){
         configTable.getEntry("kP").setDouble(talonConfig.Slot0.kP);
         configTable.getEntry("kI").setDouble(talonConfig.Slot0.kI);
         configTable.getEntry("kD").setDouble(talonConfig.Slot0.kD);
@@ -65,14 +192,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
 
-    public void goToPosition(double targetPosition) {
-        MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
-
-        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-        motor.getConfigurator().refresh(softLimitConfigs);
-
-        double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-        double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
+    public void goToPosition(double targetPositionDegrees) {
+        double targetPosition = degreesToRotations(targetPositionDegrees);
 
         targetPosition = Math.min(Math.max(targetPosition, minPosition), maxPosition);// Clamp target to a valid range
         motionMagicDutyCycle.withPosition(targetPosition);
@@ -96,21 +217,31 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             SmartDashboard.putNumber(name + " Current", getCurrent());
             SmartDashboard.putNumber(name + " Voltage", getVoltage());
             SmartDashboard.putNumber(name + " Abs pos", getAbsPosition());
+            SmartDashboard.putNumber(name + " Raw pos", getRawPosition());
+            SmartDashboard.putNumber(name + " Rotor pos", getRotorPosition());
             
+            if(followerMotor != null){
+                SmartDashboard.putNumber(name + "Follower Position", getPositionFollower());
+                SmartDashboard.putNumber(name + "Follower Velocity", getVelocityFollower());
+                SmartDashboard.putNumber(name + "Follower Current", getCurrentFollower());
+                SmartDashboard.putNumber(name + "Follower Voltage", getVoltageFollower());
+                SmartDashboard.putNumber(name + "Follower Raw pos", getRawPositionFollower());
+                SmartDashboard.putNumber(name + "Follower Rotor pos", getRotorPositionFollower());
+            }
             
             if (updatePressed()) {
-                TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+                // TalonFXConfiguration newTalonConfig = new TalonFXConfiguration();
                 motor.getConfigurator().refresh(talonConfig);   
                 
-                getConfigFromElastic(talonConfig);
+                getConfigFromElastic();
 
-                updateTalonConfig(talonConfig);
+                updateTalonConfig();
 
                 resetUpdateStatus();
             }
         }
     }
-    private void getConfigFromElastic(TalonFXConfiguration talonConfig) {
+    private void getConfigFromElastic() {
         double p = configTable.getEntry("kP").getDouble(talonConfig.Slot0.kP);
         double i = configTable.getEntry("kI").getDouble(talonConfig.Slot0.kI);
         double d = configTable.getEntry("kD").getDouble(talonConfig.Slot0.kD);
@@ -146,8 +277,15 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private void resetUpdateStatus() {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
-    protected double getPosition(){
+    public double getPosition(){
+        double rotationPosition = motor.getPosition().getValueAsDouble();
+        return rotationsToDegrees(rotationPosition);
+    }
+    public double getRawPosition() {
         return motor.getPosition().getValueAsDouble();
+    }
+    public double getRotorPosition() {
+        return motor.getRotorPosition().getValueAsDouble();
     }
     protected double getVelocity(){
         return motor.getVelocity().getValueAsDouble();
@@ -158,16 +296,67 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     protected double getVoltage(){
         return motor.getMotorVoltage().getValueAsDouble();
     }
-    protected double getOffset() {
-        return getAbsPosition() * getEncoderConversion();
-    }
     protected double getAbsPosition() {
-        DutyCycleEncoder encoder = getEncoder();
         return encoder.get();
     }
-    public boolean atPosition(double targetPosition) {
+    public double getPositionFollower(){
+        if (followerMotor != null){
+            double rotationPosition = followerMotor.getPosition().getValueAsDouble();
+            return rotationsToDegrees(rotationPosition);
+        } else {
+            return -1;
+        }
+    }
+    public double getRawPositionFollower() {
+        if (followerMotor != null){
+
+            return followerMotor.getPosition().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    public double getRotorPositionFollower() {
+        if (followerMotor != null){
+
+            return followerMotor.getRotorPosition().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getVelocityFollower(){
+        if (followerMotor != null){
+
+            return followerMotor.getVelocity().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getCurrentFollower(){
+        if (followerMotor != null){
+
+            return followerMotor.getStatorCurrent().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getVoltageFollower(){
+        if (followerMotor != null){
+
+            return followerMotor.getMotorVoltage().getValueAsDouble();
+        } else {
+            return -1;
+        }
+    }
+    protected double getOffset() {
+        double offset = getAbsPosition();
+        if (offset > 0.5){
+            offset -= 1;
+        }
+        return offset * encoderRatio;
+    }
+    public boolean atPosition() {
         double error = Math.abs(motor.getClosedLoopError().getValueAsDouble());
-        return error <= getPositionTolerance();
+        return error <= positionTolerance;
         // double velocity = Math.abs(motor.getVelocity().getValueAsDouble());
         // return error <= positionTolerance && velocity <= velocityTolerance;
     }
@@ -176,26 +365,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         motor.stopMotor();
         if (followerMotor != null){
             followerMotor.stopMotor();
-        }
-    }
-    protected void setVoltage(double volts) {
-        VoltageOut voltageRequest = new VoltageOut(0);
-        double position = getPosition();
-
-        SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
-        motor.getConfigurator().refresh(softLimitConfigs);
-
-        double minPosition = softLimitConfigs.ReverseSoftLimitThreshold;
-        double maxPosition = softLimitConfigs.ForwardSoftLimitThreshold;
-        
-        if ((position <= minPosition && volts < 0) || (position >= maxPosition && volts > 0)) {   
-            stop();
-            return;
-        }
-
-        motor.setControl(voltageRequest.withOutput(volts));
-        if (followerMotor != null){
-            followerMotor.setControl(voltageRequest);
         }
     }
 
@@ -209,7 +378,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
     }
     
-    protected void updateTalonConfig(TalonFXConfiguration talonConfig) {
+    protected void updateTalonConfig() {
         motor.getConfigurator().apply(talonConfig);
 
         if(followerMotor != null){
@@ -217,17 +386,22 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
     }
 
-    protected void configureMotor(TalonFXConfiguration config) {
-        motor.getConfigurator().apply(config);
+    protected void configureMotor() {
+        motor.getConfigurator().apply(talonConfig);
         if (followerMotor != null){
-            followerMotor.getConfigurator().apply(config);
+            followerMotor.getConfigurator().apply(talonConfig);
         }
     }
     public void setPosition() {
-        motor.setPosition(getOffset());
+        StatusCode stat = motor.setPosition(getOffset());
+
+        SmartDashboard.putString("Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("posAfterReset", getPosition());
         
         if (followerMotor != null) {
-            followerMotor.setPosition(getOffset());
+            stat = followerMotor.setPosition(getOffset());
+            SmartDashboard.putString("Follower Reset status: ", stat.getDescription());
+        SmartDashboard.putNumber("Follower posAfterReset", getPosition());
         }    
     }
 }

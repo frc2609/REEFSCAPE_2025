@@ -89,7 +89,7 @@ public final class Constants {
   }
 
     public static class VisionConstants {
-    public static final String LIMELIGHT_NAME = "limelight";
+    public static final String LIMELIGHT_NAME = "limelight-april";
     public static final Distance LIMELIGHT_LENS_HEIGHT = Distance.ofBaseUnits(31, Inches);
     public static final Angle LIMELIGHT_ANGLE = Angle.ofBaseUnits(45, Degrees);
 

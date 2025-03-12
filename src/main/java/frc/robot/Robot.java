@@ -36,9 +36,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-DataLogManager.start();
-// Record both DS control and joystick data
-DriverStation.startDataLog(DataLogManager.getLog());
+    DataLogManager.start();
+    // Record both DS control and joystick data
+    DriverStation.startDataLog(DataLogManager.getLog());
   }
 
 
@@ -61,7 +61,7 @@ DriverStation.startDataLog(DataLogManager.getLog());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    m_robotContainer.climber.goToPosition(-50);
+    // m_robotContainer.climber.goToPosition(-50);
   }
 
   @Override
@@ -75,7 +75,7 @@ DriverStation.startDataLog(DataLogManager.getLog());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.climber.goToPosition(-50);
+    // m_robotContainer.climber.goToPosition(-50);
   }
 
   @Override

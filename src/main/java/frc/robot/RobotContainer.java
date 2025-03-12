@@ -117,6 +117,7 @@ public class RobotContainer {
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
+    private final Trigger shootTrigger = operatorController.povDown();
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
@@ -148,8 +149,8 @@ public class RobotContainer {
             new SlowGripCommand(gripper),
             new ScoreL4Command(elevator, arm),
             new SequentialCommandGroup(
-                new WaitUntilCommand(2),
-                new ReleaseGripperCommand(gripper)
+                new WaitUntilCommand(2)
+                // new ReleaseGripperCommand(gripper)
             )
         ));
 
@@ -217,7 +218,7 @@ public class RobotContainer {
         
     private void configureBindings() {
 
-        intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
+        // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
@@ -261,7 +262,7 @@ public class RobotContainer {
         
         
         operatorController.a()
-            .whileTrue(
+            .onTrue(
                 new ScoreL2Command(elevator, arm)
             );
 
@@ -271,13 +272,13 @@ public class RobotContainer {
             );
 
         operatorController.b()
-            .whileTrue(
-                new ScoreL3Command(elevator, arm)
+            .toggleOnTrue(
+                new ScoreL3Command(elevator, arm, gripper, shootTrigger)
             );
 
         driverController.b()
             .whileTrue(
-                new ScoreL3Command(elevator, arm)
+                new ScoreL3Command(elevator, arm, gripper, shootTrigger)
             );
 
         operatorController.y()

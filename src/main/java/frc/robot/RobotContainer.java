@@ -262,32 +262,32 @@ public class RobotContainer {
         
         operatorController.a()
             .whileTrue(
-                new ScoreL2CommandWithWait(elevator, arm, gripper, operatorController)
+                new ScoreL2Command(elevator, arm)
             );
 
         driverController.a()
             .whileTrue(
-                new ScoreL2CommandWithWait(elevator, arm, gripper, driverController)
+                new ScoreL2Command(elevator, arm)
             );
 
         operatorController.b()
             .whileTrue(
-                new ScoreL3CommandWithWait(elevator, arm, gripper, operatorController)
+                new ScoreL3Command(elevator, arm)
             );
 
         driverController.b()
             .whileTrue(
-                new ScoreL3CommandWithWait(elevator, arm, gripper, driverController)
+                new ScoreL3Command(elevator, arm)
             );
 
         operatorController.y()
             .whileTrue(
-                new ScoreL4CommandWithWait(elevator, arm, gripper, operatorController)
+                new ScoreL4Command(elevator, arm)
             );
 
         driverController.y()
             .whileTrue(
-                new ScoreL4CommandWithWait(elevator, arm, gripper, driverController)
+                new ScoreL4Command(elevator, arm)
             );
 
         operatorController.leftBumper()

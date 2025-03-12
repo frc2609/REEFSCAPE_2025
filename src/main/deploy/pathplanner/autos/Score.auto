@@ -13,37 +13,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Score to pickup"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Pick up to Score"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score to pickup"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Pick up to Score"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Score to pickup"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Pick up to Score"
+            "pathName": null
           }
         }
       ]

@@ -48,6 +48,7 @@ import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.MovePCM;
+import frc.robot.commands.Align.PIDAlign;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeRoll;
@@ -268,7 +269,8 @@ public class RobotContainer {
 
         driverController.a()
             .whileTrue(
-                new ScoreL2Command(elevator, arm)
+               // new ScoreL2Command(elevator, arm)
+               new PIDAlign(true, drivetrain, 0)
             );
 
         operatorController.b()
@@ -278,7 +280,8 @@ public class RobotContainer {
 
         driverController.b()
             .whileTrue(
-                new ScoreL3Command(elevator, arm, gripper, shootTrigger)
+               // new ScoreL3Command(elevator, arm, gripper, shootTrigger)
+               new PIDAlign(true, drivetrain, 0.5)
             );
 
         operatorController.y()
@@ -288,7 +291,8 @@ public class RobotContainer {
 
         driverController.y()
             .whileTrue(
-                new ScoreL4Command(elevator, arm)
+              //  new ScoreL4Command(elevator, arm)
+              new PIDAlign(true, drivetrain, -0.5)
             );
 
         operatorController.leftBumper()

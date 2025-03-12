@@ -7,18 +7,15 @@ import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
-public class ScoreL2Command extends SequentialCommandGroup{
+public class ScoreL2Command extends ParallelCommandGroup{
     public ScoreL2Command(Elevator elevator, Arm arm){
         addCommands(
-            new MovePCM(elevator, 8.5),
-            new WaitUntilCommand(elevator.aboveIntake),
-            new ParallelCommandGroup(
                 new MovePCM(arm, -227),
                 new SequentialCommandGroup(
                     new WaitUntilCommand(arm.aboveIntake),
                     new MovePCM(elevator, 0)
                 ) 
             )
-        );
+        ;
     }
 }

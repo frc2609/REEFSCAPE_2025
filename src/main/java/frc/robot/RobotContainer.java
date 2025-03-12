@@ -66,7 +66,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 public class RobotContainer {
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
-    private double HalfMaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/2; 
+    private double HalfMaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/4; 
     private double TopSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
@@ -262,7 +262,7 @@ public class RobotContainer {
         
         
         operatorController.a()
-            .onTrue(
+            .toggleOnTrue(
                 new ScoreL2Command(elevator, arm)
             );
 
@@ -282,7 +282,7 @@ public class RobotContainer {
             );
 
         operatorController.y()
-            .whileTrue(
+            .toggleOnTrue(
                 new ScoreL4Command(elevator, arm)
             );
 
@@ -323,13 +323,11 @@ public class RobotContainer {
         return Math.copySign(smooth, x);
     }
     private void configureDrivetrainBindings() {
-        int power = 3;
-
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> drive
-                .withVelocityX(Math.copySign(Math.pow(-driverController.getLeftY(), power), -driverController.getLeftY()) * MaxSpeed) 
-                .withVelocityY(Math.copySign(Math.pow(-driverController.getLeftX(), power), -driverController.getLeftX()) * MaxSpeed) 
-                .withRotationalRate(Math.copySign(Math.pow(-driverController.getRightX(), power), -driverController.getRightX()) * MaxAngularRate)
+                .withVelocityX((-driverController.getLeftY()) * MaxSpeed) 
+                .withVelocityY((-driverController.getLeftX()) * MaxSpeed) 
+                .withRotationalRate(-driverController.getRightX() * MaxAngularRate)
         ));
 
         driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
@@ -377,6 +375,16 @@ public class RobotContainer {
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    private double smooth(double value){
+        double absValue = Math.abs(value);
+
+        double a = 6 * Math.pow(absValue, 8.5);
+        double b = 15 * Math.pow(absValue, 6.8);
+        double c = 10 * Math.pow(absValue, 5.1);
+
+        return Math.copySign(a - b + c, value);
     }
 
     public void robotInit() {

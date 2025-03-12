@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CoralHandOff;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
+import frc.robot.commands.Align.PIDAlign;
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
@@ -60,6 +61,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
+import frc.robot.utils.Constants.Swerve;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 
@@ -148,8 +150,8 @@ public class RobotContainer {
             new SlowGripCommand(gripper),
             new ScoreL4Command(elevator, arm),
             new SequentialCommandGroup(
-                new WaitUntilCommand(2),
-                new ReleaseGripperCommand(gripper)
+                new WaitUntilCommand(2)
+                // new ReleaseGripperCommand(gripper)
             )
         ));
 
@@ -233,12 +235,9 @@ public class RobotContainer {
                 new DeployClimberCommand(climber))
                 .onFalse(
                     new RetractClimberCommand(climber)
-                );
+                 );
 
-                
-         
-
-
+            
         driverController.leftTrigger()
             .onTrue(
                 new ConditionalCommand(
@@ -262,7 +261,8 @@ public class RobotContainer {
         
         operatorController.a()
             .whileTrue(
-                new ScoreL2Command(elevator, arm)
+               // new ScoreL2Command(elevator, arm)
+               new PIDAlign(true, drivetrain, 0)
             );
 
         driverController.a()
@@ -272,17 +272,19 @@ public class RobotContainer {
 
         operatorController.b()
             .whileTrue(
-                new ScoreL3Command(elevator, arm)
+                //new ScoreL3Command(elevator, arm)
+                new PIDAlign(true, drivetrain, 0.5)
             );
 
         driverController.b()
-            .whileTrue(
+            .toggleOnTrue(
                 new ScoreL3Command(elevator, arm)
             );
 
         operatorController.y()
             .whileTrue(
-                new ScoreL4Command(elevator, arm)
+               // new ScoreL4Command(elevator, arm)
+               new PIDAlign(true, drivetrain, -0.5)
             );
 
         driverController.y()

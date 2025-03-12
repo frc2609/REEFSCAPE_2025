@@ -9,16 +9,16 @@ import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.IntakeFlop;
 
 public class DeployFlopCommand extends SequentialCommandGroup {
-    private final double target = 195;
+    private final double target = 95;
 
     public DeployFlopCommand(IntakeFlop intakeFlop) {
         addCommands(
-            new MovePCM(intakeFlop,target).withTimeout(0.7),
-            new SequentialCommandGroup(
-                new WaitUntilCommand(intakeFlop.deployedTrigger),
-                new InstantCommand(() -> intakeFlop.stop()),
-                new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Coast))
-            )//,
+            new MovePCM(intakeFlop,target),
+            new WaitUntilCommand(intakeFlop.deployedTrigger),
+            new InstantCommand(() -> intakeFlop.disablePositionControl()),
+            new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Coast))
+            
+            //,
             // new SequentialCommandGroup(
             //     new WaitUntilCommand(intakeFlop.coralTriggrt),
             //     new RetractFlopCommand(intakeFlop)

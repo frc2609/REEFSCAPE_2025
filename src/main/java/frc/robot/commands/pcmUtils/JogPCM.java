@@ -20,11 +20,6 @@ public class JogPCM extends Command {
         pcm.goToPosition(currentPosition + jogStep);
     }
 
-    // @Override
-    // public void end(boolean interrupted) {
-    //     pcm.stop();
-    // }
-
     @Override
     public boolean isFinished() {
         // Run continuously while the trigger is held.

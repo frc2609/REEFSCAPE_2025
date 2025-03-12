@@ -29,8 +29,8 @@ public class IntakeFlop extends PositionControlledMotor {
     private final static double maxPosition = 400;
     private final static String name = "IntakeFlop";
 
-    public final Trigger deployedTrigger;
-    public final Trigger coralTriggrt;
+    public final Trigger deployedTrigger = new Trigger(() -> getPosition() >= 90);
+    public final Trigger coralTriggrt = new Trigger(() -> coralPresent());
 
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
@@ -81,19 +81,10 @@ public class IntakeFlop extends PositionControlledMotor {
         positionTolerance,
         true);
 
-        deployedTrigger = new Trigger(() -> getPosition() >= 90);
-        coralTriggrt = new Trigger(() -> coralPresent());
-
         setPosition();
     }
 
     public boolean coralPresent() {
         return intakeBeam.get();
     }
-
-    @Override
-    public void setPosition() {
-        motor.setPosition(0);
-    }
-
 }

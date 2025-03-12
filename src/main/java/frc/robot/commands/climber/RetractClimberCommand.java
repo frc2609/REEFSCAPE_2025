@@ -11,15 +11,13 @@ public class RetractClimberCommand extends Command {
         addRequirements(climber);
     }
 
-
     @Override
     public void execute() {
         climber.goToPosition(15.0);
     }
 
     @Override
-    public void end(boolean interrupted) {
-        // Stop climber when command ends
-        climber.stop();
+    public boolean isFinished() {
+        return true;
     }
 }

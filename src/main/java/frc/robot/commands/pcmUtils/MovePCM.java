@@ -17,10 +17,4 @@ public class MovePCM extends Command {
     public void execute() {
         pcm.goToPosition(position);
     }
-
-    // @Override
-    // public void end(boolean interrupted) {
-    //     // Stop arm when command ends
-    //     pcm.stop();
-    // }
 }

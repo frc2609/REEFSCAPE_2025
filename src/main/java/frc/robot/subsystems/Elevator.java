@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 public class Elevator extends PositionControlledMotor {
@@ -31,6 +32,8 @@ public class Elevator extends PositionControlledMotor {
     private final static Double gearRatio = 9.921;
     private final static double zeroPosition = -0.466;
     private final double rotationsPerInch = 0.905;
+
+    public final Trigger aboveIntake = new Trigger(() -> getPosition() >= 8);
 
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 

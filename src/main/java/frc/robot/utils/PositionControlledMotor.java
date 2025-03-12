@@ -32,6 +32,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private double minPosition;
         
     private double maxPosition;
+    private double targetPositionDegrees = 0;
+    private boolean positionControlEnabled = false;
 
     public PositionControlledMotor(
         TalonFXConfiguration talonConfig, 
@@ -191,7 +193,32 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
 
+    public void enablePositionControl() {
+        positionControlEnabled = true;
+        targetPositionDegrees = getPosition(); 
+    }
+
+    public void disablePositionControl() {
+        positionControlEnabled = false;
+        stop(); 
+    }
+
+    public boolean isPositionControlEnabled() {
+        return positionControlEnabled;
+    }
+
     public void goToPosition(double targetPositionDegrees) {
+        this.targetPositionDegrees = targetPositionDegrees;
+        if (!positionControlEnabled) {
+            enablePositionControl(); 
+        }
+        updatePosition();
+    }
+
+    private void updatePosition() {
+        if (!positionControlEnabled) {
+            return; 
+        }
         double targetPosition = degreesToRotations(targetPositionDegrees);
 
         targetPosition = Math.min(Math.max(targetPosition, minPosition), maxPosition);// Clamp target to a valid range
@@ -210,6 +237,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
+        updatePosition();
+
         if (debug) {
             SmartDashboard.putNumber(name + " Position", getPosition());
             SmartDashboard.putNumber(name + " Velocity", getVelocity());

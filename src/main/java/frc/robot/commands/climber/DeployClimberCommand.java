@@ -17,8 +17,7 @@ public class DeployClimberCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        // Stop climber when command ends
-        climber.stop();
+    public boolean isFinished() {
+        return true;
     }
 }

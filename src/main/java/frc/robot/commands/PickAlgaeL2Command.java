@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.Arm;
@@ -11,8 +13,11 @@ public class PickAlgaeL2Command extends ParallelCommandGroup{
     public PickAlgaeL2Command(Elevator elevator, Arm arm, Gripper gripper) {
         addCommands(
             new MovePCM(elevator, 8.5),
-            new MovePCM(arm, 40),
-            new GripCommand(gripper)
+            new GripCommand(gripper),
+            new SequentialCommandGroup(
+                new WaitUntilCommand(elevator.aboveIntake),
+                new MovePCM(arm, 40)
+            )
         );
     }
 }

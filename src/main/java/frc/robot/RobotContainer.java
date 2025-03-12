@@ -26,9 +26,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CoralHandOff;
 import frc.robot.commands.PickAlgaeL2Command;
@@ -125,6 +127,7 @@ public class RobotContainer {
         // Use event markers as triggers
         new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
      
+
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
         new EventTrigger("align 21").onTrue( 
@@ -138,11 +141,15 @@ public class RobotContainer {
                         fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
         )));
 
-        NamedCommands.registerCommand("Score L4 new", new SequentialCommandGroup(
-            new ScoreL4Command(elevator, arm),
-            new WaitCommand(0.75),
-            new ReleaseGripperCommand(gripper).withTimeout(1)
+        NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
 
+        NamedCommands.registerCommand("Score L4 new", new ParallelCommandGroup(
+            new SlowGripCommand(gripper),
+            new ScoreL4Command(elevator, arm),
+            new SequentialCommandGroup(
+                new WaitUntilCommand(2),
+                new ReleaseGripperCommand(gripper)
+            )
         ));
 
         NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(
@@ -244,22 +251,12 @@ public class RobotContainer {
         
         operatorController.a()
             .whileTrue(
-                new ScoreL2Command(arm).alongWith(
-                    new SequentialCommandGroup(
-                        new WaitCommand(0.5),
-                        new MovePCM(elevator, 0)
-                    )
-                )
+                new ScoreL2Command(elevator, arm)
             );
 
             driverController.a()
             .whileTrue(
-                new ScoreL2Command( arm).alongWith(
-                    new SequentialCommandGroup(
-                        new WaitCommand(0.5),
-                        new MovePCM(elevator, 0)
-                    )
-                )
+                new ScoreL2Command(elevator, arm)
             );
 
         operatorController.b()
@@ -267,7 +264,7 @@ public class RobotContainer {
                 new ScoreL3Command(elevator, arm)
             );
 
-            driverController.b()
+        driverController.b()
             .whileTrue(
                 new ScoreL3Command(elevator, arm)
             );

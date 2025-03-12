@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.Arm;
@@ -12,7 +13,7 @@ public class CoralHandOff extends SequentialCommandGroup{
     public CoralHandOff(Elevator elevator, Arm arm, Gripper gripper ) {
         addCommands(
             new MovePCM(arm, 15),
-
+            new WaitUntilCommand(arm.aboveCoral),
             new ParallelCommandGroup(
                 new MovePCM(elevator, 1),
                 new MovePCM(arm, -20),

@@ -30,6 +30,7 @@ public class IntakeFlop extends PositionControlledMotor {
     private final static String name = "IntakeFlop";
 
     public final Trigger deployedTrigger = new Trigger(() -> getPosition() >= 90);
+    public final Trigger retractedTrigger = new Trigger(() -> getPosition() <= 3);
     public final Trigger coralTriggrt = new Trigger(() -> coralPresent());
 
     public static TalonFXConfiguration talonConfig = 

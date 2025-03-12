@@ -16,7 +16,7 @@ public class GripCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted){
-        gripper.stop();
+    public boolean isFinished() {
+        return true;
     }
 }

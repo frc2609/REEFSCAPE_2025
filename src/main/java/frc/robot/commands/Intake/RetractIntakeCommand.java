@@ -6,8 +6,8 @@ import frc.robot.commands.Intake.roll.StopRollCommand;
 import frc.robot.subsystems.IntakeFlop;
 import frc.robot.subsystems.IntakeRoll;
 
-public class RetractIntaceCommand extends ParallelCommandGroup{
-    public RetractIntaceCommand(IntakeFlop intakeFlop, IntakeRoll intakeRoll) {
+public class RetractIntakeCommand extends ParallelCommandGroup{
+    public RetractIntakeCommand(IntakeFlop intakeFlop, IntakeRoll intakeRoll) {
         addCommands(
             new RetractFlopCommand(intakeFlop),
             new StopRollCommand(intakeRoll)

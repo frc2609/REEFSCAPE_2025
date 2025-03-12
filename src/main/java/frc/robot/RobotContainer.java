@@ -40,7 +40,7 @@ import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.Intake.DeployIntakeCommand;
-import frc.robot.commands.Intake.RetractIntaceCommand;
+import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.gripper.GripCommand;
@@ -60,6 +60,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 
 public class RobotContainer {
@@ -216,10 +217,16 @@ public class RobotContainer {
         
     private void configureBindings() {
 
-        intakeFlop.setDefaultCommand(new RetractIntaceCommand(intakeFlop, intakeRoll));
+        intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
+
+        // Add beam sensor trigger that only works when intake is deployed
+        new Trigger(() -> intakeFlop.coralPresent() && intakeFlop.deployedTrigger.getAsBoolean())
+            .onTrue(
+                new RetractIntakeCommand(intakeFlop, intakeRoll)
+            );
 
         operatorController.rightTrigger()
             .whileTrue(
@@ -233,8 +240,12 @@ public class RobotContainer {
 
 
         driverController.leftTrigger()
-            .whileTrue(  
-                new DeployIntakeCommand(intakeFlop, intakeRoll)
+            .onTrue(
+                new ConditionalCommand(
+                    new RetractIntakeCommand(intakeFlop, intakeRoll),  // if deployed, retract
+                    new DeployIntakeCommand(intakeFlop, intakeRoll),   // if not deployed, deploy
+                    intakeFlop.deployedTrigger                         // condition to check
+                )
             );
                 
 
@@ -251,32 +262,32 @@ public class RobotContainer {
         
         operatorController.a()
             .whileTrue(
-                new ScoreL2Command(elevator, arm)
+                new ScoreL2CommandWithWait(elevator, arm, gripper, operatorController)
             );
 
-            driverController.a()
+        driverController.a()
             .whileTrue(
-                new ScoreL2Command(elevator, arm)
+                new ScoreL2CommandWithWait(elevator, arm, gripper, driverController)
             );
 
         operatorController.b()
             .whileTrue(
-                new ScoreL3Command(elevator, arm)
+                new ScoreL3CommandWithWait(elevator, arm, gripper, operatorController)
             );
 
         driverController.b()
             .whileTrue(
-                new ScoreL3Command(elevator, arm)
+                new ScoreL3CommandWithWait(elevator, arm, gripper, driverController)
             );
 
         operatorController.y()
             .whileTrue(
-                new ScoreL4Command(elevator, arm)
+                new ScoreL4CommandWithWait(elevator, arm, gripper, operatorController)
             );
 
-            driverController.y()
+        driverController.y()
             .whileTrue(
-                new ScoreL4Command(elevator, arm)
+                new ScoreL4CommandWithWait(elevator, arm, gripper, driverController)
             );
 
         operatorController.leftBumper()

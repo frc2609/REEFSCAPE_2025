@@ -31,6 +31,7 @@ public class Arm extends PositionControlledMotor{
 
     public final Trigger aboveIntake = new Trigger(() -> getPosition() < -20);
     public final Trigger belowIntake = new Trigger(() -> getPosition() > -20);
+    public final Trigger aboveCoral = new Trigger(() -> getPosition() > 10);
     
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 

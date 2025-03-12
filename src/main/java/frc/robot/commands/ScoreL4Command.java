@@ -9,19 +9,12 @@ import frc.robot.subsystems.Elevator;
 
 public class ScoreL4Command extends ParallelCommandGroup{
     public ScoreL4Command(Elevator elevator, Arm arm){
-        if (elevator.aboveIntake.getAsBoolean()){
-            addCommands(
-                new MovePCM(elevator, 37),
+        addCommands(
+            new MovePCM(elevator, 37),
+            new SequentialCommandGroup(
+                new WaitUntilCommand(elevator.aboveIntake),
                 new MovePCM(arm, -222)
-            );
-        } else {
-            addCommands(
-                new MovePCM(elevator, 37),
-                new SequentialCommandGroup(
-                    new WaitUntilCommand(elevator.aboveIntake),
-                    new MovePCM(arm, -222)
-                )
-            );
-        }
+            )
+        );
     }
 }

@@ -39,16 +39,20 @@ import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
+import frc.robot.commands.ScoreL4CommandAuto;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
+import frc.robot.commands.gripper.AutoReleaseGripperCommand;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.commands.Align.PIDAlign;
+import frc.robot.commands.Align.PIDFineAlign;
+import frc.robot.commands.Align.ReefPIDAlign;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeRoll;
@@ -131,6 +135,8 @@ public class RobotContainer {
         new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
      
 
+        NamedCommands.registerCommand("Align", new ReefPIDAlign(drivetrain) );
+
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
         new EventTrigger("align 21").onTrue( 
@@ -145,15 +151,9 @@ public class RobotContainer {
         )));
 
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
+        NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
 
-        NamedCommands.registerCommand("Score L4 new", new ParallelCommandGroup(
-            new SlowGripCommand(gripper),
-            new ScoreL4Command(elevator, arm),
-            new SequentialCommandGroup(
-                new WaitUntilCommand(2)
-                // new ReleaseGripperCommand(gripper)
-            )
-        ));
+        NamedCommands.registerCommand("Score L4 new", new ScoreL4CommandAuto(elevator, arm, gripper));
 
         NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(
             new Pose2d(4, 8, new Rotation2d(0))
@@ -268,9 +268,9 @@ public class RobotContainer {
             );
 
         driverController.a()
-            .whileTrue(
+            .onTrue(
                // new ScoreL2Command(elevator, arm)
-               new PIDAlign(true, drivetrain, 0)
+               new PIDAlign(drivetrain, 0)
             );
 
         operatorController.b()
@@ -280,8 +280,8 @@ public class RobotContainer {
 
         driverController.b()
             .whileTrue(
-               // new ScoreL3Command(elevator, arm, gripper, shootTrigger)
-               new PIDAlign(true, drivetrain, 0.5)
+               new ScoreL3Command(elevator, arm, gripper, shootTrigger)
+            //    new PIDAlign(true, drivetrain, 0.5)
             );
 
         operatorController.y()
@@ -290,9 +290,9 @@ public class RobotContainer {
             );
 
         driverController.y()
-            .whileTrue(
-              //  new ScoreL4Command(elevator, arm)
-              new PIDAlign(true, drivetrain, -0.5)
+            .onTrue(
+               new ScoreL4Command(elevator, arm)
+            //   new PIDAlign(true, drivetrain, 0)
             );
 
         operatorController.leftBumper()
@@ -300,10 +300,11 @@ public class RobotContainer {
                 new CoralHandOff(elevator, arm, gripper)
             );
 
-            driverController.povLeft()
-            .onTrue(
-                new CoralHandOff(elevator, arm, gripper)
-            );
+        driverController.povLeft()
+             .onTrue(
+            //     new PIDAlign(false, drivetrain, HalfMaxSpeed)
+            new PIDFineAlign(false, drivetrain, 0)
+             );
 
         driverController.povRight()
             .whileTrue(
@@ -348,8 +349,7 @@ public class RobotContainer {
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
         driverController.rightBumper().and(driverController.povRight()
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
-        driverController.rightBumper().and(driverController.povLeft()
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
+        // driverController.rightBumper().and(driverCon[]\]-> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
 
          driverController.rightBumper().and(driverController.povDown()
                  .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));

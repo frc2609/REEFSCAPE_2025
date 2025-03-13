@@ -17,4 +17,9 @@ public class MovePCM extends Command {
     public void execute() {
         pcm.goToPosition(position);
     }
+
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
 }

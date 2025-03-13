@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
+    private final static boolean debug = false;
     private final static double positionTolerance = 1.0;
     private final static double maxAcceleration = 100;
     private final static Boolean invertEncoder = true;
@@ -83,7 +84,7 @@ public class Elevator extends PositionControlledMotor {
             followerId,
             gearRatio,
             positionTolerance,
-            true);
+            debug);
     }
 
     @Override
@@ -105,14 +106,9 @@ public class Elevator extends PositionControlledMotor {
     @Override
     public void setPosition() {
         StatusCode stat = motor.setPosition(0);
-
-        SmartDashboard.putString("Reset status: ", stat.getDescription());
-        SmartDashboard.putNumber("posAfterReset", getPosition());
         
         if (followerMotor != null) {
             stat = followerMotor.setPosition(0);
-            SmartDashboard.putString("Follower Reset status: ", stat.getDescription());
-        SmartDashboard.putNumber("Follower posAfterReset", getPosition());
         }    
     }
 

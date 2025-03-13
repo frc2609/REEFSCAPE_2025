@@ -14,8 +14,9 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 
 
-public class PIDAlign extends Command {
+public class PIDFineAlign extends Command {
     private PIDController xController, yController, rotController;
+    private boolean isRightScore;
     private Timer dontSeeTagTimer, stopTimer;
     private CommandSwerveDrivetrain drivebase;
     private double tagID = -1;
@@ -24,10 +25,11 @@ public class PIDAlign extends Command {
     private double turnP = 0.11;
 
 
-    public PIDAlign( CommandSwerveDrivetrain drivebase, double offset) {
+    public PIDFineAlign(boolean isRightScore, CommandSwerveDrivetrain drivebase, double offset) {
       xController = new PIDController(2, 0.0, 0);  // Vertical movement
-     yController = new PIDController(1.75, 0.1, 0);  // Horitontal movement
+     yController = new PIDController(4, .2, 0);  // Horitontal movement
       rotController = new PIDController(turnP, 0, 0);  // Rotation
+      this.isRightScore = isRightScore;
       this.drivebase = drivebase;
       this.offset = offset;// meausered in meters
       addRequirements(drivebase);
@@ -41,16 +43,16 @@ public class PIDAlign extends Command {
       this.dontSeeTagTimer = new Timer();
       this.dontSeeTagTimer.start();
   
-      rotController.setSetpoint(0);
+      rotController.setSetpoint(65);
       rotController.setTolerance(1);
   
-      xController.setSetpoint(.2);
+      xController.setSetpoint(-.27);
       xController.setTolerance(0.02);
   
-      yController.setSetpoint( -.3);// if right score, setpoint is 0, else -0.1
-      yController.setTolerance(0.04);
+      yController.setSetpoint(isRightScore ? offset : -0.4);// if right score, setpoint is 0, else -0.1
+      yController.setTolerance(0.02);
   
-      tagID = LimelightHelpers.getFiducialID("limelight-intake");
+      tagID = LimelightHelpers.getFiducialID("limelight");
     }
 
   
@@ -61,20 +63,21 @@ public class PIDAlign extends Command {
       if (turnP != prevTurnP){
         rotController.setP(turnP);
       }
-      if (LimelightHelpers.getTV("limelight-intake") && LimelightHelpers.getFiducialID("limelight-intake") == tagID) {
+      if (LimelightHelpers.getTV("limelight") && LimelightHelpers.getFiducialID("limelight") == tagID) {
         this.dontSeeTagTimer.reset();
   
-        double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight-intake");
+        double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
         SmartDashboard.putNumber("x", postions[2]);
   
         double xSpeed = xController.calculate(postions[2]);
         SmartDashboard.putNumber("xspeed", xSpeed);
         double ySpeed = -yController.calculate(postions[0]);
+        SmartDashboard.putNumber("ySpeed", postions[0]);
         double rotValue = -rotController.calculate(postions[4]);
-  
+        SmartDashboard.putNumber("rotValue", postions[4]);
 // drive!
         drivebase.setControl(m_drive
-          .withVelocityX(xSpeed) // Drive forward with negative Y(forward)
+           .withVelocityX(xSpeed) // Drive forward with negative Y(forward)
            .withVelocityY(ySpeed) // Drive left with negative X (left)
            .withRotationalRate(rotValue)
         );
@@ -82,8 +85,9 @@ public class PIDAlign extends Command {
 
   
         if ( !rotController.atSetpoint()||
-             !yController.atSetpoint() ||
-             !xController.atSetpoint()) {
+              !yController.atSetpoint() ||
+              !xController.atSetpoint())
+            {
           stopTimer.reset();
         }
       } else {

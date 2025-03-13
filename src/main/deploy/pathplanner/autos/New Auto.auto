@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Leave Auto Line"
+            "pathName": "New Path"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score L4 new"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "for auto red mid"
+            "name": "Score"
           }
         }
       ]

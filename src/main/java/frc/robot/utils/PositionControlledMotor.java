@@ -398,8 +398,6 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     protected void resetPosition() {
         StatusCode stat = motor.setPosition(0);
-        SmartDashboard.putString("Reset status: ", stat.getDescription());
-        SmartDashboard.putNumber("posAfterReset", getPosition());
 
         if (followerMotor != null) {
             followerMotor.setPosition(0);
@@ -422,14 +420,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     }
     public void setPosition() {
         StatusCode stat = motor.setPosition(getOffset());
-
-        SmartDashboard.putString("Reset status: ", stat.getDescription());
-        SmartDashboard.putNumber("posAfterReset", getPosition());
         
         if (followerMotor != null) {
             stat = followerMotor.setPosition(getOffset());
-            SmartDashboard.putString("Follower Reset status: ", stat.getDescription());
-        SmartDashboard.putNumber("Follower posAfterReset", getPosition());
+
         }    
     }
 }

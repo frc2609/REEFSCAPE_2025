@@ -37,6 +37,8 @@ import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
 import frc.robot.commands.Align.ResetGyro;
+import frc.robot.commands.Align.RightAlign;
+import frc.robot.commands.Align.LeftAlign;
 import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
@@ -51,6 +53,7 @@ import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.MovePCM;
+import frc.robot.commands.Align.LeftAlign;
 import frc.robot.commands.Align.PIDAlign;
 import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ReefPIDAlign;
@@ -124,7 +127,23 @@ public class RobotContainer {
     public boolean isRight = true;
 
     private final Trigger shootTrigger = operatorController.povDown();
-    /**
+    private final Trigger intakeGroundTrigger = operatorController.povUp();
+    private final Trigger coralTrigger = operatorController.povRight();
+    private final Trigger algaeknockL2Trigger = operatorController.povLeft();
+    private final Trigger algaeknockL3Trigger = operatorController.povLeft();
+    private final Trigger resetGyroTrigger = operatorController.start();
+    private final Trigger alignRightTrigger = operatorController.a();
+    private final Trigger alignLeftTrigger = operatorController.a();
+    private final Trigger scoreTrigger = operatorController.b();
+    private final Trigger scoreL4Trigger = operatorController.y();
+    private final Trigger coralHandoffTrigger = operatorController.leftBumper();
+    private final Trigger scoreL3Trigger = driverController.b();
+    private final Trigger scoreL2Trigger = driverController.a();
+    private final Trigger humanTrigger = driverController.leftTrigger();
+    private final Trigger gripTrigger = driverController.rightBumper();
+    private final Trigger releaseTrigger = driverController.leftBumper();
+private final Trigger resetYawTrigger = driverController.start();
+        /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {  
@@ -272,7 +291,7 @@ public class RobotContainer {
         driverController.a()
             .onTrue(
                // new ScoreL2Command(elevator, arm)
-               new PIDAlign(drivetrain, 0)
+               new PIDAlign(drivetrain)
             );
 
         operatorController.b()
@@ -303,14 +322,15 @@ public class RobotContainer {
             );
 
         driverController.povLeft()
-             .onTrue(
+             .whileTrue(
             //     new PIDAlign(false, drivetrain, HalfMaxSpeed)
-            new PIDFineAlign(false, drivetrain, 0)
+            new PIDFineAlign(true, drivetrain)
              );
 
         driverController.povRight()
             .whileTrue(
-                new PickAlgaeL2Command(elevator, arm, gripper)
+               // new PickAlgaeL2Command(elevator, arm, gripper)
+            new PIDFineAlign(false, drivetrain)
             );
         
         driverController.povUp()

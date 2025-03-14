@@ -16,22 +16,20 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class PIDFineAlign extends Command {
     private PIDController xController, yController, rotController;
-    private boolean isRightScore;
+    private boolean isLeftScore;
     private Timer dontSeeTagTimer, stopTimer;
     private CommandSwerveDrivetrain drivebase;
     private double tagID = -1;
     private SwerveRequest.RobotCentric m_drive = new SwerveRequest.RobotCentric();
-    private double offset;
     private double turnP = 0.11;
 
 
-    public PIDFineAlign(boolean isRightScore, CommandSwerveDrivetrain drivebase, double offset) {
+    public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
       xController = new PIDController(2, 0.0, 0);  // Vertical movement
      yController = new PIDController(2, .4, 0);  // Horitontal movement
       rotController = new PIDController(turnP, 0, 0);  // Rotation
-      this.isRightScore = isRightScore;
+      this.isLeftScore = isLeftScore;
       this.drivebase = drivebase;
-      this.offset = offset;// meausered in meters
       addRequirements(drivebase);
     }
   
@@ -42,14 +40,20 @@ public class PIDFineAlign extends Command {
       this.stopTimer.start();
       this.dontSeeTagTimer = new Timer();
       this.dontSeeTagTimer.start();
+      double Ysetpoint = -0.96;
+      if (isLeftScore = false){
+        Ysetpoint = -0.48;
+      }
+      
   
       rotController.setSetpoint(66);
       rotController.setTolerance(1);
   
       xController.setSetpoint(-.36);
       xController.setTolerance(0.02);
-  
-      yController.setSetpoint(isRightScore ? offset : -0.48);// if right score, setpoint is 0, else -0.1
+
+    
+      yController.setSetpoint(Ysetpoint);
       yController.setTolerance(0.02);
   
       tagID = LimelightHelpers.getFiducialID("limelight");

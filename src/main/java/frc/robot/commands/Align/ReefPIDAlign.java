@@ -5,7 +5,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class ReefPIDAlign extends SequentialCommandGroup {
     public ReefPIDAlign(CommandSwerveDrivetrain drivetrain){
-        addCommands(new PIDAlign(drivetrain, 0), new PIDFineAlign(false, drivetrain, 0));
+        addCommands(new PIDAlign(drivetrain), new PIDFineAlign(false, drivetrain));
     }
 
     

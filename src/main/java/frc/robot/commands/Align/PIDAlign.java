@@ -20,16 +20,14 @@ public class PIDAlign extends Command {
     private CommandSwerveDrivetrain drivebase;
     private double tagID = -1;
     private SwerveRequest.RobotCentric m_drive = new SwerveRequest.RobotCentric();
-    private double offset;
     private double turnP = 0.11;
 
 
-    public PIDAlign( CommandSwerveDrivetrain drivebase, double offset) {
+    public PIDAlign( CommandSwerveDrivetrain drivebase) {
       xController = new PIDController(2, 0.0, 0);  // Vertical movement
      yController = new PIDController(1.75, 0.1, 0);  // Horitontal movement
       rotController = new PIDController(turnP, 0, 0);  // Rotation
       this.drivebase = drivebase;
-      this.offset = offset;// meausered in meters
       addRequirements(drivebase);
     }
   

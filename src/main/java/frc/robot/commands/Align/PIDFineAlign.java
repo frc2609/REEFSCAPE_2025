@@ -46,10 +46,10 @@ public class PIDFineAlign extends Command {
       rotController.setSetpoint(65);
       rotController.setTolerance(1);
   
-      xController.setSetpoint(-.27);
+      xController.setSetpoint(-.36);
       xController.setTolerance(0.02);
   
-      yController.setSetpoint(isRightScore ? offset : -0.4);// if right score, setpoint is 0, else -0.1
+      yController.setSetpoint(isRightScore ? offset : -0.47);// if right score, setpoint is 0, else -0.1
       yController.setTolerance(0.02);
   
       tagID = LimelightHelpers.getFiducialID("limelight");
@@ -67,14 +67,14 @@ public class PIDFineAlign extends Command {
         this.dontSeeTagTimer.reset();
   
         double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
-        SmartDashboard.putNumber("x", postions[2]);
+        SmartDashboard.putNumber("Fine X val", postions[2]);
   
         double xSpeed = xController.calculate(postions[2]);
         SmartDashboard.putNumber("xspeed", xSpeed);
         double ySpeed = -yController.calculate(postions[0]);
-        SmartDashboard.putNumber("ySpeed", postions[0]);
+        SmartDashboard.putNumber("Fine Y val", postions[0]);
         double rotValue = -rotController.calculate(postions[4]);
-        SmartDashboard.putNumber("rotValue", postions[4]);
+        SmartDashboard.putNumber("Fine rot val", postions[4]);
 // drive!
         drivebase.setControl(m_drive
            .withVelocityX(xSpeed) // Drive forward with negative Y(forward)

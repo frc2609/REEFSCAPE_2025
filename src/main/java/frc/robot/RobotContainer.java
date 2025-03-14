@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CoralHandOff;
+import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
 import frc.robot.commands.Align.ResetGyro;
@@ -168,8 +169,8 @@ public class RobotContainer {
             configureJogBindings();
         } else {
             configureBindings();    
-            configureDrivetrainBindings();
         }
+        configureDrivetrainBindings();
         
         autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -203,8 +204,8 @@ public class RobotContainer {
 
     private void configureJogBindings() {
 
-        operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 5));
-        operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -5));
+        operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 15));
+        operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -15));
 
         operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
         operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
@@ -242,12 +243,13 @@ public class RobotContainer {
 
 
         driverController.leftTrigger()
-            .onTrue(
-                new ConditionalCommand(
-                    new RetractIntakeCommand(intakeFlop, intakeRoll),  // if deployed, retract
-                    new DeployIntakeCommand(intakeFlop, intakeRoll),   // if not deployed, deploy
-                    intakeFlop.deployedTrigger                         // condition to check
-                )
+            .toggleOnTrue(
+                // new ConditionalCommand(
+                //     new RetractIntakeCommand(intakeFlop, intakeRoll),  // if deployed, retract
+                //     new DeployIntakeCommand(intakeFlop, intakeRoll),   // if not deployed, deploy
+                //     intakeFlop.deployedTrigger                         // condition to check
+                // )
+                new HumanIntakeCommand(arm, gripper, elevator)
             );
                 
 
@@ -264,7 +266,7 @@ public class RobotContainer {
         
         operatorController.a()
             .toggleOnTrue(
-                new ScoreL2Command(elevator, arm)
+                new ScoreL2Command(elevator, arm, gripper, shootTrigger)
             );
 
         driverController.a()
@@ -286,12 +288,12 @@ public class RobotContainer {
 
         operatorController.y()
             .toggleOnTrue(
-                new ScoreL4Command(elevator, arm)
+                new ScoreL4Command(elevator, arm, gripper, shootTrigger)
             );
 
         driverController.y()
             .onTrue(
-               new ScoreL4Command(elevator, arm)
+               new ScoreL4Command(elevator, arm, gripper, shootTrigger)
             //   new PIDAlign(true, drivetrain, 0)
             );
 

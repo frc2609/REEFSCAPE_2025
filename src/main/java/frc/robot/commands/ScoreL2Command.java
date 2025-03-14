@@ -14,10 +14,10 @@ import frc.robot.subsystems.Gripper;
 public class ScoreL2Command extends ParallelCommandGroup{
     public ScoreL2Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger){
         addCommands(
-            new MovePCM(arm, -224),
+            new MovePCM(arm, -228),
             new SequentialCommandGroup(
                 new WaitUntilCommand(arm.aboveIntake),
-                new MovePCM(elevator, 0),
+                new MovePCM(elevator, 0.2),
                 new WaitUntilCommand(shootTrigger),
                 new ReleaseGripperCommand(gripper),
                 new WaitCommand(0.5)

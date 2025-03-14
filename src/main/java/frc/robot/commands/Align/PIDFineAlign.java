@@ -27,7 +27,7 @@ public class PIDFineAlign extends Command {
 
     public PIDFineAlign(boolean isRightScore, CommandSwerveDrivetrain drivebase, double offset) {
       xController = new PIDController(2, 0.0, 0);  // Vertical movement
-     yController = new PIDController(4, .2, 0);  // Horitontal movement
+     yController = new PIDController(2, .4, 0);  // Horitontal movement
       rotController = new PIDController(turnP, 0, 0);  // Rotation
       this.isRightScore = isRightScore;
       this.drivebase = drivebase;
@@ -43,13 +43,13 @@ public class PIDFineAlign extends Command {
       this.dontSeeTagTimer = new Timer();
       this.dontSeeTagTimer.start();
   
-      rotController.setSetpoint(65);
+      rotController.setSetpoint(66);
       rotController.setTolerance(1);
   
       xController.setSetpoint(-.36);
       xController.setTolerance(0.02);
   
-      yController.setSetpoint(isRightScore ? offset : -0.47);// if right score, setpoint is 0, else -0.1
+      yController.setSetpoint(isRightScore ? offset : -0.48);// if right score, setpoint is 0, else -0.1
       yController.setTolerance(0.02);
   
       tagID = LimelightHelpers.getFiducialID("limelight");
@@ -59,6 +59,7 @@ public class PIDFineAlign extends Command {
     @Override
     public void execute() {
       double prevTurnP = turnP;
+
       turnP = SmartDashboard.getNumber("turn p", turnP);
       if (turnP != prevTurnP){
         rotController.setP(turnP);

@@ -126,7 +126,7 @@ public class RobotContainer {
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
-    private final Trigger shootTrigger = operatorController.povDown();
+    private final Trigger shootTrigger = operatorController.povDown();//
     private final Trigger intakeGroundTrigger = operatorController.povUp();
     private final Trigger coralTrigger = operatorController.povRight();
     private final Trigger algaeknockL2Trigger = operatorController.povLeft();
@@ -364,8 +364,6 @@ private final Trigger resetYawTrigger = driverController.start();
         double coralOffset = 0.27;
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         Integer selectedID = 6;
-        
-        operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
 
         // driverController.rightBumper().and(driverController.povUp()
         //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));

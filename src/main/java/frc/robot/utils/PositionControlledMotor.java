@@ -19,6 +19,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
 
     private final NetworkTable configTable;
+    private final NetworkTable fudgeTable;
+
     protected final TalonFX followerMotor;
     protected final TalonFX motor;
 
@@ -30,7 +32,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private final double encoderRatio;
     
     private double minPosition;
-        
+    private double fudgeFactor = 0.0;  
     private double maxPosition;
     private double targetPositionDegrees = 0;
     private boolean positionControlEnabled = false;
@@ -146,6 +148,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
 
         configTable = NetworkTableInstance.getDefault().getTable("MotorConfig/" + name);
+        fudgeTable = NetworkTableInstance.getDefault().getTable("Fudge");
+        fudgeTable.getEntry("fudgeFactor " + name).setDouble(fudgeFactor);
 
         SoftwareLimitSwitchConfigs softLimitConfigs = new SoftwareLimitSwitchConfigs();
         motor.getConfigurator().refresh(softLimitConfigs);
@@ -193,6 +197,13 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         configTable.getEntry("UpdateConfig").setBoolean(false);
     }
 
+
+
+
+
+
+
+
     public void enablePositionControl() {
         positionControlEnabled = true;
         targetPositionDegrees = getPosition(); 
@@ -208,7 +219,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     }
 
     public void goToPosition(double targetPositionDegrees) {
-        this.targetPositionDegrees = targetPositionDegrees;
+        this.targetPositionDegrees = targetPositionDegrees + fudgeFactor;
         if (!positionControlEnabled) {
             enablePositionControl(); 
         }
@@ -237,6 +248,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
+     fudgeFactor = fudgeTable.getEntry("fudgeFactor " + name).getDouble(fudgeFactor);
+     //System.out.println(fudgeFactor);
         updatePosition();
 
         if (debug) {
@@ -425,5 +438,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
             stat = followerMotor.setPosition(getOffset());
 
         }    
+    }
+    public void setFudgeFactor(double fudgeFactor){
+        this.fudgeFactor += fudgeFactor;
     }
 }

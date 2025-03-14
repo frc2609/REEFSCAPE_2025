@@ -69,11 +69,13 @@
       "SmartDashboard": {
         "Auto Mode": {
           "open": true
-        },
-        "open": true
+        }
       }
     },
     "transitory": {
+      "DriveState": {
+        "open": true
+      },
       "SmartDashboard": {
         "Auto Mode": {
           "open": true,

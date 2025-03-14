@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.952868852459017,
-        "y": 3.965061475409836
+        "x": 7.107750000000001,
+        "y": 4.0737499999999995
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.814817652091373,
-        "y": 3.9556528938583653
+        "x": 7.444828041215358,
+        "y": 4.059801486301722
       },
       "isLocked": false,
-      "linkedName": "Auto Align start"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.909938524590164,
-        "y": 3.977049180327869
+        "x": 6.162000000000001,
+        "y": 4.0737499999999995
       },
       "prevControl": {
-        "x": 6.157262147845466,
-        "y": 4.0135324008527835
+        "x": 5.909423970385966,
+        "y": 4.077680613671021
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,13 +34,13 @@
   "eventMarkers": [
     {
       "name": "Align",
-      "waypointRelativePos": 0.12870699881376768,
+      "waypointRelativePos": 0.3047146401985082,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
       "name": "Score L4 new",
-      "waypointRelativePos": 0.8167259786476934,
+      "waypointRelativePos": 0.8109181141439198,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,7 +55,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 176.87786953788438
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,

@@ -12,7 +12,7 @@ public class SlowGripCommand extends Command {
 
     @Override
     public void execute(){
-        gripper.setSpeed(0.25);
+        gripper.setSpeed(0.25);//0.1
     }
 
     @Override

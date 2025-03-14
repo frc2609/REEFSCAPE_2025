@@ -19,8 +19,9 @@ public class ScoreL4CommandAuto extends ParallelCommandGroup{
             new MovePCM(elevator, 38),
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
-                new MovePCM(arm, -223),
-                new WaitCommand(1.5),
+
+                new MovePCM(arm, -227),
+                new WaitCommand(1),
                 new AutoReleaseGripperCommand(gripper).withTimeout(0.5),
                 new WaitCommand(.5),
                 new PrintCommand("SCORE!")

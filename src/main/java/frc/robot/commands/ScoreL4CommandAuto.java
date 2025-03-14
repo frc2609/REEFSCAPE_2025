@@ -16,10 +16,10 @@ import frc.robot.subsystems.Gripper;
 public class ScoreL4CommandAuto extends ParallelCommandGroup{
     public ScoreL4CommandAuto(Elevator elevator, Arm arm, Gripper gripper){
         addCommands(
-            new MovePCM(elevator, 37.5),
+            new MovePCM(elevator, 38),
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
-                new MovePCM(arm, -222),
+                new MovePCM(arm, -227),
                 new WaitCommand(1),
                 new AutoReleaseGripperCommand(gripper).withTimeout(0.5),
                 new PrintCommand("SCORE!")

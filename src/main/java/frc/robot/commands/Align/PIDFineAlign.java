@@ -41,8 +41,8 @@ public class PIDFineAlign extends Command {
       this.dontSeeTagTimer = new Timer();
       this.dontSeeTagTimer.start();
       double Ysetpoint = -0.96;
-      if (isLeftScore = false){
-        Ysetpoint = -0.48;
+      if (isLeftScore == false){
+        Ysetpoint = -0.49;
       }
       
   

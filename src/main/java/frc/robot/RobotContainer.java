@@ -367,14 +367,14 @@ private final Trigger resetYawTrigger = driverController.start();
         
         operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
 
-        driverController.rightBumper().and(driverController.povUp()
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
-        driverController.rightBumper().and(driverController.povRight()
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
-        // driverController.rightBumper().and(driverCon[]\]-> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
+        // driverController.rightBumper().and(driverController.povUp()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
+        // driverController.rightBumper().and(driverController.povRight()
+        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
+        // // driverController.rightBumper().and(driverCon[]\]-> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
 
-         driverController.rightBumper().and(driverController.povDown()
-                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
+        //  driverController.rightBumper().and(driverController.povDown()
+        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
 
          driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 

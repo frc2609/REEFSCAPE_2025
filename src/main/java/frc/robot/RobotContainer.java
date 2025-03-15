@@ -126,23 +126,22 @@ public class RobotContainer {
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
-    private final Trigger shootTrigger = operatorController.povDown();//
-    private final Trigger intakeGroundTrigger = operatorController.povUp();
-    private final Trigger coralTrigger = operatorController.povRight();
-    private final Trigger algaeknockL2Trigger = operatorController.povLeft();
-    private final Trigger algaeknockL3Trigger = operatorController.povLeft();
-    private final Trigger resetGyroTrigger = operatorController.start();
-    private final Trigger alignRightTrigger = operatorController.a();
-    private final Trigger alignLeftTrigger = operatorController.a();
-    private final Trigger scoreTrigger = operatorController.b();
-    private final Trigger scoreL4Trigger = operatorController.y();
-    private final Trigger coralHandoffTrigger = operatorController.leftBumper();
-    private final Trigger scoreL3Trigger = driverController.b();
-    private final Trigger scoreL2Trigger = driverController.a();
-    private final Trigger humanTrigger = driverController.leftTrigger();
-    private final Trigger gripTrigger = driverController.rightBumper();
-    private final Trigger releaseTrigger = driverController.leftBumper();
-private final Trigger resetYawTrigger = driverController.start();
+    private final Trigger shootTrigger = operatorController.rightBumper();// Gripper outtake
+    private final Trigger intakeGroundTrigger = driverController.leftTrigger();//Gound intake 
+    private final Trigger algaeknockL2Trigger = driverController.y();//L2 algae
+    private final Trigger algaeknockL3Trigger = driverController.a();//L3 algae
+    private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
+    private final Trigger alignRightTrigger = driverController.rightBumper();//Fine align right
+    private final Trigger alignLeftTrigger = driverController.leftBumper();//Fine align left
+    private final Trigger coralHandoffTrigger = driverController.x();//Coral handoff
+    private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
+    private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
+    private final Trigger scoreL2Trigger = operatorController.a();//L2 coral score
+    private final Trigger humanTrigger = driverController.rightTrigger();//Human intake
+    private final Trigger gripTrigger = operatorController.leftBumper();//Gripper intake(manual)
+    private final Trigger resetYawTrigger = driverController.start();//Reset yaw
+    private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
+    private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
         /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
@@ -217,38 +216,40 @@ private final Trigger resetYawTrigger = driverController.start();
         ID.addOption("22", 22);
         SmartDashboard.putData("ID Chooser", ID);
         drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
-
+        
     }
-
+    
 
     private void configureJogBindings() {
-
+        
         operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 15));
         operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -15));
-
+        
         operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
         operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
-
+        
         operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
         operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
-
+        
         operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
         operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
     }
-
-        
+    
+    
     private void configureBindings() {
-
+        
         // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
-
+        
         // Add beam sensor trigger that only works when intake is deployed
         new Trigger(() -> intakeFlop.coralPresent() && intakeFlop.deployedTrigger.getAsBoolean())
-            .onTrue(
-                new RetractIntakeCommand(intakeFlop, intakeRoll)
+        .onTrue(
+            new RetractIntakeCommand(intakeFlop, intakeRoll)
             );
+            driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
+            driverController.rightTrigger().whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
 
         operatorController.rightTrigger()
             .whileTrue(
@@ -357,8 +358,6 @@ private final Trigger resetYawTrigger = driverController.start();
                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate)
         ));
 
-        driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
-        driverController.rightTrigger().whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
 
         double distanceOffset = 0.25;
         double coralOffset = 0.27;

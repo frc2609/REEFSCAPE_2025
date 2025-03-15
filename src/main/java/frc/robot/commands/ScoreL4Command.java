@@ -12,9 +12,11 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 
-public class ScoreL4Command extends ParallelCommandGroup{
-    public ScoreL4Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger){
+public class ScoreL4Command extends SequentialCommandGroup{
+    public ScoreL4Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger){
         addCommands(
+            new WaitUntilCommand (confirmTrigger),
+            new ParallelCommandGroup(
             new MovePCM(elevator, 38), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
@@ -22,6 +24,7 @@ public class ScoreL4Command extends ParallelCommandGroup{
                 new WaitUntilCommand(shootTrigger),
                 new ReleaseGripperCommand(gripper),
                 new WaitCommand(0.5)
+            )
             )
         );
     }

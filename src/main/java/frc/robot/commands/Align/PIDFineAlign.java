@@ -26,7 +26,7 @@ public class PIDFineAlign extends Command {
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
       xController = new PIDController(2, 0.0, 0);  // Vertical movement
-      yController = new PIDController(1.5, 0, 0);  // Horitontal movement
+      yController = new PIDController(2, 0, 0);  // Horitontal movement
       rotController = new PIDController(turnP, 0, 0);  // Rotation
       this.isLeftScore = isLeftScore;
       this.drivebase = drivebase;
@@ -41,15 +41,15 @@ public class PIDFineAlign extends Command {
       this.dontSeeTagTimer = new Timer();
       this.dontSeeTagTimer.start();
       // Left set points
-      double Ysetpoint = -0.98;
-      double Xsetpoint = -0.352;
-      double rotSetPoint = 60.6;
+      double Ysetpoint = -0.914;
+      double Xsetpoint = -0.391;
+      double rotSetPoint = 55.8;
 
       // Right set points
       if (isLeftScore == false){
-        Ysetpoint = -0.495;
+        Ysetpoint = -0.469;
         Xsetpoint = -0.368;
-        rotSetPoint = 59.6;
+        rotSetPoint = 57.3;
       }
       
   

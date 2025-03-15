@@ -126,18 +126,21 @@ public class RobotContainer {
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
-    private final Trigger shootTrigger = operatorController.rightBumper();// Gripper outtake
-    private final Trigger intakeGroundTrigger = driverController.leftTrigger();//Gound intake 
-    private final Trigger algaeknockL2Trigger = driverController.y();//L2 algae
-    private final Trigger algaeknockL3Trigger = driverController.a();//L3 algae
+private final Trigger confirmTrigger= driverController.rightTrigger();// 
+
+private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
+    private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
+    private final Trigger intakeGroundTrigger = driverController.leftBumper();//Gound intake 
+    private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
+    private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
-    private final Trigger alignRightTrigger = driverController.rightBumper();//Fine align right
-    private final Trigger alignLeftTrigger = driverController.leftBumper();//Fine align left
+    private final Trigger alignRightTrigger = driverController.povRight();//Fine align right
+   private final Trigger alignLeftTrigger = driverController.povLeft();//Fine align left
     private final Trigger coralHandoffTrigger = driverController.x();//Coral handoff
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
     private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
     private final Trigger scoreL2Trigger = operatorController.a();//L2 coral score
-    private final Trigger humanTrigger = driverController.rightTrigger();//Human intake
+    private final Trigger humanTrigger = driverController.leftTrigger();//Human intake
     private final Trigger gripTrigger = operatorController.leftBumper();//Gripper intake(manual)
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
@@ -243,103 +246,25 @@ public class RobotContainer {
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
         
-        // Add beam sensor trigger that only works when intake is deployed
-        new Trigger(() -> intakeFlop.coralPresent() && intakeFlop.deployedTrigger.getAsBoolean())
-        .onTrue(
-            new RetractIntakeCommand(intakeFlop, intakeRoll)
-            );
-            driverController.rightTrigger().whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed));
-            driverController.rightTrigger().whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
-
-        operatorController.rightTrigger()
-            .whileTrue(
-                new DeployClimberCommand(climber))
-                .onFalse(
-                    new RetractClimberCommand(climber)
-                );
-
-                
-         
-
-
-        driverController.leftTrigger()
-            .toggleOnTrue(
-                // new ConditionalCommand(
-                //     new RetractIntakeCommand(intakeFlop, intakeRoll),  // if deployed, retract
-                //     new DeployIntakeCommand(intakeFlop, intakeRoll),   // if not deployed, deploy
-                //     intakeFlop.deployedTrigger                         // condition to check
-                // )
-                new HumanIntakeCommand(arm, gripper, elevator)
-            );
-                
-
-        driverController.rightBumper()
-            .whileTrue(
-                new GripCommand(gripper)
-            );
-
-        driverController.leftBumper()
-            .whileTrue(
-                new ReleaseGripperCommand(gripper)
-            );
+      
+        halfSpeedTrigger.whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed))
+            .whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
+        intakeGroundTrigger.whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
+            .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
+        humanTrigger.toggleOnTrue(new HumanIntakeCommand(arm, gripper, elevator));
+        alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
+        alignRightTrigger.whileTrue(new RightAlign(drivetrain));
+        coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
+        resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
+        resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         
-        
-        operatorController.a()
-            .toggleOnTrue(
-                new ScoreL2Command(elevator, arm, gripper, shootTrigger)
-            );
-
-        driverController.a()
-            .onTrue(
-               // new ScoreL2Command(elevator, arm)
-               new PIDAlign(drivetrain)
-            );
-
-        operatorController.b()
-            .toggleOnTrue(
-                new ScoreL3Command(elevator, arm, gripper, shootTrigger)
-            );
-
-        driverController.b()
-            .whileTrue(
-               new ScoreL3Command(elevator, arm, gripper, shootTrigger)
-            //    new PIDAlign(true, drivetrain, 0.5)
-            );
-
-        operatorController.y()
-            .toggleOnTrue(
-                new ScoreL4Command(elevator, arm, gripper, shootTrigger)
-            );
-
-        driverController.y()
-            .onTrue(
-               new ScoreL4Command(elevator, arm, gripper, shootTrigger)
-            //   new PIDAlign(true, drivetrain, 0)
-            );
-
-        operatorController.leftBumper()
-            .onTrue(
-                new CoralHandOff(elevator, arm, gripper)
-            );
-
-        driverController.povLeft()
-             .whileTrue(
-            //     new PIDAlign(false, drivetrain, HalfMaxSpeed)
-            new PIDFineAlign(true, drivetrain)
-             );
-
-        driverController.povRight()
-            .whileTrue(
-               // new PickAlgaeL2Command(elevator, arm, gripper)
-            new PIDFineAlign(false, drivetrain)
-            );
-        
-        driverController.povUp()
-            .whileTrue(
-                new PickAlgaeL3Command(elevator, arm, gripper)
-            );
-        
-        
+        scoreL4Trigger.toggleOnTrue(new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        scoreL3Trigger.toggleOnTrue(new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        scoreL2Trigger.toggleOnTrue(new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        algaeknockL2Trigger.toggleOnTrue(new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger));
+        algaeknockL3Trigger.toggleOnTrue(new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger));
+        deployClimberTrigger.whileTrue(new DeployClimberCommand(climber))
+            .whileFalse(new RetractClimberCommand(climber)); 
     }
     
     

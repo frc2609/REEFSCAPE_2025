@@ -41,15 +41,15 @@ public class PIDFineAlign extends Command {
       this.dontSeeTagTimer = new Timer();
       this.dontSeeTagTimer.start();
       // Left set points
-      double Ysetpoint = -0.914;
-      double Xsetpoint = -0.391;
-      double rotSetPoint = 55.8;
+      double Ysetpoint = -0.606;
+      double Xsetpoint = -0.225;
+      double rotSetPoint = 56.3;
 
       // Right set points
       if (isLeftScore == false){
-        Ysetpoint = -0.469;
-        Xsetpoint = -0.368;
-        rotSetPoint = 57.3;
+        Ysetpoint = -0.238;
+        Xsetpoint = -0.232;
+        rotSetPoint = 55.3;
       }
       
   

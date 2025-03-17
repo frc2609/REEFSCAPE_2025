@@ -57,11 +57,11 @@ public class PIDFineAlign extends Command {
       rotController.setTolerance(1);
   
       xController.setSetpoint(Xsetpoint);
-      xController.setTolerance(0.03);
+      xController.setTolerance(0.02);
 
     
       yController.setSetpoint(Ysetpoint);
-      yController.setTolerance(0.03);
+      yController.setTolerance(0.02);
   
       tagID = LimelightHelpers.getFiducialID("limelight");
     }

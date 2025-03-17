@@ -127,8 +127,9 @@ public class RobotContainer {
     public boolean isRight = true;
 
 private final Trigger confirmTrigger= driverController.rightTrigger();// 
-
+//private final Trigger confirmTrigger= driverController.rightBumper();//ROBI
 private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
+//private final Trigger halfSpeedTrigger = driverController.rightTrigger();// half speed ROBI
     private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
     private final Trigger intakeGroundTrigger = driverController.leftBumper();//Gound intake 
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
@@ -161,17 +162,18 @@ private final Trigger halfSpeedTrigger = driverController.rightBumper();// half 
 
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
-        new EventTrigger("align 21").onTrue( 
-            drivetrain.getPathPlannerCommandToAprilTag(
-                new Pose2d(
-                    fieldLayout.getTagPose(10).get().toPose2d().getX() +
-                    Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
-                    fieldLayout.getTagPose(10).get().toPose2d().getY() +
-                    Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(
-                        fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
-        )));
+        // new EventTrigger("align 21").onTrue( 
+        //     drivetrain.getPathPlannerCommandToAprilTag(
+        //         new Pose2d(
+        //             fieldLayout.getTagPose(10).get().toPose2d().getX() +
+        //             Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
+        //             fieldLayout.getTagPose(10).get().toPose2d().getY() +
+        //             Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
+        //             new Rotation2d(
+        //                 fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
+        // )));
 
+        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator));
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
         NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
 
@@ -252,6 +254,7 @@ private final Trigger halfSpeedTrigger = driverController.rightBumper();// half 
         intakeGroundTrigger.whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
         humanTrigger.toggleOnTrue(new HumanIntakeCommand(arm, gripper, elevator));
+        // humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
         alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
         alignRightTrigger.whileTrue(new RightAlign(drivetrain));
         coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));

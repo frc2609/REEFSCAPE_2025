@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -11,12 +12,13 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utils.PositionControlledMotor;
 
 
 public class IntakeFlop extends PositionControlledMotor {
-    private final static boolean debug = false;
+    private final static boolean debug = true;
     private final static double zeroPosition = 0.39;
     private final static Double gearRatio = 88.888;
     private final static int motorId = 9;
@@ -30,16 +32,16 @@ public class IntakeFlop extends PositionControlledMotor {
     private final static double maxPosition = 400;
     private final static String name = "IntakeFlop";
 
-    public final Trigger deployedTrigger = new Trigger(() -> getPosition() >= 90);
-    public final Trigger retractedTrigger = new Trigger(() -> getPosition() <= 3);
-    public final Trigger coralTriggrt = new Trigger(() -> coralPresent());
+    public final Trigger deployedTrigger = new Trigger(() -> getPosition() >= 85);
+    public final Trigger retractedTrigger = new Trigger(() -> getPosition() <= 5);
+    public final Trigger coralTrigger = new Trigger(() -> coralPresent());
 
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Coast)
+                    .withNeutralMode(NeutralModeValue.Brake)
             )
             .withMotionMagic(
                 new MotionMagicConfigs()
@@ -71,7 +73,7 @@ public class IntakeFlop extends PositionControlledMotor {
                     .withSupplyCurrentLimit(120)
             );
         
-    private final DigitalInput intakeBeam = new DigitalInput(4);
+    private final DigitalInput intakeBeam = new DigitalInput(8);
     public IntakeFlop() {
         super(
         talonConfig,
@@ -87,6 +89,17 @@ public class IntakeFlop extends PositionControlledMotor {
     }
 
     public boolean coralPresent() {
-        return intakeBeam.get();
+        boolean beam = !intakeBeam.get();
+        SmartDashboard.putBoolean("intake beam", beam);
+        return beam;
+    }
+
+    @Override 
+    public void setPosition() {
+        StatusCode stat = motor.setPosition(0);
+        
+        if (followerMotor != null) {
+            stat = followerMotor.setPosition(0);
+        }    
     }
 }

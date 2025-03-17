@@ -251,7 +251,7 @@ public class RobotContainer {
         // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
-        gripper.setDefaultCommand(new StopGripperCommand(gripper));
+        gripper.setDefaultCommand(new SlowGripCommand(gripper));
 
         interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
         
@@ -265,18 +265,18 @@ public class RobotContainer {
         intakeFlop.coralTrigger.onTrue(
             new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
         );
-        humanTrigger.toggleOnTrue(new HumanIntakeCommand(arm, gripper, elevator));
+        humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
         alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
-        // alignRightTrigger.whileTrue(new RightAlign(drivetrain));
-        alignRightTrigger.onFalse(
-            queuedCommand = new InstantCommand()
-        );
+        alignRightTrigger.whileTrue(new RightAlign(drivetrain));
+        // alignRightTrigger.onFalse(
+        //     queuedCommand = new InstantCommand()
+        // );
         coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         
-        // scoreL4Trigger.toggleOnTrue(new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
-        scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
+        scoreL4Trigger.toggleOnTrue(new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        // scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
 
         scoreL3Trigger.toggleOnTrue(new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
         scoreL2Trigger.toggleOnTrue(new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger));

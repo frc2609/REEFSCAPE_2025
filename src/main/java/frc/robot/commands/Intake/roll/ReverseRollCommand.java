@@ -12,6 +12,6 @@ public class ReverseRollCommand extends Command {
 
     @Override
     public void execute() {
-        roll.setSpeed(0.5);
+        roll.setSpeed(-0.25);
     }
 }

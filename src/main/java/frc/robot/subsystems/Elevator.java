@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final static boolean debug = false;
+    private final static boolean debug = true;
     private final static double positionTolerance = 1.0;
     private final static double maxAcceleration = 100;
     private final static Boolean invertEncoder = true;
@@ -35,6 +35,7 @@ public class Elevator extends PositionControlledMotor {
     private final double rotationsPerInch = 0.905;
 
     public final Trigger aboveIntake = new Trigger(() -> getPosition() >= 8);
+    public final Trigger handoff = new Trigger(() -> getPosition() <= 2);
 
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     public static TalonFXConfiguration talonConfig = 

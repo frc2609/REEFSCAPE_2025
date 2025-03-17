@@ -12,8 +12,7 @@ public class StopGripperCommand extends Command {
 
     @Override
     public void execute(){
-        gripper.setSpeed(-0.75);
-        System.out.println("gripper out");
+        gripper.stop();
     }
 
     @Override

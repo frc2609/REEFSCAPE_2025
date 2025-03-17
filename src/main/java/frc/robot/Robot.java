@@ -33,9 +33,12 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
-    SmartDashboard.putNumber("Fine X val", postions[2]);
-    SmartDashboard.putNumber("Fine Y val", postions[0]);
-    SmartDashboard.putNumber("Fine rot val", postions[4]);
+    if (postions.length > 4){
+      SmartDashboard.putNumber("Fine X val", postions[2]);
+      SmartDashboard.putNumber("Fine Y val", postions[0]);
+      SmartDashboard.putNumber("Fine rot val", postions[4]);
+    }
+    SmartDashboard.putBoolean("retracted", m_robotContainer.intakeFlop.retractedTrigger.getAsBoolean());
   }
 
   @Override

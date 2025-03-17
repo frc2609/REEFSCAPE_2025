@@ -22,7 +22,7 @@ public class Gripper extends SubsystemBase  {
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(15)
-                    .withSupplyCurrentLimit(15)
+                    .withSupplyCurrentLimit(7)
             );
     // private final SparkMax algaeMotor;
     public Gripper() {

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -32,10 +33,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AlignAndScore;
 import frc.robot.commands.CoralHandOff;
 import frc.robot.commands.HumanIntakeCommand;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
+import frc.robot.commands.RetractAndHandOff;
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.Align.RightAlign;
 import frc.robot.commands.Align.LeftAlign;
@@ -51,6 +54,7 @@ import frc.robot.commands.gripper.AutoReleaseGripperCommand;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
+import frc.robot.commands.gripper.StopGripperCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.commands.Align.LeftAlign;
@@ -102,6 +106,8 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    private Command queuedCommand = new InstantCommand();
+
 
 
     // roboRIO CAN Bus with device ID 0
@@ -126,17 +132,16 @@ public class RobotContainer {
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
-private final Trigger confirmTrigger= driverController.rightTrigger();// 
-//private final Trigger confirmTrigger= driverController.rightBumper();//ROBI
-private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
-//private final Trigger halfSpeedTrigger = driverController.rightTrigger();// half speed ROBI
+    private final Trigger confirmTrigger= driverController.rightTrigger();// 
+
+    private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
     private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
     private final Trigger intakeGroundTrigger = driverController.leftBumper();//Gound intake 
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
     private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
     private final Trigger alignRightTrigger = driverController.povRight();//Fine align right
-   private final Trigger alignLeftTrigger = driverController.povLeft();//Fine align left
+    private final Trigger alignLeftTrigger = driverController.povLeft();//Fine align left
     private final Trigger coralHandoffTrigger = driverController.x();//Coral handoff
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
     private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
@@ -146,6 +151,7 @@ private final Trigger halfSpeedTrigger = driverController.rightBumper();// half 
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
+    private final Trigger interupTrigger = driverController.a();
         /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
@@ -193,8 +199,8 @@ private final Trigger halfSpeedTrigger = driverController.rightBumper();// half 
         } else {
             configureBindings();    
         }
-        configureDrivetrainBindings();
         
+        configureDrivetrainBindings();
         autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
         SmartDashboard.putData("Auto Mode", autoChooser);
         ID.addOption("1", 1);
@@ -247,21 +253,32 @@ private final Trigger halfSpeedTrigger = driverController.rightBumper();// half 
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
+
+        interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
         
       
-        halfSpeedTrigger.whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed))
+        halfSpeedTrigger
+            .whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed))
             .whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
-        intakeGroundTrigger.whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
+        intakeGroundTrigger
+            .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
-        humanTrigger.toggleOnTrue(new HumanIntakeCommand(arm, gripper, elevator));
-        // humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
+        intakeFlop.coralTrigger.onTrue(
+            new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
+        );
+        humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
         alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
         alignRightTrigger.whileTrue(new RightAlign(drivetrain));
+        // alignRightTrigger.onFalse(
+        //     queuedCommand = new InstantCommand()
+        // );
         coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         
         scoreL4Trigger.toggleOnTrue(new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        // scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
+
         scoreL3Trigger.toggleOnTrue(new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
         scoreL2Trigger.toggleOnTrue(new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
         algaeknockL2Trigger.toggleOnTrue(new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger));
@@ -306,22 +323,22 @@ private final Trigger halfSpeedTrigger = driverController.rightBumper();// half 
 
         operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
-        operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
-        try{
-            operatorController.povUp().onTrue(
-                new ProxyCommand(
-                    drivetrain.getPathPlannerCommandToAprilTag(
-                        new Pose2d(
-                            fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getX() +
-                            Math.cos(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle()) * distanceOffset,
-                            fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getY() +
-                            Math.sin(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle())*distanceOffset,
-                        new Rotation2d(
-                            fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                ))));
-        }catch(Exception e){
-            System.out.println("no targer");
-        }
+        // operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
+        // try{
+        //     operatorController.povUp().onTrue(
+        //         new ProxyCommand(
+        //             drivetrain.getPathPlannerCommandToAprilTag(
+        //                 new Pose2d(
+        //                     fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getX() +
+        //                     Math.cos(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle()) * distanceOffset,
+        //                     fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getY() +
+        //                     Math.sin(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle())*distanceOffset,
+        //                 new Rotation2d(
+        //                     fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getRotation().getRadians() - Math.PI)
+        //         ))));
+        // }catch(Exception e){
+        //     System.out.println("no targer");
+        // }
              
 
 

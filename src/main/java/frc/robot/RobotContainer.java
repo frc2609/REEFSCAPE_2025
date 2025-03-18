@@ -164,8 +164,9 @@ public class RobotContainer {
         new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
      
 
-        NamedCommands.registerCommand("Align", new ReefPIDAlign(drivetrain) );
-
+        //NamedCommands.registerCommand("Align", new ReefPIDAlign(drivetrain) );
+        new EventTrigger("Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain),new ScoreL4CommandAuto(elevator, arm, gripper)));
+        //new EventTrigger("Score L4 new").onTrue(new ScoreL4CommandAuto(elevator, arm, gripper));
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
         // new EventTrigger("align 21").onTrue( 
@@ -183,7 +184,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
         NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
 
-        NamedCommands.registerCommand("Score L4 new", new ScoreL4CommandAuto(elevator, arm, gripper));
+        //NamedCommands.registerCommand("Score L4 new", new ScoreL4CommandAuto(elevator, arm, gripper));
 
         NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(
             new Pose2d(4, 8, new Rotation2d(0))

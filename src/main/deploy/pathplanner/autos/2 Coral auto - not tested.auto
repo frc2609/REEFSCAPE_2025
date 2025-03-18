@@ -9,36 +9,6 @@
           "data": {
             "pathName": "Align and Score"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Align"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Coral Pick up"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Human Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Coral Station to Score"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Align"
-          }
         }
       ]
     }

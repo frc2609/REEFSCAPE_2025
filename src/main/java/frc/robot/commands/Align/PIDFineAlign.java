@@ -61,7 +61,7 @@ public class PIDFineAlign extends Command {
 
     
       yController.setSetpoint(Ysetpoint);
-      yController.setTolerance(0.02);
+      yController.setTolerance(0.04);//0.02
   
       tagID = LimelightHelpers.getFiducialID("limelight");
     }

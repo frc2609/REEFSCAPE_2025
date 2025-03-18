@@ -168,17 +168,18 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
-        new EventTrigger("align 21").onTrue( 
-            drivetrain.getPathPlannerCommandToAprilTag(
-                new Pose2d(
-                    fieldLayout.getTagPose(10).get().toPose2d().getX() +
-                    Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
-                    fieldLayout.getTagPose(10).get().toPose2d().getY() +
-                    Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(
-                        fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
-        )));
+        // new EventTrigger("align 21").onTrue( 
+        //     drivetrain.getPathPlannerCommandToAprilTag(
+        //         new Pose2d(
+        //             fieldLayout.getTagPose(10).get().toPose2d().getX() +
+        //             Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
+        //             fieldLayout.getTagPose(10).get().toPose2d().getY() +
+        //             Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
+        //             new Rotation2d(
+        //                 fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
+        // )));
 
+        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator));
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
         NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
 

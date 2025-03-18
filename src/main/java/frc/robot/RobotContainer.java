@@ -147,7 +147,7 @@ public class RobotContainer {
     private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
     private final Trigger scoreL2Trigger = operatorController.a();//L2 coral score
     private final Trigger humanTrigger = driverController.leftTrigger();//Human intake
-    private final Trigger gripTrigger = operatorController.leftBumper();//Gripper intake(manual)
+    private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
@@ -278,7 +278,7 @@ public class RobotContainer {
         resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         
         scoreL4Trigger.toggleOnTrue(new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
-        // scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
+        //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
 
         scoreL3Trigger.toggleOnTrue(new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
         scoreL2Trigger.toggleOnTrue(new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
@@ -286,6 +286,8 @@ public class RobotContainer {
         algaeknockL3Trigger.toggleOnTrue(new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger));
         deployClimberTrigger.whileTrue(new DeployClimberCommand(climber))
             .whileFalse(new RetractClimberCommand(climber)); 
+            gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
+
     }
     
     

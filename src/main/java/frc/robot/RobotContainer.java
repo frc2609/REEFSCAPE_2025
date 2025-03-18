@@ -48,8 +48,10 @@ import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.ScoreL4CommandAuto;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
+import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
+import frc.robot.commands.elevator.moveElevator;
 import frc.robot.commands.gripper.AutoReleaseGripperCommand;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
@@ -78,8 +80,8 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 public class RobotContainer {
 
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
-    private double HalfMaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/4; 
+    private double currentSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
+    private double quarterSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/4; 
     private double TopSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
@@ -90,14 +92,14 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(currentSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     // The robot's subsystems and commands are defined here...
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final Telemetry logger = new Telemetry(currentSpeed);
 
 
     private static final CommandXboxController driverController = new CommandXboxController(0);
@@ -118,6 +120,7 @@ public class RobotContainer {
     public final IntakeRoll intakeRoll = new IntakeRoll();
     public final IntakeFlop intakeFlop = new IntakeFlop();
     public static InstantCommand instantCommand = new InstantCommand();
+    private boolean climbed = false;
 
     private double targetPosition = 0.0;
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
@@ -128,7 +131,7 @@ public class RobotContainer {
 
     public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
-    private final Gripper gripper = new Gripper();
+    public final Gripper gripper = new Gripper();
     public SendableChooser<Integer> ID = new SendableChooser<>();
     public boolean isRight = true;
 
@@ -152,10 +155,16 @@ public class RobotContainer {
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
     private final Trigger interupTrigger = driverController.a();
-        /**
+    private final Trigger climbing = new Trigger(() -> climber.getPosition() > 100);
+    /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {  
+        elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
+        arm.setDefaultCommand(new MovePCM(arm, 0));
+        gripper.setDefaultCommand(new SlowGripCommand(gripper));
+        intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
+
         double distanceOffset = 0.25;
         double coralOffset = 0.27;
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
@@ -166,6 +175,7 @@ public class RobotContainer {
 
         //NamedCommands.registerCommand("Align", new ReefPIDAlign(drivetrain) );
         new EventTrigger("Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain),new ScoreL4CommandAuto(elevator, arm, gripper)));
+        NamedCommands.registerCommand("Align named", new SequentialCommandGroup(new ReefPIDAlign(drivetrain),new ScoreL4CommandAuto(elevator, arm, gripper)));
         //new EventTrigger("Score L4 new").onTrue(new ScoreL4CommandAuto(elevator, arm, gripper));
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
@@ -183,6 +193,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator));
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
         NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
+
 
         //NamedCommands.registerCommand("Score L4 new", new ScoreL4CommandAuto(elevator, arm, gripper));
 
@@ -228,28 +239,28 @@ public class RobotContainer {
         ID.addOption("22", 22);
         SmartDashboard.putData("ID Chooser", ID);
         drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
-        
+
     }
-    
+
 
     private void configureJogBindings() {
-        
+
         operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 15));
         operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -15));
-        
+
         operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
         operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
-        
+
         operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
         operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
-        
+
         operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
         operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
     }
-    
-    
-    private void configureBindings() {
+
         
+    private void configureBindings() {
+
         // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
@@ -257,10 +268,13 @@ public class RobotContainer {
 
         interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
         
+        climbing.toggleOnTrue(
+            new moveElevator(elevator)
+        );
       
         halfSpeedTrigger
-            .whileTrue(Commands.runOnce(()-> MaxSpeed = HalfMaxSpeed))
-            .whileFalse(Commands.runOnce(()-> MaxSpeed =TopSpeed));
+            .whileTrue(Commands.runOnce(()-> currentSpeed = quarterSpeed))
+            .whileFalse(Commands.runOnce(()-> currentSpeed =TopSpeed));
         intakeGroundTrigger
             .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
@@ -277,17 +291,33 @@ public class RobotContainer {
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         
-        scoreL4Trigger.toggleOnTrue(new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        scoreL4Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> currentSpeed = quarterSpeed),
+                new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+            )
+        );
         //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
 
-        scoreL3Trigger.toggleOnTrue(new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
-        scoreL2Trigger.toggleOnTrue(new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        scoreL3Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> currentSpeed = TopSpeed/3),
+                new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+            )
+        );
+        scoreL2Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> currentSpeed = TopSpeed/2),
+                new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+            )
+        );
         algaeknockL2Trigger.toggleOnTrue(new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger));
         algaeknockL3Trigger.toggleOnTrue(new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger));
-        deployClimberTrigger.whileTrue(new DeployClimberCommand(climber))
+        deployClimberTrigger
+            .whileTrue(new DeployClimberCommand(climber))
             .whileFalse(new RetractClimberCommand(climber)); 
-            gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
-
+        gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
+        
     }
     
     
@@ -301,8 +331,8 @@ public class RobotContainer {
     private void configureDrivetrainBindings() {
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> drive
-                .withVelocityX((-driverController.getLeftY()) * MaxSpeed) 
-                .withVelocityY((-driverController.getLeftX()) * MaxSpeed) 
+                .withVelocityX((-driverController.getLeftY()) * currentSpeed) 
+                .withVelocityY((-driverController.getLeftX()) * currentSpeed) 
                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate)
         ));
 

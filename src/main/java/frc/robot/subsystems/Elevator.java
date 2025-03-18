@@ -21,9 +21,9 @@ public class Elevator extends PositionControlledMotor {
     // We changed how the motor is reset please check the position values
     private final static boolean debug = true;
     private final static double positionTolerance = 1.0;
-    private final static double maxAcceleration = 100;
+    private final static double maxAcceleration = 100;//100
     private final static Boolean invertEncoder = true;
-    private final static double maxVelocity = 500;
+    private final static double maxVelocity = 500;//500
     private final static String name = "ELEVATOR";
     private final static double minPosition = 0;
     private final static double maxPosition = 37.1;

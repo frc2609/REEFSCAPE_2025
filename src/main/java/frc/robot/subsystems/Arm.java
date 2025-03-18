@@ -18,7 +18,7 @@ public class Arm extends PositionControlledMotor{
     // We changed how the motor is reset please check the position values
     private final static boolean debug = false;
     private final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 200;
+    private final static double maxAcceleration = 200;//200
     private final static Boolean invertEncoder = true;
     private final static double maxVelocity = 150;
     private final static double minPosition = -360;

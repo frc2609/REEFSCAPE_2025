@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 public class Climber extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final static boolean debug = false;
+    private final static boolean debug = true;
     private final static double positionTolerance = 0.01;
     private final static double maxAcceleration = 50;
     private final static Boolean invertEncoder = false;
@@ -26,7 +26,7 @@ public class Climber extends PositionControlledMotor{
     private final static Double gearRatio = 648.148;
     private final static int motorId = 5;
     private final static int encoderID = 0;
-    private final static double zeroPosition = 0.341;
+    private final static double zeroPosition = 0.837;
 
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
     private static TalonFXConfiguration talonConfig = 

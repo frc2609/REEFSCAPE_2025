@@ -26,7 +26,7 @@ public class PIDFineAlign extends Command {
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
       xController = new PIDController(2, 0.0, 0);  // Vertical movement
-      yController = new PIDController(2, 0, 0);  // Horitontal movement
+      yController = new PIDController(2, 0.5, 0);  // Horitontal movement
       rotController = new PIDController(0.11, 0, 0);  // Rotation
       this.isLeftScore = isLeftScore;
       this.drivebase = drivebase;

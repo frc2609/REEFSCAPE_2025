@@ -17,7 +17,7 @@ public class ScoreL4Command extends SequentialCommandGroup{
         addCommands(
             new WaitUntilCommand (confirmTrigger),
             new ParallelCommandGroup(
-            new MovePCM(elevator, 38), //39
+            new MovePCM(elevator, 38.5), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
                 new MovePCM(arm, -227), //-227

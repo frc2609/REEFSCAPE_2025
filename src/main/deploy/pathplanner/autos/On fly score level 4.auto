@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Align and Score on fly"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Align On fly"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "score auto"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Coral Station"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

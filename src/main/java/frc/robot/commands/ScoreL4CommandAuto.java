@@ -28,8 +28,8 @@ public class ScoreL4CommandAuto extends SequentialCommandGroup{
                 new WaitUntilCommand(elevator.aboveIntake),
                 new MovePCM(arm, -227), //-227
                 new WaitUntilCommand(() -> elevator.getPosition() > 37 && arm.getPosition() < -226),
-                new ReleaseGripperCommand(gripper),
-                new WaitCommand(0.5)
+                new WaitCommand(0.2),
+                new ReleaseGripperCommand(gripper)
             )
             )
         );

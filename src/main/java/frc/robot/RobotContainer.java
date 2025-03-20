@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.*;
 
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -175,7 +176,16 @@ public class RobotContainer {
 
         //NamedCommands.registerCommand("Align", new ReefPIDAlign(drivetrain) );
         new EventTrigger("Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain),new ScoreL4CommandAuto(elevator, arm, gripper)));
-        NamedCommands.registerCommand("Align named", new SequentialCommandGroup(new ReefPIDAlign(drivetrain),new ScoreL4CommandAuto(elevator, arm, gripper)));
+        NamedCommands.registerCommand("Align named", 
+            new SequentialCommandGroup(
+                new ReefPIDAlign(drivetrain),
+                new ScoreL4CommandAuto(elevator, arm, gripper),
+                new InstantCommand(
+                    () -> drivetrain.setControl(new SwerveRequest.RobotCentric()
+                    .withVelocityX(1)
+                    .withRotationalRate(0.5))
+                )).withTimeout(0.5)
+            );
         //new EventTrigger("Score L4 new").onTrue(new ScoreL4CommandAuto(elevator, arm, gripper));
         NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
 
@@ -202,6 +212,44 @@ public class RobotContainer {
         ));
         
         new EventTrigger("Wait").onTrue(new WaitCommand(8));
+        new EventTrigger("Score Align On fly").onTrue(new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
+        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
+      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
+      new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
+    ))
+
+        ));
+        NamedCommands.registerCommand("Score Align On fly",new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
+        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
+      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
+      new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
+    ))
+
+        ));
+
+        new EventTrigger("score auto").onTrue(    new ScoreL4CommandAuto(elevator, arm, gripper)
+        );
+        NamedCommands.registerCommand("score auto",    new ScoreL4CommandAuto(elevator, arm, gripper)
+        );
+        new EventTrigger("Coral Station").onTrue(
+        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+            fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
+            fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
+            new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
+          ))
+        );
+        NamedCommands.registerCommand("Coral Station",
+            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
+                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
+                new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
+              ))
+            );
+
+        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain), new ScoreL4CommandAuto(elevator, arm, gripper)));
+        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain), new ScoreL4CommandAuto(elevator, arm, gripper)));
 
         boolean jog = false;
                 

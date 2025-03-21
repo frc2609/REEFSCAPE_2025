@@ -216,7 +216,7 @@ public class RobotContainer {
         //                 fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
         // )));
 
-        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator));
+        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator).withTimeout(2));
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
         NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
 
@@ -379,7 +379,7 @@ public class RobotContainer {
                         );
     
 
-        new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator));
+        new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator).withTimeout(5));
         new EventTrigger("Reset Gyro"). onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
 
 

@@ -177,10 +177,6 @@ public class RobotContainer {
      */
     public RobotContainer() {  
         SmartDashboard.putString("Queue:", "None");
-        elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
-        arm.setDefaultCommand(new MovePCM(arm, 0));
-        gripper.setDefaultCommand(new SlowGripCommand(gripper));
-        intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
 
         double distanceOffset = 0.25;
         double coralOffset = 0.27;

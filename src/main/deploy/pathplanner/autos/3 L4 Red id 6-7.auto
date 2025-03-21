@@ -31,7 +31,49 @@
         {
           "type": "named",
           "data": {
-            "name": "Coral Station 2"
+            "name": "Coral Station 1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Human Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "go id 6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PID Align"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Coral Station 1"
           }
         },
         {

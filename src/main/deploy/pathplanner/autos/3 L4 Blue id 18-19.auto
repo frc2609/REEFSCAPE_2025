@@ -5,6 +5,18 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "New New New Path"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "PID Align"
@@ -13,31 +25,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.1
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Coral Station"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "New New New New Path"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset pose"
+            "name": "Coral Station 13"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 0.1
           }
         },
         {
@@ -47,21 +47,57 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "reset pose"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "New New New New New Path"
+            "waitTime": 0.1
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "reset pose"
+            "name": "go id 18"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PID Align"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Coral Station 13"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Human Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "go id 19"
           }
         },
         {

@@ -288,9 +288,9 @@ public class RobotContainer {
             new EventTrigger("Coral Station 12").onTrue(
                 drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
                 drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-                    fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                    fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(12)).get().getRotation().getAngle())*distanceOffset,
+                    fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(12)).get().getRotation().getAngle())*distanceOffset,
+                    new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
                     )))
             );
             NamedCommands.registerCommand("Coral Station 12", 
@@ -301,6 +301,23 @@ public class RobotContainer {
                     new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
                     )))
                 );
+                new EventTrigger("Coral Station 13").onTrue(
+                    drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
+                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
+                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
+                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                        )))
+                );
+                NamedCommands.registerCommand("Coral Station 13", 
+                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
+                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
+                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
+                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                        )))
+                    );
+        
             new EventTrigger("score middle back").onTrue(new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
                 drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                     fieldLayout.getTagPose(10).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
@@ -377,6 +394,36 @@ public class RobotContainer {
                             new Rotation2d(fieldLayout.getTagPose((int)Math.round(7)).get().toPose2d().getRotation().getRadians() - Math.PI)
                             )))
                         );
+                        new EventTrigger("go id 6").onTrue(new SequentialCommandGroup(
+                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                                fieldLayout.getTagPose(6).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
+                                fieldLayout.getTagPose(6).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
+                                new Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians() - Math.PI)
+                                )))
+                        );
+                        NamedCommands.registerCommand("go id 6",new SequentialCommandGroup(
+                        
+                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                                fieldLayout.getTagPose(6).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
+                                fieldLayout.getTagPose(6).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
+                                new Rotation2d(fieldLayout.getTagPose((int)Math.round(7)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                                )))
+                            );
+                        new EventTrigger("go id 19").onTrue(new SequentialCommandGroup(
+                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                                fieldLayout.getTagPose(19).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
+                                fieldLayout.getTagPose(19).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
+                                new Rotation2d(fieldLayout.getTagPose(19).get().toPose2d().getRotation().getRadians() - Math.PI)
+                                )))
+                        );
+                        NamedCommands.registerCommand("go id 19",new SequentialCommandGroup(
+                        
+                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                                fieldLayout.getTagPose(19).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
+                                fieldLayout.getTagPose(19).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
+                                new Rotation2d(fieldLayout.getTagPose((int)Math.round(19)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                                )))
+                            );
     
 
         new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator).withTimeout(5));

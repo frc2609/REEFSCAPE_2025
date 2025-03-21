@@ -17,9 +17,9 @@ public class Climber extends PositionControlledMotor{
     // We changed how the motor is reset please check the position values
     private final static boolean debug = true;
     private final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 50;
+    private final static double maxAcceleration = 100;
     private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 100;
+    private final static double maxVelocity = 200;
     private final static double minPosition = -200;
     private final static double maxPosition = 400;
     private final static String name = "Climber";

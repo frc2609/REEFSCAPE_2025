@@ -69,6 +69,7 @@ public class PIDFineAlign extends Command {
   
     @Override
     public void execute() {
+      System.out.println("fine aligning");
       if (LimelightHelpers.getTV("limelight") && LimelightHelpers.getFiducialID("limelight") == tagID) {
         PIDFineAlign.dontSeeTagTimer.reset();
   
@@ -106,6 +107,7 @@ public class PIDFineAlign extends Command {
   
     @Override
     public void end(boolean interrupted) {
+      System.out.println("fine aligning done");
         drivebase.setControl(m_drive
         .withVelocityX(0) // Drive forward with negative Y(forward)
         .withVelocityY(0) // Drive left with negative X (left)

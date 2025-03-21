@@ -56,6 +56,7 @@ public class PIDAlign extends Command {
     public void execute() {
       double prevTurnP = turnP;
       turnP = SmartDashboard.getNumber("turn p", turnP);
+      System.out.println("rough aligning");
       if (turnP != prevTurnP){
         rotController.setP(turnP);
       }

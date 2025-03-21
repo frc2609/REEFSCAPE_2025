@@ -5,6 +5,18 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "New New New Path"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "PID Align"
@@ -13,55 +25,25 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.1
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Coral Station"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "New New New New Path"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset pose"
+            "name": "Coral Station 2"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 0.1
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Human Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset pose"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "New New New New New Path"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset pose"
+            "name": "go id 8"
           }
         },
         {

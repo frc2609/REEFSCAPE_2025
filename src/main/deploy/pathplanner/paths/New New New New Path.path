@@ -33,6 +33,12 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "reset pose",
+      "waypointRelativePos": 0.8210668467251727,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
       "name": "Coral Station",
       "waypointRelativePos": 0.937204591492226,
       "endWaypointRelativePos": null,

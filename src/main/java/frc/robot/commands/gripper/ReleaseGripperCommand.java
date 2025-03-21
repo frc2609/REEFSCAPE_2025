@@ -12,6 +12,7 @@ public class ReleaseGripperCommand extends Command {
 
     @Override
     public void execute(){
+        System.out.println("ungripping");
         gripper.setSpeed(-0.75);
     }
 

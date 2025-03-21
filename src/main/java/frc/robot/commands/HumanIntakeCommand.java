@@ -17,7 +17,7 @@ public class HumanIntakeCommand extends SequentialCommandGroup {
             new GripCommand(gripper),
             new WaitUntilCommand(elevator.aboveIntake),
             new MovePCM(arm,-70 ),//-91
-            new MovePCM (elevator,12.5 ),//6
+            new MovePCM (elevator,14 ),//6
             new WaitCommand(100)
         );
     }

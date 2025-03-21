@@ -41,18 +41,18 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Ysetpoint = -0.602;
-      double Xsetpoint = -0.249;
-      double rotSetPoint = 59.9;
+      double Ysetpoint = -0.624;
+      double Xsetpoint = -0.206;
+      double rotSetPoint = 60.1;
 
       // Right set points
       if (isLeftScore == false){
-        Ysetpoint = -0.257;
-        Xsetpoint = -0.226;
-        rotSetPoint = 59.66;
+        Ysetpoint = -0.267;
+        Xsetpoint = -0.211;
+        rotSetPoint = 59.5;
       }
       
-  
+   
       rotController.setSetpoint(rotSetPoint);
       rotController.setTolerance(1);
   

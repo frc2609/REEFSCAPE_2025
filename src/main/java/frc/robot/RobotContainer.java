@@ -71,6 +71,7 @@ import frc.robot.subsystems.IntakeFlop;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.elastic.MatchTimeSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Limelight;
@@ -123,6 +124,10 @@ public class RobotContainer {
     public static InstantCommand instantCommand = new InstantCommand();
     private boolean climbed = false;
 
+    public final MatchTimeSubsystem matchTime = new MatchTimeSubsystem();
+
+
+
     private double targetPosition = 0.0;
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
     private final String limeLightName = "limelight-april";
@@ -157,10 +162,20 @@ public class RobotContainer {
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
     private final Trigger interupTrigger = driverController.a();
     private final Trigger climbing = new Trigger(() -> climber.getPosition() > 100);
+    double distanceOffset = 0.25;
+    double coralOffset = 0.27;
+    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+
+    private final Command coralStation =         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+        fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
+        fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
+        new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
+      ));
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {  
+        SmartDashboard.putString("Queue:", "None");
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
@@ -219,6 +234,8 @@ public class RobotContainer {
       new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
     ))
 
+
+
         ));
         NamedCommands.registerCommand("Score Align On fly",new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
@@ -228,17 +245,18 @@ public class RobotContainer {
     ))
 
         ));
+        new EventTrigger("reset pose").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
 
         new EventTrigger("score auto").onTrue(    new ScoreL4CommandAuto(elevator, arm, gripper)
         );
         NamedCommands.registerCommand("score auto",    new ScoreL4CommandAuto(elevator, arm, gripper)
         );
         new EventTrigger("Coral Station").onTrue(
-        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-            fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-            fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-            new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
-          ))
+            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
+                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
+                new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
+              ))
         );
         NamedCommands.registerCommand("Coral Station",
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
@@ -247,6 +265,11 @@ public class RobotContainer {
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
               ))
             );
+
+new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator));
+new EventTrigger("Reset Gyro"). onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
+
+
 
         new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain), new ScoreL4CommandAuto(elevator, arm, gripper)));
         NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain), new ScoreL4CommandAuto(elevator, arm, gripper)));
@@ -339,28 +362,52 @@ public class RobotContainer {
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
         
+        boolean l4queue = false;
+        boolean l3queue = false;
+        boolean l2queue = false;
+
         scoreL4Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> currentSpeed = quarterSpeed),
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
                 new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
             )
         );
+
+        if(scoreL4Trigger.getAsBoolean()){
+            scoreL4Trigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "unqued")));
+        }else{
+
+        }
+        
+
+
+       confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
 
         scoreL3Trigger.toggleOnTrue(
             new ParallelCommandGroup(
-                Commands.runOnce(() -> currentSpeed = TopSpeed/3),
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
                 new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
             )
         );
         scoreL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
-                Commands.runOnce(() -> currentSpeed = TopSpeed/2),
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
                 new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
             )
         );
-        algaeknockL2Trigger.toggleOnTrue(new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger));
-        algaeknockL3Trigger.toggleOnTrue(new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger));
+        algaeknockL2Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
+                new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
+            )
+        );
+        algaeknockL3Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Algae")),
+                new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger)
+            )
+        );
         deployClimberTrigger
             .whileTrue(new DeployClimberCommand(climber))
             .whileFalse(new RetractClimberCommand(climber)); 

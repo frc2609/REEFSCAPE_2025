@@ -69,7 +69,8 @@
       "SmartDashboard": {
         "Auto Mode": {
           "open": true
-        }
+        },
+        "open": true
       }
     },
     "transitory": {

@@ -15,7 +15,7 @@ public class ScoreL2Command extends SequentialCommandGroup{
     public ScoreL2Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger){
         addCommands(
             new WaitUntilCommand(confirmTrigger),
-            new MovePCM(elevator, 10),
+            new MovePCM(elevator, 10.3),
             new ParallelCommandGroup(
             new MovePCM(arm, -228),
             new SequentialCommandGroup(

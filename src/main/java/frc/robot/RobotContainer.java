@@ -88,7 +88,9 @@ public class RobotContainer {
     private double currentSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
     private double quarterSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/4; 
     private double TopSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double CurrentAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
+    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
+    private double HalfAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)/4; // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
     // private final DigitalInput intakeBeam = new DigitalInput(4);
 
@@ -97,7 +99,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(currentSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(currentSpeed * 0.1).withRotationalDeadband(CurrentAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -169,7 +171,7 @@ public class RobotContainer {
     double coralOffset = 0.27;
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    public final Camera camera = new Camera();
+    
     public final FieldDisplay fieldDisplay = new FieldDisplay();
 
     private final Command coralStation =         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
@@ -436,8 +438,8 @@ public class RobotContainer {
 
 
 
-        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
-        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
+        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
+        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
 
         new EventTrigger("PID Align Left").onTrue(new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
         NamedCommands.registerCommand("PID Align Left", new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
@@ -513,7 +515,10 @@ public class RobotContainer {
       
         halfSpeedTrigger
             .whileTrue(Commands.runOnce(()-> currentSpeed = quarterSpeed))
-            .whileFalse(Commands.runOnce(()-> currentSpeed =TopSpeed));
+            .whileFalse(Commands.runOnce(()-> currentSpeed =TopSpeed))
+            .whileTrue(Commands.runOnce(()-> CurrentAngularRate = HalfAngularRate))
+            .whileFalse(Commands.runOnce(()-> CurrentAngularRate = MaxAngularRate));
+            
         intakeGroundTrigger
             .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
@@ -596,7 +601,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> drive
                 .withVelocityX((-driverController.getLeftY()) * currentSpeed) 
                 .withVelocityY((-driverController.getLeftX()) * currentSpeed) 
-                .withRotationalRate(-driverController.getRightX() * MaxAngularRate)
+                .withRotationalRate(-driverController.getRightX() * CurrentAngularRate)
         ));
 
 

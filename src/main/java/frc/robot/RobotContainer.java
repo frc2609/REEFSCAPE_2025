@@ -64,6 +64,7 @@ import frc.robot.commands.Align.LeftAlign;
 import frc.robot.commands.Align.PIDAlign;
 import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ReefPIDAlign;
+import frc.robot.commands.Align.ReefPIDAlignLeft;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeRoll;
@@ -353,6 +354,9 @@ public class RobotContainer {
 
         new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
         NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
+
+        new EventTrigger("PID Align Left").onTrue(new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
+        NamedCommands.registerCommand("PID Align Left", new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
 
         boolean jog = false;
                 

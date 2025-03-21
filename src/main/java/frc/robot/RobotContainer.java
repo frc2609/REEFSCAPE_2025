@@ -223,7 +223,7 @@ public class RobotContainer {
         //                 fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
         // )));
 
-        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator).withTimeout(2));
+        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator).withTimeout(1));
         NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
         NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
 
@@ -433,16 +433,16 @@ public class RobotContainer {
                             );
     
 
-        new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator).withTimeout(5));
+        new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator).withTimeout(1));
         new EventTrigger("Reset Gyro"). onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
 
 
 
-        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
-        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
+        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
+        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
 
-        new EventTrigger("PID Align Left").onTrue(new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
-        NamedCommands.registerCommand("PID Align Left", new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)).withTimeout(5));
+        new EventTrigger("PID Align Left").onTrue(new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
+        NamedCommands.registerCommand("PID Align Left", new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
 
         boolean jog = false;
                 

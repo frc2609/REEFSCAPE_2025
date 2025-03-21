@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -17,12 +18,10 @@ public class PickAlgaeL2Command extends SequentialCommandGroup{
             new ParallelCommandGroup(
                 new MovePCM(elevator, 9),
                 new GripCommand(gripper),
-                new MovePCM(arm, 40),
-                new SequentialCommandGroup(
-                    new WaitUntilCommand(0.5),
-                    new WaitUntilCommand(confirmTrigger)
-                )    
-            )
+                new MovePCM(arm, 40)
+  
+            ),
+            Commands.idle(elevator, arm, gripper)
 
         );
     }

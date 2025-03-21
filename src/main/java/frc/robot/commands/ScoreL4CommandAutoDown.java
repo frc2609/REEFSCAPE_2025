@@ -16,22 +16,13 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 
-public class ScoreL4CommandAuto extends SequentialCommandGroup{
-    public ScoreL4CommandAuto(Elevator elevator, Arm arm, Gripper gripper){
+public class ScoreL4CommandAutoDown extends SequentialCommandGroup{
+    public ScoreL4CommandAutoDown(Elevator elevator, Arm arm, Gripper gripper){
         addCommands(
-         new MovePCM(elevator, 8.5),
-         new MovePCM(arm, 0),
-         new SlowGripCommand(gripper),
             new ParallelCommandGroup(
-            new MovePCM(elevator, 38), //39
-            new SequentialCommandGroup(
-                new WaitUntilCommand(elevator.aboveIntake),
-                new MovePCM(arm, -227), //-227
-                new WaitUntilCommand(() -> elevator.getPosition() > 37 && arm.getPosition() < -226),
-                new ReleaseGripperCommand(gripper)
-
+         new MovePCM(elevator, 8.5),
+         new MovePCM(arm, 0)
             )
-            ).withTimeout(3)
         );
     }
 }

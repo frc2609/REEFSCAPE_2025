@@ -47,6 +47,7 @@ import frc.robot.commands.ScoreL2Command;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.ScoreL4CommandAuto;
+import frc.robot.commands.ScoreL4CommandAutoDown;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
@@ -324,6 +325,22 @@ public class RobotContainer {
                         new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
                         )))
                     );
+                new EventTrigger("Coral Station Practice").onTrue(
+                    drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
+                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
+                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
+                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                        )))
+                );
+                NamedCommands.registerCommand("Coral Station Practice", 
+                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
+                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
+                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
+                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                        )))
+                    );
         
             new EventTrigger("score middle back").onTrue(new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
                 drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
@@ -438,8 +455,8 @@ public class RobotContainer {
 
 
 
-        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
-        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
+        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
+        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
 
         new EventTrigger("PID Align Left").onTrue(new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
         NamedCommands.registerCommand("PID Align Left", new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));

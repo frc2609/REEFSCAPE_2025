@@ -72,6 +72,8 @@ import frc.robot.subsystems.IntakeFlop;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.elastic.Camera;
+import frc.robot.subsystems.elastic.FieldDisplay;
 import frc.robot.subsystems.elastic.MatchTimeSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
@@ -166,6 +168,9 @@ public class RobotContainer {
     double distanceOffset = 0.25;
     double coralOffset = 0.27;
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+
+    public final Camera camera = new Camera();
+    public final FieldDisplay fieldDisplay = new FieldDisplay();
 
     private final Command coralStation =         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
         fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,

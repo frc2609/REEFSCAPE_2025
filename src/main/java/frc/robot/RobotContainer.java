@@ -316,7 +316,7 @@ public class RobotContainer {
                     new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
                   )))
                 );
-                new EventTrigger("go id 8").onTrue(new SequentialCommandGroup(
+            new EventTrigger("go id 8").onTrue(new SequentialCommandGroup(
                 drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                     fieldLayout.getTagPose(8).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(8).get().getRotation().getAngle())*2,
                     fieldLayout.getTagPose(8).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(8).get().getRotation().getAngle())*2,
@@ -336,7 +336,7 @@ public class RobotContainer {
                         fieldLayout.getTagPose(17).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
                         fieldLayout.getTagPose(17).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
                         new Rotation2d(fieldLayout.getTagPose(17).get().toPose2d().getRotation().getRadians() - Math.PI)
-                      )))
+                        )))
                 );
                 NamedCommands.registerCommand("go id 17",new SequentialCommandGroup(
                 
@@ -344,8 +344,40 @@ public class RobotContainer {
                         fieldLayout.getTagPose(17).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
                         fieldLayout.getTagPose(17).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
                         new Rotation2d(fieldLayout.getTagPose((int)Math.round(17)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                      )))
+                        )))
                     );
+                new EventTrigger("go id 18").onTrue(new SequentialCommandGroup(
+                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                        fieldLayout.getTagPose(18).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
+                        fieldLayout.getTagPose(18).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
+                        new Rotation2d(fieldLayout.getTagPose(18).get().toPose2d().getRotation().getRadians() - Math.PI)
+                        )))
+                );
+                NamedCommands.registerCommand("go id 18",new SequentialCommandGroup(
+                
+                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                        fieldLayout.getTagPose(18).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
+                        fieldLayout.getTagPose(18).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
+                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(18)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                        )))
+                    );
+
+                    new EventTrigger("go id 7").onTrue(new SequentialCommandGroup(
+                        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                            fieldLayout.getTagPose(7).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
+                            fieldLayout.getTagPose(7).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
+                            new Rotation2d(fieldLayout.getTagPose(7).get().toPose2d().getRotation().getRadians() - Math.PI)
+                            )))
+                    );
+                    NamedCommands.registerCommand("go id 7",new SequentialCommandGroup(
+                    
+                        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+                            fieldLayout.getTagPose(7).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
+                            fieldLayout.getTagPose(7).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
+                            new Rotation2d(fieldLayout.getTagPose((int)Math.round(7)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                            )))
+                        );
+    
 
         new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator));
         new EventTrigger("Reset Gyro"). onTrue(new ResetGyro(drivetrain, seaweed, pidgey));

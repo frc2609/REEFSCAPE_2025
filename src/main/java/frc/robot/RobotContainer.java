@@ -184,8 +184,13 @@ public class RobotContainer {
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
         intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
        
+        SmartDashboard.putNumber("Distance Offset", 0.25);
+
         new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
         NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
+
+ 
+        distanceOffset = SmartDashboard.getNumber("Distance Offset", 0.25);
 
         boolean jog = false;
         IDCoral.setDefaultOption("1", 1);
@@ -343,8 +348,6 @@ public class RobotContainer {
         }else{
 
         }
-        
-
 
        confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
@@ -422,7 +425,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         //return autoChooser.getSelected();
-        return new General3Auto(drivetrain, elevator, arm, gripper, distanceOffset, IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
+        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 0.25), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
     }
     
 }

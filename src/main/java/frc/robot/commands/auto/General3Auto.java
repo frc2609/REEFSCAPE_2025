@@ -32,7 +32,7 @@ public class General3Auto extends SequentialCommandGroup{
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose(coralStation).get().toPose2d().getRotation().getRadians() - Math.PI)
+                new Rotation2d(fieldLayout.getTagPose(coralStation).get().toPose2d().getRotation().getRadians() - Math.PI*2)
                 )),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
             new WaitCommand(2),
@@ -48,7 +48,7 @@ public class General3Auto extends SequentialCommandGroup{
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose((int)Math.round(coralStation)).get().toPose2d().getRotation().getRadians() - Math.PI)
+                new Rotation2d(fieldLayout.getTagPose((int)Math.round(coralStation)).get().toPose2d().getRotation().getRadians() - Math.PI*2)
                 )),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
             new WaitCommand(2),

@@ -59,6 +59,7 @@ import frc.robot.commands.auto.PracticeCoralAuto;
 import frc.robot.commands.auto.PracticeHumanAuto;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
+import frc.robot.commands.climber.ZeroClimber;
 import frc.robot.commands.elevator.moveElevator;
 import frc.robot.commands.gripper.AutoReleaseGripperCommand;
 import frc.robot.commands.gripper.GripCommand;
@@ -186,6 +187,7 @@ public class RobotContainer {
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
         intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
+        climber.setDefaultCommand(new ZeroClimber(climber));
        
         SmartDashboard.putNumber("Distance Offset", 0.25);
 
@@ -431,5 +433,4 @@ public class RobotContainer {
         //return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
         //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
     }
-    
 }

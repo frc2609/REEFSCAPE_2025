@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AlignAndScore;
 import frc.robot.commands.CoralHandOff;
 import frc.robot.commands.HumanIntakeCommand;
+import frc.robot.commands.HumanIntakeCommandAuto;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
 import frc.robot.commands.RetractAndHandOff;
@@ -51,6 +52,8 @@ import frc.robot.commands.ScoreL4CommandAutoDown;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
+import frc.robot.commands.auto.General3Auto;
+import frc.robot.commands.auto.ID18_19Station13Blue;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.elevator.moveElevator;
@@ -95,7 +98,6 @@ public class RobotContainer {
                                                                                     // max angular velocity
     // private final DigitalInput intakeBeam = new DigitalInput(4);
 
-
     private SendableChooser<Command> autoChooser;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -118,9 +120,6 @@ public class RobotContainer {
 
     private Command queuedCommand = new InstantCommand();
 
-
-
-    // roboRIO CAN Bus with device ID 0
     // /* Path follower */
     public final Arm arm = new Arm();
     public final Elevator elevator = new Elevator();
@@ -131,8 +130,6 @@ public class RobotContainer {
     private boolean climbed = false;
 
     public final MatchTimeSubsystem matchTime = new MatchTimeSubsystem();
-
-
 
     private double targetPosition = 0.0;
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
@@ -172,14 +169,11 @@ public class RobotContainer {
     double coralOffset = 0.27;
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    
     public final FieldDisplay fieldDisplay = new FieldDisplay();
 
-    private final Command coralStation =         drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-        fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
-        fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
-        new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
-      ));
+    SendableChooser<Integer> IDCoral = new SendableChooser<>();
+    SendableChooser<Integer> IDReef1 = new SendableChooser<>();
+    SendableChooser<Integer> IDReef2 = new SendableChooser<>();
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
@@ -189,317 +183,99 @@ public class RobotContainer {
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
         intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
-
-        double distanceOffset = 0.25;
-        double coralOffset = 0.27;
-        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-        Integer selectedID = 6;
-        // Use event markers as triggers
-        new EventTrigger("resetOdometry").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-     
-
-        //NamedCommands.registerCommand("Align", new ReefPIDAlign(drivetrain) );
-        new EventTrigger("Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain),new ScoreL4CommandAuto(elevator, arm, gripper)));
-        NamedCommands.registerCommand("Align named", 
-            new SequentialCommandGroup(
-                new ReefPIDAlign(drivetrain),
-                new ScoreL4CommandAuto(elevator, arm, gripper),
-                new InstantCommand(
-                    () -> drivetrain.setControl(new SwerveRequest.RobotCentric()
-                    .withVelocityX(1)
-                    .withRotationalRate(0.5))
-                )).withTimeout(0.5)
-            );
-        //new EventTrigger("Score L4 new").onTrue(new ScoreL4CommandAuto(elevator, arm, gripper));
-        NamedCommands.registerCommand("reset Pose", drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-
-        // new EventTrigger("align 21").onTrue( 
-        //     drivetrain.getPathPlannerCommandToAprilTag(
-        //         new Pose2d(
-        //             fieldLayout.getTagPose(10).get().toPose2d().getX() +
-        //             Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle()) * distanceOffset,
-        //             fieldLayout.getTagPose(10).get().toPose2d().getY() +
-        //             Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-        //             new Rotation2d(
-        //                 fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
-        // )));
-
-        NamedCommands.registerCommand("Human Intake", new HumanIntakeCommand(arm, gripper, elevator).withTimeout(1));
-        NamedCommands.registerCommand("slow grip", new SlowGripCommand(gripper));
-        NamedCommands.registerCommand("Score", new AutoReleaseGripperCommand(gripper));
-
-
-        //NamedCommands.registerCommand("Score L4 new", new ScoreL4CommandAuto(elevator, arm, gripper));
-
-        NamedCommands.registerCommand("go back", drivetrain.getPathPlannerCommandToAprilTag(
-            new Pose2d(4, 8, new Rotation2d(0))
-        ));
-        
-        new EventTrigger("Wait").onTrue(new WaitCommand(8));
-        new EventTrigger("Score Align On fly").onTrue(new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
-        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
-      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
-      new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
-    ))
-
-
-
-        ));
-        NamedCommands.registerCommand("Score Align On fly",new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
-        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
-      fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(10)).get().getRotation().getAngle())*distanceOffset,
-      new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
-    ))
-
-        ));
-        new EventTrigger("reset pose").onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
-
-        new EventTrigger("score auto").onTrue(    new ScoreL4CommandAuto(elevator, arm, gripper)
-        );
-        NamedCommands.registerCommand("score auto",    new ScoreL4CommandAuto(elevator, arm, gripper)
-        );
-
-        new EventTrigger("Coral Station 1").onTrue(
-            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose((int)Math.round(1)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(1)).get().getRotation().getAngle())*distanceOffset,
-                fieldLayout.getTagPose((int)Math.round(1)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(1)).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose((int)Math.round(1)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                )))
-        );
-        NamedCommands.registerCommand("Coral Station 1", 
-        drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose((int)Math.round(1)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(1)).get().getRotation().getAngle())*distanceOffset,
-                fieldLayout.getTagPose((int)Math.round(1)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(1)).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose((int)Math.round(1)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                )))
-            );
-            new EventTrigger("Coral Station 2").onTrue(
-            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                )))
-        );
-        NamedCommands.registerCommand("Coral Station 2", 
-        drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-                fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(2)).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose((int)Math.round(2)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                )))
-            );
-            new EventTrigger("Coral Station 12").onTrue(
-                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(12)).get().getRotation().getAngle())*distanceOffset,
-                    fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(12)).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                    )))
-            );
-            NamedCommands.registerCommand("Coral Station 12", 
-            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(12)).get().getRotation().getAngle())*distanceOffset,
-                    fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(12)).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                    )))
-                );
-                new EventTrigger("Coral Station 13").onTrue(
-                    drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
-                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
-                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                );
-                NamedCommands.registerCommand("Coral Station 13", 
-                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
-                        fieldLayout.getTagPose((int)Math.round(13)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(13)).get().getRotation().getAngle())*distanceOffset,
-                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(12)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                    );
-                new EventTrigger("Coral Station Practice").onTrue(
-                    drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
-                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
-                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                );
-                NamedCommands.registerCommand("Coral Station Practice", 
-                drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))).andThen(
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
-                        fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose((int)Math.round(6)).get().getRotation().getAngle())*2,
-                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(6)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                    );
-        
-            new EventTrigger("score middle back").onTrue(new SequentialCommandGroup(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose(10).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-                    fieldLayout.getTagPose(10).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(fieldLayout.getTagPose(10).get().toPose2d().getRotation().getRadians() - Math.PI)
-                  )))
-            );
-            NamedCommands.registerCommand("score middle back",new SequentialCommandGroup(
-            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))),
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose(10).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-                    fieldLayout.getTagPose(10).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(10).get().getRotation().getAngle())*distanceOffset,
-                    new Rotation2d(fieldLayout.getTagPose((int)Math.round(10)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                  )))
-                );
-            new EventTrigger("go id 8").onTrue(new SequentialCommandGroup(
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose(8).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(8).get().getRotation().getAngle())*2,
-                    fieldLayout.getTagPose(8).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(8).get().getRotation().getAngle())*2,
-                    new Rotation2d(fieldLayout.getTagPose(8).get().toPose2d().getRotation().getRadians() - Math.PI)
-                  )))
-            );
-            NamedCommands.registerCommand("go id 8",new SequentialCommandGroup(
-            
-                drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                    fieldLayout.getTagPose(8).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(8).get().getRotation().getAngle())*2,
-                    fieldLayout.getTagPose(8).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(8).get().getRotation().getAngle())*2,
-                    new Rotation2d(fieldLayout.getTagPose((int)Math.round(8)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                  )))
-                );
-                new EventTrigger("go id 17").onTrue(new SequentialCommandGroup(
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose(17).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
-                        fieldLayout.getTagPose(17).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
-                        new Rotation2d(fieldLayout.getTagPose(17).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                );
-                NamedCommands.registerCommand("go id 17",new SequentialCommandGroup(
-                
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose(17).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
-                        fieldLayout.getTagPose(17).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(17).get().getRotation().getAngle())*2,
-                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(17)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                    );
-                new EventTrigger("go id 18").onTrue(new SequentialCommandGroup(
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose(18).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
-                        fieldLayout.getTagPose(18).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
-                        new Rotation2d(fieldLayout.getTagPose(18).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                );
-                NamedCommands.registerCommand("go id 18",new SequentialCommandGroup(
-                
-                    drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                        fieldLayout.getTagPose(18).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
-                        fieldLayout.getTagPose(18).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(18).get().getRotation().getAngle())*2,
-                        new Rotation2d(fieldLayout.getTagPose((int)Math.round(18)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                        )))
-                    );
-
-                    new EventTrigger("go id 7").onTrue(new SequentialCommandGroup(
-                        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                            fieldLayout.getTagPose(7).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
-                            fieldLayout.getTagPose(7).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
-                            new Rotation2d(fieldLayout.getTagPose(7).get().toPose2d().getRotation().getRadians() - Math.PI)
-                            )))
-                    );
-                    NamedCommands.registerCommand("go id 7",new SequentialCommandGroup(
-                    
-                        drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                            fieldLayout.getTagPose(7).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
-                            fieldLayout.getTagPose(7).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(7).get().getRotation().getAngle())*2,
-                            new Rotation2d(fieldLayout.getTagPose((int)Math.round(7)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                            )))
-                        );
-                        new EventTrigger("go id 6").onTrue(new SequentialCommandGroup(
-                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose(6).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
-                                fieldLayout.getTagPose(6).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
-                                new Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians() - Math.PI)
-                                )))
-                        );
-                        NamedCommands.registerCommand("go id 6",new SequentialCommandGroup(
-                        
-                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose(6).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
-                                fieldLayout.getTagPose(6).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(6).get().getRotation().getAngle())*2,
-                                new Rotation2d(fieldLayout.getTagPose((int)Math.round(7)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                                )))
-                            );
-                        new EventTrigger("go id 19").onTrue(new SequentialCommandGroup(
-                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose(19).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
-                                fieldLayout.getTagPose(19).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
-                                new Rotation2d(fieldLayout.getTagPose(19).get().toPose2d().getRotation().getRadians() - Math.PI)
-                                )))
-                        );
-                        NamedCommands.registerCommand("go id 19",new SequentialCommandGroup(
-                        
-                            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                                fieldLayout.getTagPose(19).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
-                                fieldLayout.getTagPose(19).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(19).get().getRotation().getAngle())*2,
-                                new Rotation2d(fieldLayout.getTagPose((int)Math.round(19)).get().toPose2d().getRotation().getRadians() - Math.PI)
-                                )))
-                            );
-    
-
-        new EventTrigger("Human Intake"). onTrue(new HumanIntakeCommand(arm, gripper, elevator).withTimeout(1));
-        new EventTrigger("Reset Gyro"). onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
-
-
-
+       
         new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
         NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
 
-        new EventTrigger("PID Align Left").onTrue(new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
-        NamedCommands.registerCommand("PID Align Left", new SequentialCommandGroup(new ReefPIDAlignLeft(drivetrain),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper)));
-
         boolean jog = false;
-                
+        IDCoral.setDefaultOption("1", 1);
+        IDCoral.addOption("1", 1);
+        IDCoral.addOption("2", 2);
+        IDCoral.addOption("3", 3);
+        IDCoral.addOption("4", 4);
+        IDCoral.addOption("5", 5);
+        IDCoral.addOption("6", 6);
+        IDCoral.addOption("7", 7);
+        IDCoral.addOption("8", 8);
+        IDCoral.addOption("9", 9);
+        IDCoral.addOption("10", 10);
+        IDCoral.addOption("11", 11);
+        IDCoral.addOption("12", 12);
+        IDCoral.addOption("13", 13);
+        IDCoral.addOption("14", 14);
+        IDCoral.addOption("15", 15);
+        IDCoral.addOption("16", 16);
+        IDCoral.addOption("17", 17);
+        IDCoral.addOption("18", 18);
+        IDCoral.addOption("19", 19);
+        IDCoral.addOption("20", 20);
+        IDCoral.addOption("21", 21);
+        IDCoral.addOption("22", 22);
+
+        IDReef1.setDefaultOption("1", 1);
+        IDReef1.addOption("1", 1);
+        IDReef1.addOption("2", 2);
+        IDReef1.addOption("3", 3);
+        IDReef1.addOption("4", 4);
+        IDReef1.addOption("6", 6);
+        IDReef1.addOption("5", 5);
+        IDReef1.addOption("7", 7);
+        IDReef1.addOption("8", 8);
+        IDReef1.addOption("9", 9);
+        IDReef1.addOption("10", 10);
+        IDReef1.addOption("11", 11);
+        IDReef1.addOption("12", 12);
+        IDReef1.addOption("13", 13);
+        IDReef1.addOption("14", 14);
+        IDReef1.addOption("15", 15);
+        IDReef1.addOption("16", 16);
+        IDReef1.addOption("17", 17);
+        IDReef1.addOption("18", 18);
+        IDReef1.addOption("19", 19);
+        IDReef1.addOption("20", 20);
+        IDReef1.addOption("21", 21);
+        IDReef1.addOption("22", 22);
+
+        IDReef2.setDefaultOption("1", 1);
+        IDReef2.addOption("1", 1);
+        IDReef2.addOption("2", 2);
+        IDReef2.addOption("3", 3);
+        IDReef2.addOption("4", 4);
+        IDReef2.addOption("6", 6);
+        IDReef2.addOption("5", 5);
+        IDReef2.addOption("7", 7);
+        IDReef2.addOption("8", 8);
+        IDReef2.addOption("9", 9);
+        IDReef2.addOption("10", 10);
+        IDReef2.addOption("11", 11);
+        IDReef2.addOption("12", 12);
+        IDReef2.addOption("13", 13);
+        IDReef2.addOption("14", 14);
+        IDReef2.addOption("15", 15);
+        IDReef2.addOption("16", 16);
+        IDReef2.addOption("17", 17);
+        IDReef2.addOption("18", 18);
+        IDReef2.addOption("19", 19);
+        IDReef2.addOption("20", 20);
+        IDReef2.addOption("21", 21);
+        IDReef2.addOption("22", 22);
+        SmartDashboard.putData("ID Coral Station", IDCoral);
+        SmartDashboard.putData("ID First Reef", IDReef1);
+        SmartDashboard.putData("ID Second Reef", IDReef2);
         
         if (jog == true){
             configureJogBindings();
         } else {
             configureBindings();    
         }
-        
+
         configureDrivetrainBindings();
         autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
         SmartDashboard.putData("Auto Mode", autoChooser);
-        ID.addOption("1", 1);
-        ID.addOption("2", 2);
-        ID.addOption("3", 3);
-        ID.addOption("4", 4);
-        ID.addOption("5", 5);
-        ID.addOption("6", 6);
-        ID.addOption("7", 7);
-        ID.addOption("8", 8);
-        ID.addOption("9", 9);
-        ID.addOption("10", 10);
-        ID.addOption("11", 11);
-        ID.addOption("12", 12);
-        ID.addOption("13", 13);
-        ID.addOption("14", 14);
-        ID.addOption("15", 15);
-        ID.addOption("16", 16);
-        ID.addOption("17", 17);
-        ID.addOption("18", 18);
-        ID.addOption("19", 19);
-        ID.addOption("20", 20);
-        ID.addOption("21", 21);
-        ID.addOption("22", 22);
-        SmartDashboard.putData("ID Chooser", ID);
+
         drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
 
     }
-
 
     private void configureJogBindings() {
 
@@ -516,7 +292,6 @@ public class RobotContainer {
         operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
     }
 
-        
     private void configureBindings() {
 
         // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
@@ -605,7 +380,6 @@ public class RobotContainer {
         
     }
     
-    
     public double smootherJoystick(double x) {
         x = Math.max(-1.0, Math.min(1.0, x));
         double absX = Math.abs(x);
@@ -621,45 +395,10 @@ public class RobotContainer {
                 .withRotationalRate(-driverController.getRightX() * CurrentAngularRate)
         ));
 
-
-        double distanceOffset = 0.25;
-        double coralOffset = 0.27;
-        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-        Integer selectedID = 6;
-
-        // driverController.rightBumper().and(driverController.povUp()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0))));
-        // driverController.rightBumper().and(driverController.povRight()
-        //         .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(-.5))));
-        // // driverController.rightBumper().and(driverCon[]\]-> forwardStraight.withVelocityX(0.5).withVelocityY(.5))));
-
-        //  driverController.rightBumper().and(driverController.povDown()
-        //          .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0))));
-
-         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
 
         operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
-
-        // operatorController.start().onTrue(new ResetGyro(drivetrain, seaweed, pidgey).withTimeout(1.0));
-        // try{
-        //     operatorController.povUp().onTrue(
-        //         new ProxyCommand(
-        //             drivetrain.getPathPlannerCommandToAprilTag(
-        //                 new Pose2d(
-        //                     fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getX() +
-        //                     Math.cos(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle()) * distanceOffset,
-        //                     fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getY() +
-        //                     Math.sin(fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().getRotation().getAngle())*distanceOffset,
-        //                 new Rotation2d(
-        //                     fieldLayout.getTagPose((int)LimelightHelpers.getFiducialID(limeLightName)).get().toPose2d().getRotation().getRadians() - Math.PI)
-        //         ))));
-        // }catch(Exception e){
-        //     System.out.println("no targer");
-        // }
-             
-
-
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
@@ -682,7 +421,8 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
-        return autoChooser.getSelected();
+        //return autoChooser.getSelected();
+        return new General3Auto(drivetrain, elevator, arm, gripper, distanceOffset, IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
     }
     
 }

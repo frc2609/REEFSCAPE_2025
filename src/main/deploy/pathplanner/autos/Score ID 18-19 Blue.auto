@@ -11,15 +11,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "PID Align"
+            "name": "Score ID 18-19 Station 13"
           }
         }
       ]

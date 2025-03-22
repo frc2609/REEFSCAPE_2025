@@ -22,14 +22,19 @@ public class PracticeHumanAuto extends SequentialCommandGroup{
     public PracticeHumanAuto(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper, double distanceOffset, int coralStation, int firstReef, int secondReef){
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         addCommands(
+            // drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
+            // drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
+            //     fieldLayout.getTagPose(1).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(1).get().getRotation().getAngle())*distanceOffset,
+            //     fieldLayout.getTagPose(1).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(1).get().getRotation().getAngle())*distanceOffset,
+            //     new Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians() - Math.PI*2)
+            //     )),
+            // new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
+            // new WaitCommand(2)
+            new ReefPIDAlign(drivetrain).withTimeout(3.2),
             drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose(1).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(1).get().getRotation().getAngle())*distanceOffset,
-                fieldLayout.getTagPose(1).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(1).get().getRotation().getAngle())*distanceOffset,
-                new Rotation2d(fieldLayout.getTagPose(6).get().toPose2d().getRotation().getRadians() - Math.PI*2)
-                )),
-            new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
-            new WaitCommand(2)
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(4),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.7)
+
         );
     }
 }

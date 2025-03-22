@@ -22,11 +22,11 @@ public class General3Auto extends SequentialCommandGroup{
     public General3Auto(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper, double distanceOffset, int coralStation, int firstReef, int secondReef){
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         addCommands(
+            //drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
+            new ReefPIDAlign(drivetrain).withTimeout(3.2),
             drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            new ReefPIDAlign(drivetrain).withTimeout(4),
-            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(4),
-            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(1),
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(3.2),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.7),
             Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm down")),
             new WaitCommand(0.1),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
@@ -35,15 +35,15 @@ public class General3Auto extends SequentialCommandGroup{
                 new Rotation2d(fieldLayout.getTagPose(coralStation).get().toPose2d().getRotation().getRadians() - Math.PI*2)
                 )),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
-            new WaitCommand(2),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(firstReef).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*1,
                 fieldLayout.getTagPose(firstReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*1,
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(firstReef)).get().toPose2d().getRotation().getRadians() - Math.PI)
                 )),
-            new ReefPIDAlign(drivetrain).withTimeout(4),
-            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(4),
-            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(1),
+            new ReefPIDAlign(drivetrain).withTimeout(3.2),
+            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(3.2),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.7),
             new WaitCommand(0.1),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
@@ -51,13 +51,13 @@ public class General3Auto extends SequentialCommandGroup{
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(coralStation)).get().toPose2d().getRotation().getRadians() - Math.PI*2)
                 )),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
-            new WaitCommand(2),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(secondReef).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(secondReef).get().getRotation().getAngle())*1,
                 fieldLayout.getTagPose(secondReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(secondReef).get().getRotation().getAngle())*1,
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(secondReef)).get().toPose2d().getRotation().getRadians() - Math.PI)
                 )),
             new ReefPIDAlign(drivetrain).withTimeout(4),
+            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(4),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(1)
 

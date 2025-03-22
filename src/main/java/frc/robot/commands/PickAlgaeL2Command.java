@@ -16,7 +16,7 @@ public class PickAlgaeL2Command extends SequentialCommandGroup{
         addCommands(
             new WaitUntilCommand(confirmTrigger),
             new ParallelCommandGroup(
-                new MovePCM(elevator, 9),
+                new MovePCM(elevator, 10),//9
                 new GripCommand(gripper),
                 new MovePCM(arm, 40)
   

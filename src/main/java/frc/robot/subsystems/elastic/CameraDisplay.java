@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveSubsystem;
 
 
-public class Camera extends SubsystemBase {
+public class CameraDisplay extends SubsystemBase {
 
-    public Camera() {
+    public CameraDisplay() {
         UsbCamera camera = CameraServer.startAutomaticCapture(0);
         camera.setResolution(320, 240); // Set the desired resolution
     }

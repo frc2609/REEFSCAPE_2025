@@ -11,6 +11,7 @@
       "/SmartDashboard/ID Coral Station": "String Chooser",
       "/SmartDashboard/ID First Reef": "String Chooser",
       "/SmartDashboard/ID Second Reef": "String Chooser",
+      "/SmartDashboard/ID Third Reef": "String Chooser",
       "/SmartDashboard/Module 0": "Mechanism2d",
       "/SmartDashboard/Module 1": "Mechanism2d",
       "/SmartDashboard/Module 2": "Mechanism2d",

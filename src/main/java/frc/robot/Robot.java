@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalSource;
@@ -16,15 +18,29 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.LimelightHelpers;
 
 
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  Thread m_visionThread;
 
   private final RobotContainer m_robotContainer;
-  private final DigitalSource sourcePWMX = new DigitalInput(9);
-  private final DutyCycle dutyPWMX = new DutyCycle(sourcePWMX);
+  // private final DigitalSource sourcePWMX = new DigitalInput(9);
+  // private final DutyCycle dutyPWMX = new DutyCycle(sourcePWMX);
 
   public Robot() {
+      m_visionThread = new Thread(
+      () -> {
+        UsbCamera camera = CameraServer.startAutomaticCapture();
+        camera.setResolution(640, 480);
+      }
+    );
+    m_visionThread.setDaemon(true);
+    m_visionThread.start();
+
+    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+    // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+  
     
 
   }

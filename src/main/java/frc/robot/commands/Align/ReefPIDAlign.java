@@ -7,7 +7,7 @@ public class ReefPIDAlign extends SequentialCommandGroup {
     public ReefPIDAlign(CommandSwerveDrivetrain drivetrain){
         addCommands(
             new PIDAlign(drivetrain), 
-            new PIDFineAlign(false, drivetrain)
+            new PIDFineAlign(true, drivetrain)
         );
     }
 

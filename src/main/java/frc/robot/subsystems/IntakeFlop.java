@@ -25,9 +25,9 @@ public class IntakeFlop extends PositionControlledMotor {
     private final static int encoderId = 3;
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderId, 1, zeroPosition);
     private final static double positionTolerance = 0.01;
-    private final static double maxAcceleration = 100;
+    private final static double maxAcceleration = 150;//100
     private final static Boolean invertEncoder = false;
-    private final static double maxVelocity = 500;
+    private final static double maxVelocity = 600;//500
     private final static double minPosition = -20;
     private final static double maxPosition = 400;
     private final static String name = "IntakeFlop";
@@ -73,7 +73,7 @@ public class IntakeFlop extends PositionControlledMotor {
                     .withSupplyCurrentLimit(120)
             );
         
-    private final DigitalInput intakeBeam = new DigitalInput(8);
+    private final DigitalInput intakeBeam = new DigitalInput(9);
     public IntakeFlop() {
         super(
         talonConfig,
@@ -90,7 +90,6 @@ public class IntakeFlop extends PositionControlledMotor {
 
     public boolean coralPresent() {
         boolean beam = !intakeBeam.get();
-        SmartDashboard.putBoolean("intake beam", beam);
         return beam;
     }
 
@@ -102,4 +101,5 @@ public class IntakeFlop extends PositionControlledMotor {
             stat = followerMotor.setPosition(0);
         }    
     }
+    
 }

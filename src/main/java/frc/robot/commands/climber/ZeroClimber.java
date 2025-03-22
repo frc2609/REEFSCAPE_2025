@@ -13,7 +13,7 @@ public class ZeroClimber extends Command {
 
     @Override
     public void execute() {
-        climber.goToPosition(-50);
+        climber.goToPosition(-15);
     }
 
     @Override

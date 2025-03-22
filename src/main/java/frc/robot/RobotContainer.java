@@ -42,6 +42,7 @@ import frc.robot.commands.HumanIntakeCommandAuto;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
 import frc.robot.commands.RetractAndHandOff;
+import frc.robot.commands.ScoreL1Command;
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.Align.RightAlign;
 import frc.robot.commands.Align.LeftAlign;
@@ -80,7 +81,7 @@ import frc.robot.subsystems.IntakeFlop;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.elastic.Camera;
+import frc.robot.subsystems.elastic.CameraDisplay;
 import frc.robot.subsystems.elastic.FieldDisplay;
 import frc.robot.subsystems.elastic.MatchTimeSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -100,14 +101,14 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
     private double HalfAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)/4; // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
-    private final DigitalInput intakeBeam = new DigitalInput(4);
+    //private final DigitalInput intakeBeam = new DigitalInput(9);
 
     private SendableChooser<Command> autoChooser;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(currentSpeed * 0.1).withRotationalDeadband(CurrentAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+            .withDeadband(currentSpeed * 0.05).withRotationalDeadband(CurrentAngularRate * 0.05) // Add a 10% deadband        0.05
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors              RequestType.Velocity
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -140,7 +141,7 @@ public class RobotContainer {
     private final String limeLightName = "limelight-intake";
     private Field2d m_field = new Field2d();
 
-    private static double REEF_SIDE = 0.813;
+                                                                                private static double REEF_SIDE = 0.813;
 
     public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
@@ -158,10 +159,11 @@ public class RobotContainer {
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
     private final Trigger alignRightTrigger = driverController.povRight();//Fine align right
     private final Trigger alignLeftTrigger = driverController.povLeft();//Fine align left
-    private final Trigger coralHandoffTrigger = operatorController.x();//Coral handoff
+    private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
     private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
     private final Trigger scoreL2Trigger = operatorController.a();//L2 coral score
+    private final Trigger scoreL1Trigger = operatorController.x();//L2 coral score
     private final Trigger humanTrigger = driverController.leftTrigger();//Human intake
     private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
@@ -178,6 +180,8 @@ public class RobotContainer {
     SendableChooser<Integer> IDCoral = new SendableChooser<>();
     SendableChooser<Integer> IDReef1 = new SendableChooser<>();
     SendableChooser<Integer> IDReef2 = new SendableChooser<>();
+
+    //public final CameraDisplay camera = new CameraDisplay();
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
@@ -187,7 +191,7 @@ public class RobotContainer {
         arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
         intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
-        climber.setDefaultCommand(new ZeroClimber(climber));
+        //climber.setDefaultCommand(new ZeroClimber(climber));
        
         SmartDashboard.putNumber("Distance Offset", 0.25);
 
@@ -270,8 +274,8 @@ public class RobotContainer {
         IDReef2.addOption("21", 21);
         IDReef2.addOption("22", 22);
         SmartDashboard.putData("ID Coral Station", IDCoral);
-        SmartDashboard.putData("ID First Reef", IDReef1);
-        SmartDashboard.putData("ID Second Reef", IDReef2);
+        SmartDashboard.putData("ID Second Reef", IDReef1);
+        SmartDashboard.putData("ID Third Reef", IDReef2);
         
         if (jog == true){
             configureJogBindings();
@@ -367,6 +371,12 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
                 new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+            )
+        );
+        scoreL1Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
+                new ScoreL1Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
             )
         );
         algaeknockL2Trigger.toggleOnTrue(

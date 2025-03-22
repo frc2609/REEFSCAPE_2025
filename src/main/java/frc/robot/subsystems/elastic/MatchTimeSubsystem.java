@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class MatchTimeSubsystem extends SubsystemBase {
 
-    private final DigitalInput intakeBeam = new DigitalInput(4);
+    //private final DigitalInput intakeBeam = new DigitalInput(9);
 
   public MatchTimeSubsystem() {
     // Constructor code, if necessary
@@ -18,7 +18,7 @@ public class MatchTimeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("intake sensor", intakeBeam.get());
+    //SmartDashboard.putBoolean("intake sensor", intakeBeam.get());
 
     double matchTime = DriverStation.getMatchTime();
     SmartDashboard.putNumber("Match Time", matchTime);

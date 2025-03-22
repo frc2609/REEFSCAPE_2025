@@ -21,6 +21,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -98,7 +99,7 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
     private double HalfAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)/4; // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
-    // private final DigitalInput intakeBeam = new DigitalInput(4);
+    private final DigitalInput intakeBeam = new DigitalInput(4);
 
     private SendableChooser<Command> autoChooser;
 
@@ -425,9 +426,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        /* Run the path selected from the auto chooser */
-        //return autoChooser.getSelected();
         return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 0.25), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
+        //return autoChooser.getSelected();
         //return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
         //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
     }

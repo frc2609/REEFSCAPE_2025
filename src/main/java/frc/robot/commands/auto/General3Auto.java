@@ -23,12 +23,13 @@ public class General3Auto extends SequentialCommandGroup{
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         addCommands(
             //drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            new ReefPIDAlign(drivetrain).withTimeout(3.2),
+            new ReefPIDAlign(drivetrain).withTimeout(2.2),
             drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(3.2),
-            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.7),
-            Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm down")),
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6),
+            //Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm down")),
             new WaitCommand(0.1),
+            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
@@ -40,11 +41,12 @@ public class General3Auto extends SequentialCommandGroup{
                 fieldLayout.getTagPose(firstReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*1,
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(firstReef)).get().toPose2d().getRotation().getRadians() - Math.PI)
                 )),
-            new ReefPIDAlign(drivetrain).withTimeout(3.2),
+            new ReefPIDAlign(drivetrain).withTimeout(2.2),
             drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(3.2),
-            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.7),
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.8),
             new WaitCommand(0.1),
+            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,
                 fieldLayout.getTagPose(coralStation).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*distanceOffset,

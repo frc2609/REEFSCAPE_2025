@@ -141,6 +141,91 @@ public class RobotContainer {
     private final String limeLightName = "limelight-intake";
     private Field2d m_field = new Field2d();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                                                                 private static double REEF_SIDE = 0.813;
 
     public final Limelight seaweed = new Limelight("limelight-april");
@@ -194,9 +279,6 @@ public class RobotContainer {
         //climber.setDefaultCommand(new ZeroClimber(climber));
        
         SmartDashboard.putNumber("Distance Offset", 0.25);
-
-        new EventTrigger("PID Align").onTrue(new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
-        NamedCommands.registerCommand("PID Align", new SequentialCommandGroup(new ReefPIDAlign(drivetrain).withTimeout(3),drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))), new ScoreL4CommandAuto(elevator, arm, gripper).andThen(new WaitCommand(1)).andThen(new ScoreL4CommandAutoDown(elevator, arm, gripper))));
 
  
         distanceOffset = SmartDashboard.getNumber("Distance Offset", 0.25);
@@ -284,10 +366,10 @@ public class RobotContainer {
         }
 
         configureDrivetrainBindings();
-        autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
-        SmartDashboard.putData("Auto Mode", autoChooser);
+        //autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+        //SmartDashboard.putData("Auto Mode", autoChooser);
 
-        drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+        //drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
 
     }
 

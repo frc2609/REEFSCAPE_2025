@@ -54,6 +54,8 @@ import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
 import frc.robot.commands.auto.General3Auto;
 import frc.robot.commands.auto.ID18_19Station13Blue;
+import frc.robot.commands.auto.PracticeCoralAuto;
+import frc.robot.commands.auto.PracticeHumanAuto;
 import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.elevator.moveElevator;
@@ -425,7 +427,9 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         //return autoChooser.getSelected();
-        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 0.25), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
+        //return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 0.25), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
+        return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
+        //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
     }
     
 }

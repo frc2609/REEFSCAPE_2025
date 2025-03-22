@@ -37,8 +37,8 @@ public class General3Auto extends SequentialCommandGroup{
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
             new WaitCommand(2),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose(firstReef).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*2,
-                fieldLayout.getTagPose(firstReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*2,
+                fieldLayout.getTagPose(firstReef).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*1,
+                fieldLayout.getTagPose(firstReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(firstReef).get().getRotation().getAngle())*1,
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(firstReef)).get().toPose2d().getRotation().getRadians() - Math.PI)
                 )),
             new ReefPIDAlign(drivetrain).withTimeout(4),
@@ -53,8 +53,8 @@ public class General3Auto extends SequentialCommandGroup{
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
             new WaitCommand(2),
             drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose(secondReef).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(secondReef).get().getRotation().getAngle())*2,
-                fieldLayout.getTagPose(secondReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(secondReef).get().getRotation().getAngle())*2,
+                fieldLayout.getTagPose(secondReef).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(secondReef).get().getRotation().getAngle())*1,
+                fieldLayout.getTagPose(secondReef).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(secondReef).get().getRotation().getAngle())*1,
                 new Rotation2d(fieldLayout.getTagPose((int)Math.round(secondReef)).get().toPose2d().getRotation().getRadians() - Math.PI)
                 )),
             new ReefPIDAlign(drivetrain).withTimeout(4),

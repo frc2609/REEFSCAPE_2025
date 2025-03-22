@@ -45,7 +45,6 @@ public class PracticeCoralAuto extends SequentialCommandGroup{
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(4),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(1),
             new WaitCommand(0.1)
-            
         );
     }
 }

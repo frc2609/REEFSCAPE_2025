@@ -5,18 +5,14 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
-
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.hardware.Pigeon2;
-
 import edu.wpi.first.net.PortForwarder;
 import com.pathplanner.lib.events.EventTrigger;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -107,8 +103,8 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(currentSpeed * 0.05).withRotationalDeadband(CurrentAngularRate * 0.05) // Add a 10% deadband        0.05
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors              RequestType.Velocity
+            .withDeadband(currentSpeed * 0.0).withRotationalDeadband(CurrentAngularRate * 0.0) // Add a 10% deadband        0.05
+            .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors              RequestType.Velocity
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -117,7 +113,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(currentSpeed);
 
 
-    private static final CommandXboxController driverController = new CommandXboxController(0);
+    public static final CommandXboxController driverController = new CommandXboxController(0);
     public static final CommandXboxController operatorController = new CommandXboxController(1);
   
 
@@ -140,93 +136,7 @@ public class RobotContainer {
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
     private final String limeLightName = "limelight-intake";
     private Field2d m_field = new Field2d();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                                                private static double REEF_SIDE = 0.813;
+   private static double REEF_SIDE = 0.813;
 
     public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
@@ -235,7 +145,6 @@ public class RobotContainer {
     public boolean isRight = true;
 
     private final Trigger confirmTrigger= driverController.rightTrigger();// 
-
     private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
     private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
     private final Trigger intakeGroundTrigger = driverController.leftBumper();//Gound intake 

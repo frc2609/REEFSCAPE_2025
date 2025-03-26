@@ -42,7 +42,7 @@ import frc.robot.commands.HumanIntakeCommandAuto;
 import frc.robot.commands.PickAlgaeL2Command;
 import frc.robot.commands.PickAlgaeL3Command;
 import frc.robot.commands.RetractAndHandOff;
-import frc.robot.commands.ScoreL1Command;
+
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.Align.RightAlign;
 import frc.robot.commands.Align.LeftAlign;
@@ -81,7 +81,6 @@ import frc.robot.subsystems.IntakeFlop;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.elastic.CameraDisplay;
 import frc.robot.subsystems.elastic.FieldDisplay;
 import frc.robot.subsystems.elastic.MatchTimeSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -141,92 +140,16 @@ public class RobotContainer {
     private final String limeLightName = "limelight-intake";
     private Field2d m_field = new Field2d();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                                                private static double REEF_SIDE = 0.813;
+    private enum Queue {
+        L4,
+        L3,
+        L2
+    }
+
+    // Variable to track current mode
+    private Queue queued = Queue.L4;
+
+    private static double REEF_SIDE = 0.813;
 
     public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
@@ -427,40 +350,15 @@ public class RobotContainer {
         boolean l3queue = false;
         boolean l2queue = false;
 
-        scoreL4Trigger.toggleOnTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
-                new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
-            )
-        );
+        operatorController.x().onTrue(Commands.runOnce(() -> queued = Queue.L4));
 
-        if(scoreL4Trigger.getAsBoolean()){
-            scoreL4Trigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "unqued")));
-        }else{
+        scoreL3Trigger.onTrue(Commands.runOnce(() -> queued = Queue.L3));
+        scoreL2Trigger.onTrue(Commands.runOnce(() -> queued = Queue.L2));
 
-        }
+        driverController.x().whileTrue(score().andThen(Commands.runOnce(()->System.out.println("scoring"))));
+        
 
-       confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
-        //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
-
-        scoreL3Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
-                new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
-            )
-        );
-        scoreL2Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
-            )
-        );
-        scoreL1Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL1Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
-            )
-        );
+        
         algaeknockL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
@@ -524,5 +422,23 @@ public class RobotContainer {
         //return autoChooser.getSelected();
         //return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
         //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
+    }
+    private Command score() {
+        return Commands.runOnce(() -> {
+            switch (queued) {
+                case L4:
+                    System.out.println("Score L4");
+
+                    break;
+                case L3:
+                    System.out.println("Score L3");
+
+                    break;
+                case L2:
+                    System.out.println("Score L2");
+
+                    break;
+            }
+        });
     }
 }

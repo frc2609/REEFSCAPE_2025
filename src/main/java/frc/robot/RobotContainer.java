@@ -428,14 +428,52 @@ public class RobotContainer {
             switch (queued) {
                 case L4:
                     System.out.println("Score L4");
+                    new SequentialCommandGroup(
+                    new MovePCM(elevator, 39.5), //39
+                    new SequentialCommandGroup(
+                        new WaitUntilCommand(elevator.aboveIntake),
+                        new MovePCM(arm, -227), //-227
+                        new WaitUntilCommand(shootTrigger),
+                        new ReleaseGripperCommand(gripper),
+                        new WaitCommand(0.5)
+                    )
+                    );
 
                     break;
                 case L3:
                     System.out.println("Score L3");
+                    new SequentialCommandGroup(
+                    new WaitUntilCommand (confirmTrigger),
+                    new ParallelCommandGroup(
+                        new MovePCM(elevator, 12),
+                        new SequentialCommandGroup(
+                            new WaitUntilCommand(elevator.aboveIntake),
+                            new MovePCM(arm, -222),
+                            new WaitUntilCommand(shootTrigger),
+                            new ReleaseGripperCommand(gripper),
+                            new WaitCommand(0.5)
+                        )   
+                    )
+                    ); 
 
                     break;
                 case L2:
                     System.out.println("Score L2");
+                    new SequentialCommandGroup(
+                        new WaitUntilCommand(confirmTrigger),
+                        new MovePCM(elevator, 10.3),
+                        new ParallelCommandGroup(
+                        new MovePCM(arm, -228),
+                        new SequentialCommandGroup(
+                            new WaitUntilCommand(arm.aboveIntake),
+                            new MovePCM(elevator, 0.2),
+                            new WaitUntilCommand(shootTrigger),
+                            new ReleaseGripperCommand(gripper),
+                            new WaitCommand(0.5)
+                       
+                             )   
+                          ) 
+                    );
 
                     break;
             }

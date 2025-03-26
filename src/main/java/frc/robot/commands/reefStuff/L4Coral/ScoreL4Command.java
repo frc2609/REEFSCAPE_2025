@@ -18,8 +18,8 @@ public class ScoreL4Command extends SequentialCommandGroup{
 
     public ScoreL4Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger){
         addCommands(
-
             new ParallelCommandGroup(
+
             new MovePCM(elevator, 39.5), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),

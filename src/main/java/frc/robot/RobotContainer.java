@@ -208,7 +208,7 @@ public class RobotContainer {
         distanceOffset = SmartDashboard.getNumber("Distance Offset", 0.25);
 
         boolean jog = false;
-        boolean sysid = true;
+        boolean sysid = false;
         IDCoral.setDefaultOption("1", 1);
         IDCoral.addOption("1", 1);
         IDCoral.addOption("2", 2);
@@ -367,10 +367,12 @@ public class RobotContainer {
         boolean l3queue = false;
         boolean l2queue = false;
 
+        driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
+
         scoreL4Trigger.toggleOnTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
-                new ScoreL4Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+                new ScoreL4Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
             )
         );
 
@@ -386,19 +388,19 @@ public class RobotContainer {
         scoreL3Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
-                new ScoreL3Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+                new ScoreL3Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
             )
         );
         scoreL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL2Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+                new ScoreL2Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
             )
         );
         scoreL1Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL1Command(elevator, arm, gripper, shootTrigger, confirmTrigger)
+                new ScoreL1Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
             )
         );
         algaeknockL2Trigger.toggleOnTrue(
@@ -474,7 +476,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 0.25), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
+        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
         //return autoChooser.getSelected();
         //return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
         //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);

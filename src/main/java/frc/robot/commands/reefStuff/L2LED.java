@@ -1,4 +1,4 @@
-package frc.robot.commands.reefStuff;
+package frc.robot.commands;
 
 import frc.robot.subsystems.Led;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,7 +16,7 @@ public class L2LED extends Command {
   public L2LED(Led L2LED) {
     this.led = L2LED;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(L2LED);
+    addRequirements(Lvl2Led);
   }
 
   @Override

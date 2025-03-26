@@ -138,5 +138,10 @@ public final class Constants {
       });
     }
   }
+  
+  public static final class LedConstants {
+    public static final int LED_STRIP_PORT = 9;
+  }
+
 
 }

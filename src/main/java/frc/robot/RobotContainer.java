@@ -32,22 +32,14 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AlignAndScore;
-import frc.robot.commands.CoralHandOff;
-import frc.robot.commands.HumanIntakeCommand;
-import frc.robot.commands.HumanIntakeCommandAuto;
-import frc.robot.commands.PickAlgaeL2Command;
-import frc.robot.commands.PickAlgaeL3Command;
-import frc.robot.commands.RetractAndHandOff;
-import frc.robot.commands.ScoreL1Command;
 import frc.robot.commands.Align.ResetGyro;
 import frc.robot.commands.Align.RightAlign;
 import frc.robot.commands.Align.LeftAlign;
-import frc.robot.commands.ScoreL2Command;
-import frc.robot.commands.ScoreL3Command;
-import frc.robot.commands.ScoreL4Command;
-import frc.robot.commands.ScoreL4CommandAuto;
-import frc.robot.commands.ScoreL4CommandAutoDown;
+import frc.robot.commands.Intake.CoralHandOff;
 import frc.robot.commands.Intake.DeployIntakeCommand;
+import frc.robot.commands.Intake.HumanIntakeCommand;
+import frc.robot.commands.Intake.HumanIntakeCommandAuto;
+import frc.robot.commands.Intake.RetractAndHandOff;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
 import frc.robot.commands.auto.General3Auto;
@@ -58,6 +50,7 @@ import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.climber.ZeroClimber;
 import frc.robot.commands.elevator.moveElevator;
+import frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command;
 import frc.robot.commands.gripper.AutoReleaseGripperCommand;
 import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
@@ -65,6 +58,13 @@ import frc.robot.commands.gripper.SlowGripCommand;
 import frc.robot.commands.gripper.StopGripperCommand;
 import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.pcmUtils.MovePCM;
+import frc.robot.commands.reefStuff.ScoreL1Command;
+import frc.robot.commands.reefStuff.ScoreL2Command;
+import frc.robot.commands.reefStuff.ScoreL3Command;
+import frc.robot.commands.reefStuff.Algae.PickAlgaeL3Command;
+import frc.robot.commands.reefStuff.L4Coral.ScoreL4Command;
+import frc.robot.commands.reefStuff.L4Coral.ScoreL4CommandAuto;
+import frc.robot.commands.reefStuff.L4Coral.ScoreL4CommandAutoDown;
 import frc.robot.commands.Align.LeftAlign;
 import frc.robot.commands.Align.PIDAlign;
 import frc.robot.commands.Align.PIDFineAlign;
@@ -87,6 +87,15 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import frc.robot.utils.Constants.OperatorConstants;
+import frc.robot.commands.reefStuff.NoCoralLED;
+import frc.robot.commands.reefStuff.L1LED;
+import frc.robot.commands.reefStuff.L2LED;
+import frc.robot.commands.reefStuff.L3LED;
+import frc.robot.commands.reefStuff.L4Coral.L4LED;
+import frc.robot.commands.reefStuff.Algae.AlgaeL2LED;
+import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
+import frc.robot.subsystems.Led;
 
 
 public class RobotContainer {
@@ -99,6 +108,7 @@ public class RobotContainer {
     private double HalfAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)/4; // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
     //private final DigitalInput intakeBeam = new DigitalInput(9);
+    private final Led led = new Led();
 
     private SendableChooser<Command> autoChooser;
 
@@ -121,6 +131,15 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private Command queuedCommand = new InstantCommand();
+        ///* LED */ 
+    private final L4LED lvl4command = new L4LED(led);
+    private final L3LED lvl3command = new L3LED(led);
+    private final L2LED lvl2command = new L2LED(led);
+    private final L1LED lvl1command = new L1LED(led);
+    private final AlgaeL3LED l3algaecommand = new AlgaeL3LED (led);
+    private final AlgaeL2LED  l2algaecommand = new AlgaeL2LED (led);
+    private final NoCoralLED nocoralcommand = new NoCoralLED(led);
+
 
     // /* Path follower */
     public final Arm arm = new Arm();
@@ -164,7 +183,7 @@ public class RobotContainer {
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
-    private final Trigger interupTrigger = driverController.a();
+    private final Trigger interupTrigger = operatorController.povRight();
     private final Trigger climbing = new Trigger(() -> climber.getPosition() > 100);
     double distanceOffset = 0.25;
     double coralOffset = 0.27;
@@ -385,7 +404,7 @@ public class RobotContainer {
         algaeknockL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
-                new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
+                new frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
             )
         );
         algaeknockL3Trigger.toggleOnTrue(
@@ -398,6 +417,15 @@ public class RobotContainer {
             .whileTrue(new DeployClimberCommand(climber))
             .whileFalse(new RetractClimberCommand(climber)); 
         gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
+
+        operatorController.y().onTrue(lvl4command);
+        operatorController.x().onTrue(lvl3command);
+        operatorController.b().onTrue(lvl2command);
+        operatorController.a().onTrue(lvl1command);
+        
+        // Algae commands on right stick buttons
+        operatorController.povUp().onTrue(l3algaecommand);
+        operatorController.povDown().onTrue(l2algaecommand);
         
     }
     
@@ -433,6 +461,11 @@ public class RobotContainer {
         return Math.copySign(a - b + c, value);
     }
 
+    private void configureDefaultCommands() {
+        led.setDefaultCommand(nocoralcommand);
+        
+      }
+
     public void robotInit() {
         for (int port = 5800; port <= 5810; port++) {
             PortForwarder.add(port, "limelight-april.local", port);
@@ -445,5 +478,6 @@ public class RobotContainer {
         //return autoChooser.getSelected();
         //return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
         //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
+    
     }
 }

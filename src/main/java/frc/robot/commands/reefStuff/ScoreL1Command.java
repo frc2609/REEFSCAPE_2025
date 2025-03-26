@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.reefStuff;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -14,10 +14,10 @@ import frc.robot.subsystems.Gripper;
 public class ScoreL1Command extends SequentialCommandGroup{
     public ScoreL1Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger){
         addCommands(
-            new WaitUntilCommand(confirmTrigger),
             new MovePCM(elevator, 10.3),
+            new WaitUntilCommand(confirmTrigger),
             new ParallelCommandGroup(
-            new MovePCM(arm, -237),
+                new MovePCM(arm, -237),
             new SequentialCommandGroup(
                 new WaitUntilCommand(arm.aboveIntake),
                 new MovePCM(elevator, 0.2),

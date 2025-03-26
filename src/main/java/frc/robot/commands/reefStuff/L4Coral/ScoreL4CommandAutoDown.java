@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.reefStuff.L4Coral;
 
 import com.pathplanner.lib.auto.NamedCommands;
 

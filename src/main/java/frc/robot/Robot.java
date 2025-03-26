@@ -73,7 +73,9 @@ public class Robot extends TimedRobot {
 
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    // DataLogManager.stop();
+  }
 
   @Override
   public void disabledPeriodic() {}

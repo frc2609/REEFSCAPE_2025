@@ -71,6 +71,7 @@ import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ReefPIDAlign;
 import frc.robot.commands.Align.ReefPIDAlignLeft;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeRoll;
 import frc.robot.subsystems.IntakeFlop;
@@ -136,7 +137,7 @@ public class RobotContainer {
     private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
     private final String limeLightName = "limelight-intake";
     private Field2d m_field = new Field2d();
-   private static double REEF_SIDE = 0.813;
+    private static double REEF_SIDE = 0.813;
 
     public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
@@ -181,11 +182,6 @@ public class RobotContainer {
      */
     public RobotContainer() {  
         SmartDashboard.putString("Queue:", "None");
-        elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
-        arm.setDefaultCommand(new MovePCM(arm, 0));
-        gripper.setDefaultCommand(new SlowGripCommand(gripper));
-        intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
-        //climber.setDefaultCommand(new ZeroClimber(climber));
        
         SmartDashboard.putNumber("Distance Offset", 0.25);
 
@@ -193,6 +189,7 @@ public class RobotContainer {
         distanceOffset = SmartDashboard.getNumber("Distance Offset", 0.25);
 
         boolean jog = false;
+        boolean sysid = true;
         IDCoral.setDefaultOption("1", 1);
         IDCoral.addOption("1", 1);
         IDCoral.addOption("2", 2);
@@ -270,6 +267,8 @@ public class RobotContainer {
         
         if (jog == true){
             configureJogBindings();
+        } else if (sysid == true) {
+          configureSysidBindings();  
         } else {
             configureBindings();    
         }
@@ -279,6 +278,20 @@ public class RobotContainer {
         //SmartDashboard.putData("Auto Mode", autoChooser);
 
         //drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
+
+    }
+
+    private void configureSysidBindings() {
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        // first
+        operatorController.start().and(operatorController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // second
+        operatorController.start().and(operatorController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // third
+        operatorController.back().and(operatorController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // fourth
+        operatorController.back().and(operatorController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
 
     }
 
@@ -298,7 +311,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-
         // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
         arm.setDefaultCommand(new MovePCM(arm, 0));

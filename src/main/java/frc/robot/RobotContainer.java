@@ -5,6 +5,11 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
+
+import java.util.Queue;
+
+import org.ejml.equation.Variable;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -158,6 +163,14 @@ public class RobotContainer {
     private Field2d m_field = new Field2d();
     private static double REEF_SIDE = 0.813;
 
+   private enum Queue {
+    L4,
+    L3,
+    L2
+}
+//Variable to track current mode
+    private Queue queued = Queue.L4;
+
     public final Limelight seaweed = new Limelight("limelight-april");
     private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
     public final Gripper gripper = new Gripper();
@@ -194,6 +207,8 @@ public class RobotContainer {
     SendableChooser<Integer> IDCoral = new SendableChooser<>();
     SendableChooser<Integer> IDReef1 = new SendableChooser<>();
     SendableChooser<Integer> IDReef2 = new SendableChooser<>();
+
+
 
     //public final CameraDisplay camera = new CameraDisplay();
     /**
@@ -376,12 +391,6 @@ public class RobotContainer {
             )
         );
 
-        if(scoreL4Trigger.getAsBoolean()){
-            scoreL4Trigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "unqued")));
-        }else{
-
-        }
-
        confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
 
@@ -403,6 +412,36 @@ public class RobotContainer {
                 new ScoreL1Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
             )
         );
+        scoreL4Trigger.toggleOnTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
+                new ScoreL4Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
+            )
+        );
+
+       confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
+        //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
+
+        scoreL3Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
+                new ScoreL3Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
+            )
+        );
+        scoreL2Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
+                new ScoreL2Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
+            )
+        );
+        scoreL1Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
+                new ScoreL1Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
+            )
+        );
+
+
         algaeknockL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
@@ -482,4 +521,6 @@ public class RobotContainer {
         //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
     
     }
+        
+    
 }

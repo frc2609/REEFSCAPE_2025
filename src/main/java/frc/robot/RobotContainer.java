@@ -163,7 +163,7 @@ public class RobotContainer {
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
-    private final Trigger interupTrigger = driverController.a();
+    private final Trigger interupTrigger = operatorController.povRight();
     private final Trigger climbing = new Trigger(() -> climber.getPosition() > 100);
     double distanceOffset = 0.25;
     double coralOffset = 0.27;

@@ -11,6 +11,7 @@ public class RightAlign extends SequentialCommandGroup {
        addCommands(
         new PIDAlign(swerveDrivetrain),
         new PIDFineAlign(false, swerveDrivetrain)
+
        );
        
    }

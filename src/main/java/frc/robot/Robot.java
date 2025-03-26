@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.LimelightHelpers;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 
 
@@ -58,6 +60,7 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Fine rot val", postions[4]);
     }
     SmartDashboard.putBoolean("retracted", m_robotContainer.intakeFlop.retractedTrigger.getAsBoolean());
+    CommandScheduler.getInstance().run();
   }
 
   @Override
@@ -66,6 +69,7 @@ public class Robot extends TimedRobot {
     PathfindingCommand.warmupCommand().schedule();
     // Record both DS control and joystick data
     DriverStation.startDataLog(DataLogManager.getLog());
+    
   }
 
 

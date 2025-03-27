@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.io.PushbackInputStream;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -11,6 +13,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -34,7 +38,7 @@ public class IntakeFlop extends PositionControlledMotor {
 
     public final Trigger deployedTrigger = new Trigger(() -> getPosition() >= 85);
     public final Trigger retractedTrigger = new Trigger(() -> getPosition() <= 5);
-    public final Trigger coralTrigger = new Trigger(() -> coralPresent());
+    public final Trigger coralTrigger = new Trigger(() -> coralDistance() <= 50);
 
     public static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()
@@ -74,6 +78,10 @@ public class IntakeFlop extends PositionControlledMotor {
             );
         
     private final DigitalInput intakeBeam = new DigitalInput(9);
+    private final DigitalSource sourcePWMX = new DigitalInput(8);
+    private final DutyCycle dutyPWMX = new DutyCycle(sourcePWMX);
+    private double lidarDistance = ((dutyPWMX.getHighTimeNanoseconds()/1000)-1000)/1.36;
+
     public IntakeFlop() {
         super(
         talonConfig,
@@ -88,9 +96,11 @@ public class IntakeFlop extends PositionControlledMotor {
         setPosition();
     }
 
-    public boolean coralPresent() {
+    public double coralDistance() {
         boolean beam = !intakeBeam.get();
-        return beam;
+        boolean lidar =false;
+
+        return ((dutyPWMX.getHighTimeNanoseconds()/1000)-1000)/1.36;
     }
 
     @Override 
@@ -100,6 +110,13 @@ public class IntakeFlop extends PositionControlledMotor {
         if (followerMotor != null) {
             stat = followerMotor.setPosition(0);
         }    
+    }
+
+    @Override
+    public void displayStuff() {
+        SmartDashboard.putBoolean("Coral trigger", coralTrigger.getAsBoolean());
+        SmartDashboard.putBoolean("Retracted trigger", retractedTrigger.getAsBoolean());
+        SmartDashboard.putNumber("Coral distance", coralDistance());
     }
     
 }

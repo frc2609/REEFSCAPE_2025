@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -366,7 +367,10 @@ public class RobotContainer {
             .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
         intakeFlop.coralTrigger.onTrue(
-            new RetractIntakeCommand(intakeFlop, intakeRoll)
+            new SequentialCommandGroup(
+                new PrintCommand("~~~~~ Coral Triggered ~~~~~"),
+                new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
+            )
         );
         humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
         alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));

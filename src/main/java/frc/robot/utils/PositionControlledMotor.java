@@ -37,6 +37,8 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     private double targetPositionDegrees = 0;
     private boolean positionControlEnabled = false;
 
+    public void displayStuff(){};
+
     public PositionControlledMotor(
         TalonFXConfiguration talonConfig, 
         DutyCycleEncoder encoder, 
@@ -248,6 +250,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
+        displayStuff();
      fudgeFactor = fudgeTable.getEntry("fudgeFactor " + name).getDouble(fudgeFactor);
      //System.out.println(fudgeFactor);
         updatePosition();

@@ -114,7 +114,7 @@ public class RobotContainer {
     private double HalfAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)/4; // 3/4 of a rotation per second max angular velocity
                                                                                     // max angular velocity
     //private final DigitalInput intakeBeam = new DigitalInput(9);
-    private final Led led = new Led();
+    
 
     private SendableChooser<Command> autoChooser;
 
@@ -137,14 +137,6 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private Command queuedCommand = new InstantCommand();
-        ///* LED */ 
-    private final L4LED lvl4command = new L4LED(led);
-    private final L3LED lvl3command = new L3LED(led);
-    private final L2LED lvl2command = new L2LED(led);
-    private final L1LED lvl1command = new L1LED(led);
-    private final AlgaeL3LED l3algaecommand = new AlgaeL3LED (led);
-    private final AlgaeL2LED  l2algaecommand = new AlgaeL2LED (led);
-    private final NoCoralLED nocoralcommand = new NoCoralLED(led);
 
 
     // /* Path follower */
@@ -153,8 +145,18 @@ public class RobotContainer {
     public final Climber climber = new Climber();
     public final IntakeRoll intakeRoll = new IntakeRoll();
     public final IntakeFlop intakeFlop = new IntakeFlop();
+    private final Led led = new Led(intakeFlop.coralTrigger);
     public static InstantCommand instantCommand = new InstantCommand();
     private boolean climbed = false;
+
+    ///* LED */ 
+    private final L4LED lvl4command = new L4LED(led);
+    private final L3LED lvl3command = new L3LED(led);
+    private final L2LED lvl2command = new L2LED(led);
+    private final L1LED lvl1command = new L1LED(led);
+    private final AlgaeL3LED l3algaecommand = new AlgaeL3LED (led);
+    private final AlgaeL2LED  l2algaecommand = new AlgaeL2LED (led);
+    private final NoCoralLED nocoralcommand = new NoCoralLED(led);
 
     public final MatchTimeSubsystem matchTime = new MatchTimeSubsystem();
 

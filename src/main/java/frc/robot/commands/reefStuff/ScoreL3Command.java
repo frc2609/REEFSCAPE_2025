@@ -13,13 +13,13 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 
 public class ScoreL3Command extends SequentialCommandGroup{
-    public ScoreL3Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger){
+    public ScoreL3Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger, Trigger confirm2Trigger){
         addCommands(
             new ParallelCommandGroup(
 
                 new MovePCM(elevator, 12),
                 new SequentialCommandGroup(
-                    new WaitUntilCommand (confirmTrigger),
+                    new WaitUntilCommand(confirm2Trigger.or(confirmTrigger)),
                     new WaitUntilCommand(elevator.aboveIntake),
                     new MovePCM(arm, -222),
                     new WaitUntilCommand(shootTrigger),

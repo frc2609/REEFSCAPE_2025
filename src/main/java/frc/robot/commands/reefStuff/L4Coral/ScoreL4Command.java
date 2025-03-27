@@ -16,14 +16,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class ScoreL4Command extends SequentialCommandGroup{
 
-    public ScoreL4Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger){
+    public ScoreL4Command(Elevator elevator, Arm arm, Gripper gripper, Trigger shootTrigger, Trigger confirmTrigger, Trigger confirm2Trigger){
         addCommands(
             new ParallelCommandGroup(
 
             new MovePCM(elevator, 39.5), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
-                new WaitUntilCommand (confirmTrigger),
+                new WaitUntilCommand(confirm2Trigger.or(confirmTrigger)),
                 new MovePCM(arm, -227), //-227
                 new WaitUntilCommand(shootTrigger),
                 new ReleaseGripperCommand(gripper),

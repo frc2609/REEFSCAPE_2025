@@ -391,7 +391,7 @@ public class RobotContainer {
         scoreL4Trigger.toggleOnTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
-                new ScoreL4Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
+                new ScoreL4Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
             )
         );
 
@@ -401,49 +401,19 @@ public class RobotContainer {
         scoreL3Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
-                new ScoreL3Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
+                new ScoreL3Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
             )
         );
         scoreL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL2Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
-            )
-        );
-        scoreL1Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL1Command(elevator, arm, gripper, shootTrigger, alignRightTrigger)
-            )
-        );
-        scoreL4Trigger.toggleOnTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
-                new ScoreL4Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
+                new ScoreL2Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
             )
         );
 
        confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
-
-        scoreL3Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
-                new ScoreL3Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
-            )
-        );
-        scoreL2Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL2Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
-            )
-        );
-        scoreL1Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
-                new ScoreL1Command(elevator, arm, gripper, shootTrigger, alignLeftTrigger)
-            )
-        );
+        
 
 
         algaeknockL2Trigger.toggleOnTrue(

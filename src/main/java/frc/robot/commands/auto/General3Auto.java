@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -42,12 +43,12 @@ public class General3Auto extends SequentialCommandGroup{
             resetPoseWithLimelight("limelight-intake"),
 
             // Path to coralStation and try to get coral
-            getPathCommand(coralStation, 0.5, -Math.PI/6),
+            getPathCommand(coralStation, 0.5, 0.5, -30),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
 
             // Try to add a wait until based on a trigger reading the gripper voltage to detect when a coral is in
             // Path to the 8 april tag
-            getPathCommand(8, 1, Math.PI),
+            getPathCommand(8, 1, 1, 180),
 
             // Align and score to the visible tag
             new ReefPIDAlignLeft(drivetrain),
@@ -62,15 +63,17 @@ public class General3Auto extends SequentialCommandGroup{
         );
     }
 
-    private Command getPathCommand(int apriltag, double translationOffset, double rotationOffset) {
-        return drivetrain.getPathPlannerCommandToAprilTag(
-            new Pose2d(
-                fieldLayout.getTagPose(apriltag).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(apriltag).get().getRotation().getAngle()*translationOffset),
-                fieldLayout.getTagPose(apriltag).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(apriltag).get().getRotation().getAngle()*translationOffset),
-                new Rotation2d(
-                    fieldLayout.getTagPose(apriltag).get().toPose2d().getRotation().getRadians() + rotationOffset
-                )
-            )
+    private Command getPathCommand(int apriltag, double xOffset, double yOffset, double rotationOffset) {
+        Pose2d tagPose = fieldLayout.getTagPose(apriltag).get().toPose2d();
+        
+        Transform2d offsetTransform = new Transform2d(
+            xOffset, 
+            yOffset,
+            Rotation2d.fromDegrees(rotationOffset)
         );
+        
+        Pose2d targetPose = tagPose.transformBy(offsetTransform);
+        
+        return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
     }
 }

@@ -20,9 +20,14 @@ public class PIDFineAlign extends Command {
     public static Trigger aligned = new Trigger(() -> stopTimer.hasElapsed(0.3) && tagID != -1);
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
-      xController = new PIDController(2, 0.0, 0);  // Vertical movement
-      yController = new PIDController(2, 0.5, 0);  // Horitontal movement   (2, 0.5, 0)
-      rotController = new PIDController(0.11, 0, 0);  // Rotation
+      xController = new PIDController(2.0, 0.0001, 0.0);  // Vertical movement
+      yController = new PIDController(2.0, 0.0001, 0.0);  // Horitontal movement   (2, 0.5, 0)
+      rotController = new PIDController(0.15, 0.0001, 0.00);  // Rotation
+
+      xController.setIZone(0.1);
+      yController.setIZone(0.1);
+      rotController.setIZone(2.0);
+
       this.isLeftScore = isLeftScore;
       this.drivebase = drivebase;
       addRequirements(drivebase);
@@ -36,32 +41,29 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Ysetpoint = -0.37;
-      double Xsetpoint = -0.06;
-      double rotSetPoint = 1.2;
+      double Xsetpoint = -0.04;
+      double Ysetpoint = -0.357;
+      double rotSetPoint = 0.0;
 
       // Right set points
       if (isLeftScore == false){
-        Ysetpoint = -0.047;
-        Xsetpoint = -0.069;
-        rotSetPoint = 0.05;
+        Xsetpoint = -0.04;
+        Ysetpoint = -0.030;
+        rotSetPoint = 0.0;
       }
       
-   
-      rotController.setSetpoint(rotSetPoint);
-      rotController.setTolerance(1);
-  
       xController.setSetpoint(Xsetpoint);
-      xController.setTolerance(0.02);
-
+      xController.setTolerance(0.03);
     
       yController.setSetpoint(Ysetpoint);
-      yController.setTolerance(0.04);//0.02
+      yController.setTolerance(0.03);//0.02
+
+      rotController.setSetpoint(rotSetPoint);
+      rotController.setTolerance(1.5);
   
       tagID = LimelightHelpers.getFiducialID("limelight");
     }
 
-  
     @Override
     public void execute() {
       System.out.println("fine aligning");
@@ -69,7 +71,10 @@ public class PIDFineAlign extends Command {
         PIDFineAlign.dontSeeTagTimer.reset();
   
         double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
-  
+        
+        if (xController.getError() < 0.5) { xController.setP(2.0);} else {xController.setP(4.0);}
+        if (yController.getError() < 0.5) { yController.setP(2.0);} else {yController.setP(4.0);}
+
         double xSpeed = xController.calculate(postions[2]);
         double ySpeed = -yController.calculate(postions[0]);
         double rotValue = -rotController.calculate(postions[4]);
@@ -80,17 +85,13 @@ public class PIDFineAlign extends Command {
            .withVelocityY(ySpeed) // Drive left with negative X (left)
            .withRotationalRate(rotValue)
         );
-
-
   
-        if (!rotController.atSetpoint()||
-            !yController.atSetpoint() ||
-            !xController.atSetpoint())
-        {
+        if (!rotController.atSetpoint() || !yController.atSetpoint() || !xController.atSetpoint()) {
           stopTimer.reset();
+          }
         }
-        
-      } else {
+
+      else {
         drivebase.setControl(m_drive
                 .withVelocityX(0) // Drive forward with negative Y(forward)
                 .withVelocityY(0) // Drive left with negative X (left)

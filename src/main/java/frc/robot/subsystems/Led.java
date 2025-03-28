@@ -13,7 +13,7 @@ public class Led extends SubsystemBase {
 
   private AddressableLED m_led;
   private AddressableLEDBuffer m_ledBuffer;
-  private Trigger is_coral = m_Controller.leftBumper();
+  private Trigger is_coral;
 
   final int not_selected = 0;//led hue - red
   final int in_position = 60;//led hue - green
@@ -22,11 +22,12 @@ public class Led extends SubsystemBase {
   int coral_in = not_in_position;//led hue
   private static final int LENGTH = 73;
   final int segment_size = (LENGTH/5);
-  public Led() {
+  public Led(Trigger coralTrigger) {
     // Init variables here
     SmartDashboard.putNumber("Encoder", 0);
     m_led = new AddressableLED(frc.robot.utils.Constants.LedConstants.LED_STRIP_PORT);
-    m_ledBuffer = new AddressableLEDBuffer(LENGTH);     
+    m_ledBuffer = new AddressableLEDBuffer(LENGTH);
+    is_coral = coralTrigger;     
 
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);

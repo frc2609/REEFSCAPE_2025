@@ -4,6 +4,7 @@ import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LimelightStream extends SubsystemBase {
+    @SuppressWarnings("resource")
     public LimelightStream() {
         HttpCamera limelightCamera = new HttpCamera("LimelightCamera", "http://limelight-april:5801/stream.mjpg");
 

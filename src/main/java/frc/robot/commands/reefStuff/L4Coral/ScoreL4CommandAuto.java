@@ -26,7 +26,7 @@ public class ScoreL4CommandAuto extends SequentialCommandGroup{
          Commands.runOnce(()->SmartDashboard.putString("state", "elevator down starting")),
          new SlowGripCommand(gripper),
             new ParallelCommandGroup(
-            new MovePCM(elevator, 38), //39
+            new MovePCM(elevator, 39), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
                 new MovePCM(arm, -227), //-227

@@ -18,6 +18,7 @@
       "/SmartDashboard/Module 3": "Mechanism2d",
       "/SmartDashboard/On-the-fly path": "Command",
       "/SmartDashboard/OnFlyPath": "Command",
+      "/SmartDashboard/PathPlanner": "Alerts",
       "/SmartDashboard/Pathfind to Pickup Pos": "Command",
       "/SmartDashboard/Pathfind to Scoring Pos": "Command"
     },

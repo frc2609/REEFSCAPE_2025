@@ -366,7 +366,7 @@ public class RobotContainer {
         intakeGroundTrigger
             .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
-        intakeFlop.coralTrigger.onTrue(
+        intakeFlop.coralTrigger.debounce(0.1).onTrue(
             new SequentialCommandGroup(
                 new PrintCommand("~~~~~ Coral Triggered ~~~~~"),
                 new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
@@ -380,7 +380,7 @@ public class RobotContainer {
         // );
         coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
-        resetGyroTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
+        resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
         
         boolean l4queue = false;
         boolean l3queue = false;

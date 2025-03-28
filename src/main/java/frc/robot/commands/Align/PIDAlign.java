@@ -16,8 +16,8 @@ public class PIDAlign extends Command {
     private SwerveRequest.RobotCentric m_drive = new SwerveRequest.RobotCentric();
 
     public PIDAlign( CommandSwerveDrivetrain drivebase) {
-      xController = new PIDController(2.0, 0.00001, 0.0);  // Vertical movement
-      yController = new PIDController(2.0, 0.00001, 0.0);  // Horitontal movement
+      xController = new PIDController(2.0, 0.001, 0.0);  // Vertical movement
+      yController = new PIDController(2.0, 0.001, 0.0);  // Horitontal movement
       rotController = new PIDController(0.15, 0.0001, 0.0);  // Rotation
 
       xController.setIZone(0.15);
@@ -56,8 +56,8 @@ public class PIDAlign extends Command {
         double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight-intake");
         SmartDashboard.putNumber("x", postions[2]);
   
-        if (xController.getError() < 1.0) { xController.setP(2.0);} else {xController.setP(4.0);}
-        if (yController.getError() < 1.0) { yController.setP(2.0);} else {yController.setP(4.0);}
+        //if (xController.getError() < 1.0) { xController.setP(2.0);} else {xController.setP(3.0);}
+        //if (yController.getError() < 1.0) { yController.setP(2.0);} else {yController.setP(3.0);}
 
         double xSpeed = xController.calculate(postions[2]);
         SmartDashboard.putNumber("xspeed", xSpeed);

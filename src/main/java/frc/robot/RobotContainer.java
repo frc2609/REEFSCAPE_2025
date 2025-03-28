@@ -329,9 +329,11 @@ public class RobotContainer {
     private void configureDrivetrainBindings() {
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> drive
-                .withVelocityX((-driverController.getLeftY()) * currentSpeed) 
-                .withVelocityY((-driverController.getLeftX()) * currentSpeed) 
-                .withRotationalRate(-driverController.getRightX() * currentAngularRate)
+                .withVelocityX(-(Math.copySign(Math.pow(driverController.getLeftY(),3),driverController.getLeftY())) * currentSpeed)
+
+                .withVelocityY(-(Math.copySign(Math.pow(driverController.getLeftX(),3),driverController.getLeftX())) * currentSpeed)
+
+                .withRotationalRate(-(Math.copySign(Math.pow(driverController.getRightX(),3),driverController.getRightX())) * currentAngularRate)
         ));
 
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

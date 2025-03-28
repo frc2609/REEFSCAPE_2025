@@ -20,12 +20,12 @@ public class PIDFineAlign extends Command {
     public static Trigger aligned = new Trigger(() -> stopTimer.hasElapsed(0.3) && tagID != -1);
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
-      xController = new PIDController(2.0, 0.0001, 0.0);  // Vertical movement
-      yController = new PIDController(2.0, 0.0001, 0.0);  // Horitontal movement   (2, 0.5, 0)
-      rotController = new PIDController(0.15, 0.0001, 0.00);  // Rotation
+      xController = new PIDController(2.0, 0.75, 0.0000);  // Vertical movement
+      yController = new PIDController(2.0, 0.75, 0.0000);  // Horitontal movement
+      rotController = new PIDController(0.1, 0.0001, 0.00);  // Rotation
 
-      xController.setIZone(0.1);
-      yController.setIZone(0.1);
+      xController.setIZone(0.3);
+      yController.setIZone(0.3);
       rotController.setIZone(2.0);
 
       this.isLeftScore = isLeftScore;
@@ -41,25 +41,25 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Xsetpoint = -0.04;
-      double Ysetpoint = -0.357;
+      double Xsetpoint = -0.1;
+      double Ysetpoint = -0.365;
       double rotSetPoint = 0.0;
 
       // Right set points
       if (isLeftScore == false){
-        Xsetpoint = -0.04;
-        Ysetpoint = -0.030;
+        Xsetpoint = -0.1;
+        Ysetpoint = -0.025;
         rotSetPoint = 0.0;
       }
       
       xController.setSetpoint(Xsetpoint);
-      xController.setTolerance(0.03);
+      xController.setTolerance(0.02);
     
       yController.setSetpoint(Ysetpoint);
-      yController.setTolerance(0.03);//0.02
+      yController.setTolerance(0.02);//0.02
 
       rotController.setSetpoint(rotSetPoint);
-      rotController.setTolerance(1.5);
+      rotController.setTolerance(1.0);
   
       tagID = LimelightHelpers.getFiducialID("limelight");
     }
@@ -72,8 +72,8 @@ public class PIDFineAlign extends Command {
   
         double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
         
-        if (xController.getError() < 0.5) { xController.setP(2.0);} else {xController.setP(4.0);}
-        if (yController.getError() < 0.5) { yController.setP(2.0);} else {yController.setP(4.0);}
+        //if (xController.getError() < 0.5) { xController.setP(2.0);} else {xController.setP(4.0);}
+        //if (yController.getError() < 0.5) { yController.setP(2.0);} else {yController.setP(4.0);}
 
         double xSpeed = xController.calculate(postions[2]);
         double ySpeed = -yController.calculate(postions[0]);

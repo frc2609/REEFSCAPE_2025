@@ -3,13 +3,15 @@
 // the WPILib BSD license file in the root directory of this project.
 
 /* 
- * To DO:
+ * To Do:
  * 1. Remove unneeded commands
  * 2. If we need the ResetGyro command, lets not use a limelight that does not exist also... 
  *    - WHY IS IT DOING PID?!
  *    - WHY ARE THERE TWO OF THESE CLASSES?!
- * 3. Rebind or remove line 248
- * 4. Do a ctrl-f for 'limelight-april' WHO IS APRIL AND WHY ARE WE USING THEIR LIMELIGHT?!
+ * 3. Rebind or remove line 250
+ * 4. Do a ctrl-f for 'limelight-april' 
+ *    - WHO IS APRIL AND WHY ARE WE USING THEIR LIMELIGHT?!
+ * 5. Why is the reset yaw calling reset gyro on line 247?
  */
 
 package frc.robot;

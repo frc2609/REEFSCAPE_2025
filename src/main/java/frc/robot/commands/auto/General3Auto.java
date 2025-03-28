@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Align.ReefPIDAlign;
@@ -21,36 +22,55 @@ import frc.robot.utils.LimelightHelpers;
 
 public class General3Auto extends SequentialCommandGroup{
     SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityX(-1);
+    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    CommandSwerveDrivetrain drivetrain;
     public General3Auto(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper, double distanceOffset, int coralStation, int secondReef, int thirdReef){
-        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        this.drivetrain = drivetrain;
         addCommands(
-            //drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
+            // Start aligning to visible tag
             new ReefPIDAlign(drivetrain),
 
+            // Try adding a conditional command aound the rest that uses a trigger checking for a tag
+            
+            // Attempt to score on the visible tag
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6),
-            drivetrain.applyRequest(() -> rocDrive).withTimeout(1),
-            //Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm down")),
-            new WaitCommand(0.1),
-            drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
-            //drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"))),
-            //new WaitCommand(1),
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose(coralStation).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*0.50,
-                fieldLayout.getTagPose(coralStation).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(coralStation).get().getRotation().getAngle())*0.50,
-                new Rotation2d(fieldLayout.getTagPose(coralStation).get().toPose2d().getRotation().getRadians() - Math.PI/6/* - (Math.PI*2) - (Math.PI/6)*2 + 2*Math.PI/2*/)
-                )),
-            //drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))),
-            new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
-            drivetrain.getPathPlannerCommandToAprilTag(new Pose2d(
-                fieldLayout.getTagPose(8).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(8).get().getRotation().getAngle())*1,
-                fieldLayout.getTagPose(8).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(8).get().getRotation().getAngle())*1,
-                new Rotation2d(fieldLayout.getTagPose(8).get().toPose2d().getRotation().getRadians() + Math.PI/* - (Math.PI*2) - (Math.PI/6)*2 + 2*Math.PI/2*/)
-                )),
-                new ReefPIDAlignLeft(drivetrain),
 
-                new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
-                new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6)
-                    );
+            // Drive back to reset pose
+            drivetrain.applyRequest(() -> rocDrive).withTimeout(1),
+            new WaitCommand(0.1),
+            resetPoseWithLimelight("limelight-intake"),
+
+            // Path to coralStation and try to get coral
+            getPathCommand(coralStation, 0.5, -Math.PI/6),
+            new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
+
+            // Try to add a wait until based on a trigger reading the gripper voltage to detect when a coral is in
+            // Path to the 8 april tag
+            getPathCommand(8, 1, Math.PI),
+
+            // Align and score to the visible tag
+            new ReefPIDAlignLeft(drivetrain),
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6)
+        );
+    }
+
+    private Command resetPoseWithLimelight(String limelightName) {
+        return drivetrain.runOnce(() ->
+            drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed(limelightName))
+        );
+    }
+
+    private Command getPathCommand(int apriltag, double translationOffset, double rotationOffset) {
+        return drivetrain.getPathPlannerCommandToAprilTag(
+            new Pose2d(
+                fieldLayout.getTagPose(apriltag).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(apriltag).get().getRotation().getAngle()*translationOffset),
+                fieldLayout.getTagPose(apriltag).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(apriltag).get().getRotation().getAngle()*translationOffset),
+                new Rotation2d(
+                    fieldLayout.getTagPose(apriltag).get().toPose2d().getRotation().getRadians() + rotationOffset
+                )
+            )
+        );
     }
 }

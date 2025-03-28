@@ -9,7 +9,7 @@
  *    - WHY IS IT DOING PID?!
  *    - WHY ARE THERE TWO OF THESE CLASSES?!
  * 3. Rebind or remove line 250
- * 4. Do a ctrl-f for 'limelight-april' 
+ * 4. Do a ctrl-shift-f for 'limelight-april' 
  *    - WHO IS APRIL AND WHY ARE WE USING THEIR LIMELIGHT?!
  * 5. Why is the reset yaw calling reset gyro on line 247?
  */

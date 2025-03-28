@@ -2,325 +2,201 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+/* 
+ * To DO:
+ * 1. Remove unneeded commands
+ * 2. If we need the ResetGyro command, lets not use a limelight that does not exist also... 
+ *    - WHY IS IT DOING PID?!
+ *    - WHY ARE THERE TWO OF THESE CLASSES?!
+ * 3. Rebind or remove line 248
+ * 4. Do a ctrl-f for 'limelight-april' WHO IS APRIL AND WHY ARE WE USING THEIR LIMELIGHT?!
+ */
+
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.Queue;
-
-import org.ejml.equation.Variable;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.net.PortForwarder;
-import com.pathplanner.lib.events.EventTrigger;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AlignAndScore;
-import frc.robot.commands.Align.ResetGyro;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.commands.Align.RightAlign;
 import frc.robot.commands.Align.LeftAlign;
-import frc.robot.commands.Intake.CoralHandOff;
+import frc.robot.commands.Align.ResetGyro;
+
+import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
+import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
-import frc.robot.commands.Intake.HumanIntakeCommandAuto;
 import frc.robot.commands.Intake.RetractAndHandOff;
-import frc.robot.commands.Intake.RetractIntakeCommand;
-import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
+import frc.robot.commands.Intake.CoralHandOff;
+
 import frc.robot.commands.auto.General3Auto;
-import frc.robot.commands.auto.ID18_19Station13Blue;
-import frc.robot.commands.auto.PracticeCoralAuto;
-import frc.robot.commands.auto.PracticeHumanAuto;
-import frc.robot.commands.climber.DeployClimberCommand;
+
 import frc.robot.commands.climber.RetractClimberCommand;
-import frc.robot.commands.climber.ZeroClimber;
+import frc.robot.commands.climber.DeployClimberCommand;
+
 import frc.robot.commands.elevator.moveElevator;
-import frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command;
-import frc.robot.commands.gripper.AutoReleaseGripperCommand;
-import frc.robot.commands.gripper.GripCommand;
+
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
-import frc.robot.commands.gripper.StopGripperCommand;
-import frc.robot.commands.pcmUtils.JogPCM;
+
 import frc.robot.commands.pcmUtils.MovePCM;
-import frc.robot.commands.reefStuff.ScoreL1Command;
-import frc.robot.commands.reefStuff.ScoreL2Command;
-import frc.robot.commands.reefStuff.ScoreL3Command;
+import frc.robot.commands.pcmUtils.JogPCM;
+
 import frc.robot.commands.reefStuff.Algae.PickAlgaeL3Command;
 import frc.robot.commands.reefStuff.L4Coral.ScoreL4Command;
-import frc.robot.commands.reefStuff.L4Coral.ScoreL4CommandAuto;
-import frc.robot.commands.reefStuff.L4Coral.ScoreL4CommandAutoDown;
-import frc.robot.commands.Align.LeftAlign;
-import frc.robot.commands.Align.PIDAlign;
-import frc.robot.commands.Align.PIDFineAlign;
-import frc.robot.commands.Align.ReefPIDAlign;
-import frc.robot.commands.Align.ReefPIDAlignLeft;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.IntakeRoll;
-import frc.robot.subsystems.IntakeFlop;
-import frc.robot.subsystems.Gripper;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.elastic.CameraDisplay;
-import frc.robot.subsystems.elastic.FieldDisplay;
-import frc.robot.subsystems.elastic.MatchTimeSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Limelight;
-import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.Telemetry;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import frc.robot.utils.Constants.OperatorConstants;
+import frc.robot.commands.reefStuff.Algae.AlgaeL2LED;
+import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
+import frc.robot.commands.reefStuff.ScoreL2Command;
+import frc.robot.commands.reefStuff.ScoreL3Command;
+import frc.robot.commands.reefStuff.L4Coral.L4LED;
 import frc.robot.commands.reefStuff.NoCoralLED;
 import frc.robot.commands.reefStuff.L1LED;
 import frc.robot.commands.reefStuff.L2LED;
 import frc.robot.commands.reefStuff.L3LED;
-import frc.robot.commands.reefStuff.L4Coral.L4LED;
-import frc.robot.commands.reefStuff.Algae.AlgaeL2LED;
-import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
+
+import frc.robot.generated.TunerConstants;
+
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IntakeRoll;
+import frc.robot.subsystems.IntakeFlop;
+import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Led;
+
+import frc.robot.utils.SendableChooserUtil;
+import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.Telemetry;
+
 
 
 public class RobotContainer {
-
-    private double currentSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);   
-    private double quarterSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/4; 
-    private double TopSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);               // kSpeedAt12Volts desired top speed
-    private double CurrentAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
-    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
-    private double HalfAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)/4; // 3/4 of a rotation per second max angular velocity
-                                                                                    // max angular velocity
-    //private final DigitalInput intakeBeam = new DigitalInput(9);
-    
-
-    private SendableChooser<Command> autoChooser;
-
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(currentSpeed * 0.0).withRotationalDeadband(CurrentAngularRate * 0.0) // Add a 10% deadband        0.05
-            .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors              RequestType.Velocity
-    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-    // The robot's subsystems and commands are defined here...
-
-    private final Telemetry logger = new Telemetry(currentSpeed);
-
-
+    /* Controllers */
     public static final CommandXboxController driverController = new CommandXboxController(0);
     public static final CommandXboxController operatorController = new CommandXboxController(1);
-  
 
+
+    /* Drive */
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    
+    private final int speedFactor = 4;
 
-    private Command queuedCommand = new InstantCommand();
+    private double topDriveSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);  
+    private double slowDriveSpeed = topDriveSpeed/speedFactor; 
+    private double currentSpeed = topDriveSpeed;   
+    
+    private double topAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
+    private double slowAngularRate = topAngularRate/speedFactor;
+    private double currentAngularRate = topAngularRate;
+    
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+        .withDriveRequestType(DriveRequestType.Velocity);
 
+    private final Telemetry logger = new Telemetry(currentSpeed);
+    
 
-    // /* Path follower */
+    /* Subsystems */
     public final Arm arm = new Arm();
-    public final Elevator elevator = new Elevator();
+    public final Gripper gripper = new Gripper();
     public final Climber climber = new Climber();
+    public final Elevator elevator = new Elevator();
     public final IntakeRoll intakeRoll = new IntakeRoll();
     public final IntakeFlop intakeFlop = new IntakeFlop();
-    private final Led led = new Led(intakeFlop.coralTrigger);
-    public static InstantCommand instantCommand = new InstantCommand();
-    private boolean climbed = false;
+    public final Led led = new Led(intakeFlop.coralTrigger);
+    public final Pigeon2 pidgey = new Pigeon2(0, "CANivore");
 
-    ///* LED */ 
-    private final L4LED lvl4command = new L4LED(led);
-    private final L3LED lvl3command = new L3LED(led);
-    private final L2LED lvl2command = new L2LED(led);
-    private final L1LED lvl1command = new L1LED(led);
-    private final AlgaeL3LED l3algaecommand = new AlgaeL3LED (led);
-    private final AlgaeL2LED  l2algaecommand = new AlgaeL2LED (led);
-    private final NoCoralLED nocoralcommand = new NoCoralLED(led);
-
-    public final MatchTimeSubsystem matchTime = new MatchTimeSubsystem();
-
-    private double targetPosition = 0.0;
-    private final Pigeon2 pidgey = new Pigeon2(0, "CANivore"); // Pigeon is on roboRIO CAN Bus with device ID 0
-    private final String limeLightName = "limelight-intake";
-    private Field2d m_field = new Field2d();
-    private static double REEF_SIDE = 0.813;
-
-   private enum Queue {
-    L4,
-    L3,
-    L2
-}
-//Variable to track current mode
-    private Queue queued = Queue.L4;
-
-    public final Limelight seaweed = new Limelight("limelight-april");
-    private final Trigger elevatorAboveIntake = new Trigger(() -> elevator.getPosition() > 250);
-    public final Gripper gripper = new Gripper();
-    public SendableChooser<Integer> ID = new SendableChooser<>();
-    public boolean isRight = true;
-
-    private final Trigger confirmTrigger= driverController.rightTrigger();// 
-    private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
-    private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
-    private final Trigger intakeGroundTrigger = driverController.leftBumper();//Gound intake 
+    private final String fineLimelightName = "limelight";
+    private final String mainLimelightName = "limelight-intake";
+    public final Limelight mainLimelight = new Limelight(mainLimelightName);
+    public final Limelight fineLimelight = new Limelight(fineLimelightName);
+    
+    
+    /* Triggers */
+    @SuppressWarnings("unused")
+    private final Trigger scoreL1Trigger = operatorController.x();//L2 coral score
+    @SuppressWarnings("unused")
+    private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
+    private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
+    private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
     private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
+    private final Trigger interupTrigger = operatorController.povRight();
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
-    private final Trigger alignRightTrigger = driverController.povRight();//Fine align right
-    private final Trigger alignLeftTrigger = driverController.povLeft();//Fine align left
-    private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
+    private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
     private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
     private final Trigger scoreL2Trigger = operatorController.a();//L2 coral score
-    private final Trigger scoreL1Trigger = operatorController.x();//L2 coral score
+    
+    private final Trigger intakeGroundTrigger = driverController.leftBumper();//Gound intake 
+    private final Trigger halfSpeedTrigger = driverController.rightBumper();// half speed
+    private final Trigger confirmTrigger= driverController.rightTrigger();// 
+    private final Trigger alignRightTrigger = driverController.povRight();//Fine align right
+    private final Trigger alignLeftTrigger = driverController.povLeft();//Fine align left
     private final Trigger humanTrigger = driverController.leftTrigger();//Human intake
-    private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
-    private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
-    private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
-    private final Trigger interupTrigger = operatorController.povRight();
-    private final Trigger climbing = new Trigger(() -> climber.getPosition() > 100);
-    double distanceOffset = 0.25;
-    double coralOffset = 0.27;
-    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-
-    public final FieldDisplay fieldDisplay = new FieldDisplay();
-
-    SendableChooser<Integer> IDCoral = new SendableChooser<>();
-    SendableChooser<Integer> IDReef1 = new SendableChooser<>();
-    SendableChooser<Integer> IDReef2 = new SendableChooser<>();
+    private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
+    
+    /* Auto choosers */
+    SendableChooser<Integer> IDCoral = SendableChooserUtil.createSequentialChooser();
+    SendableChooser<Integer> IDReef1 = SendableChooserUtil.createSequentialChooser();
+    SendableChooser<Integer> IDReef2 = SendableChooserUtil.createSequentialChooser();
 
 
-
-    //public final CameraDisplay camera = new CameraDisplay();
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {  
-        SmartDashboard.putString("Queue:", "None");
-       
-        SmartDashboard.putNumber("Distance Offset", 0.25);
-
- 
-        distanceOffset = SmartDashboard.getNumber("Distance Offset", 0.25);
-
-        boolean jog = false;
-        boolean sysid = false;
-        IDCoral.setDefaultOption("1", 1);
-        IDCoral.addOption("1", 1);
-        IDCoral.addOption("2", 2);
-        IDCoral.addOption("3", 3);
-        IDCoral.addOption("4", 4);
-        IDCoral.addOption("5", 5);
-        IDCoral.addOption("6", 6);
-        IDCoral.addOption("7", 7);
-        IDCoral.addOption("8", 8);
-        IDCoral.addOption("9", 9);
-        IDCoral.addOption("10", 10);
-        IDCoral.addOption("11", 11);
-        IDCoral.addOption("12", 12);
-        IDCoral.addOption("13", 13);
-        IDCoral.addOption("14", 14);
-        IDCoral.addOption("15", 15);
-        IDCoral.addOption("16", 16);
-        IDCoral.addOption("17", 17);
-        IDCoral.addOption("18", 18);
-        IDCoral.addOption("19", 19);
-        IDCoral.addOption("20", 20);
-        IDCoral.addOption("21", 21);
-        IDCoral.addOption("22", 22);
-
-        IDReef1.setDefaultOption("1", 1);
-        IDReef1.addOption("1", 1);
-        IDReef1.addOption("2", 2);
-        IDReef1.addOption("3", 3);
-        IDReef1.addOption("4", 4);
-        IDReef1.addOption("6", 6);
-        IDReef1.addOption("5", 5);
-        IDReef1.addOption("7", 7);
-        IDReef1.addOption("8", 8);
-        IDReef1.addOption("9", 9);
-        IDReef1.addOption("10", 10);
-        IDReef1.addOption("11", 11);
-        IDReef1.addOption("12", 12);
-        IDReef1.addOption("13", 13);
-        IDReef1.addOption("14", 14);
-        IDReef1.addOption("15", 15);
-        IDReef1.addOption("16", 16);
-        IDReef1.addOption("17", 17);
-        IDReef1.addOption("18", 18);
-        IDReef1.addOption("19", 19);
-        IDReef1.addOption("20", 20);
-        IDReef1.addOption("21", 21);
-        IDReef1.addOption("22", 22);
-
-        IDReef2.setDefaultOption("1", 1);
-        IDReef2.addOption("1", 1);
-        IDReef2.addOption("2", 2);
-        IDReef2.addOption("3", 3);
-        IDReef2.addOption("4", 4);
-        IDReef2.addOption("6", 6);
-        IDReef2.addOption("5", 5);
-        IDReef2.addOption("7", 7);
-        IDReef2.addOption("8", 8);
-        IDReef2.addOption("9", 9);
-        IDReef2.addOption("10", 10);
-        IDReef2.addOption("11", 11);
-        IDReef2.addOption("12", 12);
-        IDReef2.addOption("13", 13);
-        IDReef2.addOption("14", 14);
-        IDReef2.addOption("15", 15);
-        IDReef2.addOption("16", 16);
-        IDReef2.addOption("17", 17);
-        IDReef2.addOption("18", 18);
-        IDReef2.addOption("19", 19);
-        IDReef2.addOption("20", 20);
-        IDReef2.addOption("21", 21);
-        IDReef2.addOption("22", 22);
+        SmartDashboard.putString("Queue:", "None");        
         SmartDashboard.putData("ID Coral Station", IDCoral);
         SmartDashboard.putData("ID Second Reef", IDReef1);
         SmartDashboard.putData("ID Third Reef", IDReef2);
         
-        if (jog == true){
+        boolean jog = false;
+        boolean sysid = false;
+
+        if (sysid){
+            configureSysidBindings();
+            
+        } else if (jog) {
             configureJogBindings();
-        } else if (sysid == true) {
-          configureSysidBindings();  
+            
         } else {
+            configureDefaultCommands();
             configureBindings();    
         }
 
         configureDrivetrainBindings();
-        //autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
-        //SmartDashboard.putData("Auto Mode", autoChooser);
-
-        //drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName));
-
     }
-
-    private void configureSysidBindings() {
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
+    
+    /**
+     * You will have to go into CommandSwerveDrivetrain and 
+     * change m_sysIdRoutineToApply to the three different methods
+     * 1. m_sysIdRoutineSteer
+     * 2. m_sysIdRoutineTranslation
+     * 3. m_sysIdRoutineRotation
+     *  
+     * Run the following bindings in order!
+     * Each should be run exactly once in a single log!
+     */
+    private void configureSysidBindings() {        
         // first
         operatorController.start().and(operatorController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         // second
@@ -329,66 +205,77 @@ public class RobotContainer {
         operatorController.back().and(operatorController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         // fourth
         operatorController.back().and(operatorController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-
+        
     }
-
+    
     private void configureJogBindings() {
-
         operatorController.a().and(operatorController.povUp()).onTrue(new JogPCM(arm, 15));
         operatorController.a().and(operatorController.povDown()).onTrue(new JogPCM(arm, -15));
-
+        
         operatorController.x().and(operatorController.povUp()).onTrue(new JogPCM(climber, 1));
         operatorController.x().and(operatorController.povDown()).onTrue(new JogPCM(climber, -1));
-
+        
         operatorController.y().and(operatorController.povUp()).onTrue(new JogPCM(elevator, 1));
         operatorController.y().and(operatorController.povDown()).onTrue(new JogPCM(elevator, -1));
-
+        
         operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
         operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
     }
-
-    private void configureBindings() {
-        // intakeFlop.setDefaultCommand(new RetractIntakeCommand(intakeFlop, intakeRoll));
+    
+    private void configureDefaultCommands() {
         elevator.setDefaultCommand(new MovePCM(elevator, 8.5));
-        arm.setDefaultCommand(new MovePCM(arm, 0));
         gripper.setDefaultCommand(new SlowGripCommand(gripper));
-
+        arm.setDefaultCommand(new MovePCM(arm, 0));
+        led.setDefaultCommand(new NoCoralLED(led));
+        intakeRoll.setDefaultCommand(new SlowIntakeRollCommand(intakeRoll));
+    }
+    
+    private void configureBindings() {
         interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
         
-        climbing.toggleOnTrue(
-            new moveElevator(elevator)
-        );
+        confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
+        
+        humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
+        
+        alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
+        alignRightTrigger.whileTrue(new RightAlign(drivetrain));
+        
+        coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
+        
+        resetYawTrigger.onTrue(new ResetGyro(drivetrain, mainLimelight, pidgey));
+        resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
+        
+        driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
+        
+        gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
+        
+        climber.climbing.toggleOnTrue(new moveElevator(elevator));
+        deployClimberTrigger
+            .whileTrue(new DeployClimberCommand(climber))
+            .whileFalse(new RetractClimberCommand(climber)); 
       
         halfSpeedTrigger
-            .whileTrue(Commands.runOnce(()-> currentSpeed = quarterSpeed))
-            .whileFalse(Commands.runOnce(()-> currentSpeed =TopSpeed))
-            .whileTrue(Commands.runOnce(()-> CurrentAngularRate = HalfAngularRate))
-            .whileFalse(Commands.runOnce(()-> CurrentAngularRate = MaxAngularRate));
+            .whileTrue(Commands.runOnce(()-> {
+                currentSpeed = slowDriveSpeed;
+                currentAngularRate = slowAngularRate;
+            }))
+            .whileFalse(Commands.runOnce(()-> {
+                currentSpeed =topDriveSpeed;
+                currentAngularRate = topAngularRate;
+            }));
             
         intakeGroundTrigger
             .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
-        intakeFlop.coralTrigger.debounce(0.1).onTrue(
-            new SequentialCommandGroup(
-                new PrintCommand("~~~~~ Coral Triggered ~~~~~"),
-                new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
-            )
-        );
-        humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
-        alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
-        alignRightTrigger.whileTrue(new RightAlign(drivetrain));
-        // alignRightTrigger.onFalse(
-        //     queuedCommand = new InstantCommand()
-        // );
-        coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
-        resetYawTrigger.onTrue(new ResetGyro(drivetrain, seaweed, pidgey));
-        resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
-        
-        boolean l4queue = false;
-        boolean l3queue = false;
-        boolean l2queue = false;
 
-        driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
+        intakeFlop.coralTrigger
+            .debounce(0.1)
+            .onTrue(
+                new SequentialCommandGroup(
+                    new PrintCommand("~~~~~ Coral Triggered ~~~~~"),
+                    new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
+                )
+            );
 
         scoreL4Trigger.toggleOnTrue(
             new SequentialCommandGroup(
@@ -397,15 +284,20 @@ public class RobotContainer {
             )
         );
 
-       confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
-        //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
-
         scoreL3Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Coral")),
                 new ScoreL3Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
             )
         );
+
+        algaeknockL3Trigger.toggleOnTrue(
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Algae")),
+                new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger)
+            )
+        );
+
         scoreL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Coral")),
@@ -413,89 +305,40 @@ public class RobotContainer {
             )
         );
 
-       confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
-        //scoreL4Trigger.onTrue(new AlignAndScore(new ScoreL4CommandAuto(elevator, arm, gripper), drivetrain, alignRightTrigger, alignLeftTrigger));
         
-
-
         algaeknockL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
                 new frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
             )
         );
-        algaeknockL3Trigger.toggleOnTrue(
-            new ParallelCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L3 Algae")),
-                new PickAlgaeL3Command(elevator, arm, gripper, confirmTrigger)
-            )
-        );
-        deployClimberTrigger
-            .whileTrue(new DeployClimberCommand(climber))
-            .whileFalse(new RetractClimberCommand(climber)); 
-        gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
+        
 
-        operatorController.y().onTrue(lvl4command);
-        operatorController.x().onTrue(lvl3command);
-        operatorController.b().onTrue(lvl2command);
-        operatorController.a().onTrue(lvl1command);
-        
-        // Algae commands on right stick buttons
-        operatorController.povUp().onTrue(l3algaecommand);
-        operatorController.povDown().onTrue(l2algaecommand);
+        operatorController.y().onTrue(new L4LED(led));
+        operatorController.x().onTrue(new L3LED(led));
+        operatorController.b().onTrue(new L2LED(led));
+        operatorController.a().onTrue(new L1LED(led));
+        operatorController.povUp().onTrue(new AlgaeL3LED(led));
+        operatorController.povDown().onTrue(new AlgaeL2LED(led));
         
     }
-    
-    public double smootherJoystick(double x) {
-        x = Math.max(-1.0, Math.min(1.0, x));
-        double absX = Math.abs(x);
-        // SmootherStep: 6|x|^5 - 15|x|^4 + 10|x|^3
-        double smooth = 6 * Math.pow(absX, 5) - 15 * Math.pow(absX, 4) + 10 * Math.pow(absX, 3);
-        return Math.copySign(smooth, x);
-    }
+
     private void configureDrivetrainBindings() {
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> drive
                 .withVelocityX((-driverController.getLeftY()) * currentSpeed) 
                 .withVelocityY((-driverController.getLeftX()) * currentSpeed) 
-                .withRotationalRate(-driverController.getRightX() * CurrentAngularRate)
+                .withRotationalRate(-driverController.getRightX() * currentAngularRate)
         ));
 
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-
-        operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limeLightName))));
+        operatorController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));
+        
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    private double smooth(double value){
-        double absValue = Math.abs(value);
-
-        double a = 6 * Math.pow(absValue, 8.5);
-        double b = 15 * Math.pow(absValue, 6.8);
-        double c = 10 * Math.pow(absValue, 5.1);
-
-        return Math.copySign(a - b + c, value);
-    }
-
-    private void configureDefaultCommands() {
-        led.setDefaultCommand(nocoralcommand);
-        
-      }
-
-    public void robotInit() {
-        for (int port = 5800; port <= 5810; port++) {
-            PortForwarder.add(port, "limelight-april.local", port);
-        }
-
-    }
-
     public Command getAutonomousCommand() {
-        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());
-        //return autoChooser.getSelected();
-        //return new PracticeCoralAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
-        //return new PracticeHumanAuto(drivetrain, elevator, arm, gripper, distanceOffset, 0, 0, 0);
-    
+        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());    
     }
         
     

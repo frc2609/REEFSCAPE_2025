@@ -8,10 +8,11 @@
  * 2. If we need the ResetGyro command, lets not use a limelight that does not exist also... 
  *    - WHY IS IT DOING PID?!
  *    - WHY ARE THERE TWO OF THESE CLASSES?!
- * 3. Rebind or remove line 250
+ * 3. Rebind or remove line 251
  * 4. Do a ctrl-shift-f for 'limelight-april' 
  *    - WHO IS APRIL AND WHY ARE WE USING THEIR LIMELIGHT?!
- * 5. Why is the reset yaw calling reset gyro on line 247?
+ * 5. Why is the reset yaw calling reset gyro on line 248?
+ * 6. Test General3Auto and read the comments
  */
 
 package frc.robot;

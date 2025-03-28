@@ -11,6 +11,7 @@ import frc.robot.utils.PositionControlledMotor;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class Climber extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
@@ -28,6 +29,8 @@ public class Climber extends PositionControlledMotor{
     private final static int encoderID = 0;
     private final static double zeroPosition = 0.837;
 
+    
+    public final Trigger climbing = new Trigger(() -> getPosition() > 100);
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
     private static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()

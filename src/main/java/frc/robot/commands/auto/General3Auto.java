@@ -76,4 +76,19 @@ public class General3Auto extends SequentialCommandGroup{
         
         return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
     }
+
+// There seems to be an error in the math on this one. You should be doing the multiplication on the outside of the cos and sin
+/*
+    private Command getPathCommand(int apriltag, double translationOffset, double rotationOffset) {
+        return drivetrain.getPathPlannerCommandToAprilTag(
+            new Pose2d(
+                fieldLayout.getTagPose(apriltag).get().toPose2d().getX() + Math.cos(fieldLayout.getTagPose(apriltag).get().getRotation().getAngle()*translationOffset),
+                fieldLayout.getTagPose(apriltag).get().toPose2d().getY() + Math.sin(fieldLayout.getTagPose(apriltag).get().getRotation().getAngle()*translationOffset),
+                new Rotation2d(
+                    fieldLayout.getTagPose(apriltag).get().toPose2d().getRotation().getRadians() + rotationOffset
+                )
+            )
+        );
+    }
+*/
 }

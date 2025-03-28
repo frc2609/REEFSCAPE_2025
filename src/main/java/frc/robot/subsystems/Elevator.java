@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -12,7 +11,6 @@ import frc.robot.utils.PositionControlledMotor;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
@@ -106,10 +104,10 @@ public class Elevator extends PositionControlledMotor {
 
     @Override
     public void setPosition() {
-        StatusCode stat = motor.setPosition(0);
+        motor.setPosition(0);
         
         if (followerMotor != null) {
-            stat = followerMotor.setPosition(0);
+            followerMotor.setPosition(0);
         }    
     }
 

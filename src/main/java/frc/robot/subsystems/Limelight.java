@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,19 +8,8 @@ import frc.robot.utils.LimelightHelpers;
 
 public class Limelight extends SubsystemBase{
     private String name;
-    private JSONObject map;
-    private JSONArray fiducials;
     public Limelight(String name){
         this.name = name;
-        //   String fileLocation =  String.format("%s%s", Filesystem.getDeployDirectory(), "/frc2025r2.json");
-        // SmartDashboard.putString("print", fileLocation);
-        // try (FileReader reader = new FileReader(fileLocation)) {
-        //     JSONParser jsonParser = new JSONParser();
-        //     map = (JSONObject) jsonParser.parse(reader);
-        // } catch (IOException | ParseException e) {
-        //     e.printStackTrace();
-        // }
-        // fiducials = (JSONArray) map.get(Constants.);
     }
 
     public double get_ty(){
@@ -35,6 +22,7 @@ public class Limelight extends SubsystemBase{
     public boolean get_tv(){
         return LimelightHelpers.getTV(this.name);
     }
+
     public Pose2d get_Pose2d(){
         //SmartDashboard.putString("passs", "it enters here");
         //System.out.print("enters here");
@@ -60,9 +48,9 @@ public class Limelight extends SubsystemBase{
     // }
 
 
-    @Override
-    public void periodic(){
-        // SmartDashboard.putNumber("get yaw", get_yaw());
-    }
+    // @Override
+    // public void periodic(){
+    //     // SmartDashboard.putNumber("get yaw", get_yaw());
+    // }
 
 }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -17,11 +16,6 @@ public class IntakeRoll extends SubsystemBase {
                 new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake)
-            // )
-            // .withCurrentLimits(
-            //     new CurrentLimitsConfigs()
-            //         .withStatorCurrentLimit(15)
-            //         .withSupplyCurrentLimit(15)
             );
 
     public IntakeRoll() {

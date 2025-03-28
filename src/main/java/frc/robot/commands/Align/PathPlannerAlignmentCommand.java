@@ -1,11 +1,8 @@
 package frc.robot.commands.Align;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.utils.LimelightHelpers;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class PathPlannerAlignmentCommand extends Command {
@@ -23,8 +20,6 @@ public class PathPlannerAlignmentCommand extends Command {
     public void initialize(){
         
         //double ID = LimelightHelpers.getFiducialID(limeLightName);
-        double ID = 21;
-        double offset = 1;
         LimelightHelpers.setFiducial3DOffset(limeLightName, 1, 1, 0);
 
         m_Swerve.getPathPlannerCommandToAprilTag(new Pose2d(

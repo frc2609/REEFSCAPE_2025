@@ -12,18 +12,18 @@ public class AlgaeL3LED extends Command {
      * @param AlgaeL3LED The LED subsystem used by this command.
      */
     public AlgaeL3LED(Led AlgaeL3LED) {
-      this.led = AlgaeL3LED;
-      // Use addRequirements() here to declare subsystem dependencies.
-      addRequirements(AlgaeL3LED);
+        this.led = AlgaeL3LED;
+        // Use addRequirements() here to declare subsystem dependencies.
+        addRequirements(AlgaeL3LED);
     }
   
     @Override
     public void execute() {
-      led.l3algae();
-      led.Coral();
+        led.l3algae();
+        led.Coral();
     }
   
     public boolean isFinished() {
-      return false;
+        return false;
     }
 }

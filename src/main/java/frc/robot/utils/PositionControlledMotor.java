@@ -1,6 +1,5 @@
 package frc.robot.utils;
 
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -413,7 +412,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     }
 
     protected void resetPosition() {
-        StatusCode stat = motor.setPosition(0);
+        motor.setPosition(0);
 
         if (followerMotor != null) {
             followerMotor.setPosition(0);
@@ -435,11 +434,10 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         }
     }
     public void setPosition() {
-        StatusCode stat = motor.setPosition(getOffset());
+        motor.setPosition(getOffset());
         
         if (followerMotor != null) {
-            stat = followerMotor.setPosition(getOffset());
-
+            followerMotor.setPosition(getOffset());
         }    
     }
     public void setFudgeFactor(double fudgeFactor){

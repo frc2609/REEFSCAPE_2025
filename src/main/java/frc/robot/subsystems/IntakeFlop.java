@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import java.io.PushbackInputStream;
-
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -77,10 +74,8 @@ public class IntakeFlop extends PositionControlledMotor {
                     .withSupplyCurrentLimit(120)
             );
         
-    private final DigitalInput intakeBeam = new DigitalInput(9);
     private final DigitalSource sourcePWMX = new DigitalInput(8);
     private final DutyCycle dutyPWMX = new DutyCycle(sourcePWMX);
-    private double lidarDistance = ((dutyPWMX.getHighTimeNanoseconds()/1000)-1000)/1.36;
 
     public IntakeFlop() {
         super(
@@ -97,18 +92,15 @@ public class IntakeFlop extends PositionControlledMotor {
     }
 
     public double coralDistance() {
-        boolean beam = !intakeBeam.get();
-        boolean lidar =false;
-
         return ((dutyPWMX.getHighTimeNanoseconds()/1000)-1000)/1.36;
     }
 
     @Override 
     public void setPosition() {
-        StatusCode stat = motor.setPosition(0);
+        motor.setPosition(0);
         
         if (followerMotor != null) {
-            stat = followerMotor.setPosition(0);
+            followerMotor.setPosition(0);
         }    
     }
 

@@ -5,14 +5,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.gripper.GripCommand;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
-import frc.robot.subsystems.Led;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class ScoreL4Command extends SequentialCommandGroup{
 
@@ -28,7 +25,6 @@ public class ScoreL4Command extends SequentialCommandGroup{
                 new WaitUntilCommand(shootTrigger),
                 new ReleaseGripperCommand(gripper),
                 new WaitCommand(0.5)
-
             )
             )
         );

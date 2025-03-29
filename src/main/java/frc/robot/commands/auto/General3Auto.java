@@ -32,7 +32,7 @@ public class General3Auto extends SequentialCommandGroup{
         this.drivetrain = drivetrain;
         addCommands(
             // Start aligning to visible tag
-            new PIDFineAlign(false, drivetrain),
+            new PIDFineAlign(true, drivetrain),
 
             // Try adding a conditional command aound the rest that uses a trigger checking for a tag
             
@@ -54,7 +54,7 @@ public class General3Auto extends SequentialCommandGroup{
             getPathCommand(secondReef, 1, 1, 180),
 
             // Align and score to the visible tag
-            new PIDFineAlign(leftSecond, drivetrain),
+            new PIDFineAlign(false, drivetrain),
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6),
 
@@ -72,7 +72,7 @@ public class General3Auto extends SequentialCommandGroup{
             getPathCommand(thirdReef, 1, 1, 180),
 
             // Align and score to the visible tag
-            new PIDFineAlign(leftThird, drivetrain),
+            new PIDFineAlign(true, drivetrain),
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6)
 

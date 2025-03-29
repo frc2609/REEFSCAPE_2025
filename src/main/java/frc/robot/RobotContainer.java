@@ -347,11 +347,11 @@ public class RobotContainer {
     private void configureDrivetrainBindings() {
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> drive
-                .withVelocityX(-(Math.copySign(Math.pow(driverController.getLeftY(),3),driverController.getLeftY())) * currentSpeed)
+                .withVelocityX(-(Math.copySign(Math.pow(driverController.getLeftY(),2),driverController.getLeftY())) * currentSpeed)
 
-                .withVelocityY(-(Math.copySign(Math.pow(driverController.getLeftX(),3),driverController.getLeftX())) * currentSpeed)
+                .withVelocityY(-(Math.copySign(Math.pow(driverController.getLeftX(),2),driverController.getLeftX())) * currentSpeed)
 
-                .withRotationalRate(-(Math.copySign(Math.pow(driverController.getRightX(),3),driverController.getRightX())) * currentAngularRate)
+                .withRotationalRate(-(Math.copySign(Math.pow(driverController.getRightX(),2),driverController.getRightX())) * currentAngularRate)
         ));
 
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
@@ -364,15 +364,7 @@ public class RobotContainer {
         return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
     }
 
-    private void choosers(SendableChooser<Integer> chooser){
-        for(Integer i = 1; i < 22; i++){
-            chooser.addOption(i.toString(), i);
-        }
-    }
     private void setSmartDashboard(){
-        choosers(IDCoral);
-        choosers(IDReef2); 
-        choosers(IDReef3); 
         SmartDashboard.putString("Queue:", "None");        
         SmartDashboard.putData("ID Coral Station", IDCoral);
         SmartDashboard.putData("ID Second Reef", IDReef2);

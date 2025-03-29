@@ -7,9 +7,11 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ReefPIDAlign;
 import frc.robot.commands.Align.ReefPIDAlignLeft;
 import frc.robot.commands.Intake.HumanIntakeCommandAuto;
@@ -22,38 +24,58 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.utils.LimelightHelpers;
 
 public class General3Auto extends SequentialCommandGroup{
-    SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityX(-1);
+    SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityX(-3);
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     CommandSwerveDrivetrain drivetrain;
-    public General3Auto(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper, double distanceOffset, int coralStation, int secondReef, int thirdReef){
+    private final String limelightName = "limelight-intake";
+    public General3Auto(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper, double distanceOffset, int coralStation, int secondReef, int thirdReef, boolean leftSecond, boolean leftThird) {
         this.drivetrain = drivetrain;
         addCommands(
             // Start aligning to visible tag
-            new ReefPIDAlign(drivetrain),
+            new PIDFineAlign(false, drivetrain),
 
             // Try adding a conditional command aound the rest that uses a trigger checking for a tag
             
             // Attempt to score on the visible tag
+            new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.3),
+            new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6),
+
+            // Drive back to reset pose
+            drivetrain.applyRequest(() -> rocDrive).withTimeout(0.25),
+            new WaitCommand(0.1),
+            resetPoseWithLimelight(limelightName),
+
+            // Path to coralStation and try to get coral
+            getPathCommand(coralStation, 0.5, 0.5, -30),
+            new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(1),
+
+            // Try to add a wait until based on a trigger reading the gripper voltage to detect when a coral is in
+            // Path to the 8 april tag
+            getPathCommand(secondReef, 1, 1, 180),
+
+            // Align and score to the visible tag
+            new PIDFineAlign(leftSecond, drivetrain),
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6),
 
             // Drive back to reset pose
-            drivetrain.applyRequest(() -> rocDrive).withTimeout(1),
+            drivetrain.applyRequest(() -> rocDrive).withTimeout(0.25),
             new WaitCommand(0.1),
-            resetPoseWithLimelight("limelight-intake"),
+            resetPoseWithLimelight(limelightName),
 
             // Path to coralStation and try to get coral
             getPathCommand(coralStation, 0.5, 0.5, -30),
-            new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(2),
+            new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(1),
 
             // Try to add a wait until based on a trigger reading the gripper voltage to detect when a coral is in
             // Path to the 8 april tag
-            getPathCommand(8, 1, 1, 180),
+            getPathCommand(thirdReef, 1, 1, 180),
 
             // Align and score to the visible tag
-            new ReefPIDAlignLeft(drivetrain),
+            new PIDFineAlign(leftThird, drivetrain),
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.8),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6)
+
         );
     }
 

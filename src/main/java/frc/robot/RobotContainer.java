@@ -160,18 +160,15 @@ public class RobotContainer {
     
     /* Auto choosers */
     SendableChooser<Integer> IDCoral = SendableChooserUtil.createSequentialChooser();
-    SendableChooser<Integer> IDReef1 = SendableChooserUtil.createSequentialChooser();
     SendableChooser<Integer> IDReef2 = SendableChooserUtil.createSequentialChooser();
+    SendableChooser<Integer> IDReef3 = SendableChooserUtil.createSequentialChooser();
 
 
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {  
-        SmartDashboard.putString("Queue:", "None");        
-        SmartDashboard.putData("ID Coral Station", IDCoral);
-        SmartDashboard.putData("ID Second Reef", IDReef1);
-        SmartDashboard.putData("ID Third Reef", IDReef2);
+    public RobotContainer() { 
+        setSmartDashboard();
         
         boolean jog = false;
         boolean sysid = false;
@@ -344,7 +341,24 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef1.getSelected(), IDReef2.getSelected());    
+        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
+    }
+
+    private void choosers(SendableChooser<Integer> chooser){
+        for(Integer i = 1; i < 22; i++){
+            chooser.addOption(i.toString(), i);
+        }
+    }
+    private void setSmartDashboard(){
+        choosers(IDCoral);
+        choosers(IDReef2); 
+        choosers(IDReef3); 
+        SmartDashboard.putString("Queue:", "None");        
+        SmartDashboard.putData("ID Coral Station", IDCoral);
+        SmartDashboard.putData("ID Second Reef", IDReef2);
+        SmartDashboard.putData("ID Third Reef", IDReef3);
+        SmartDashboard.putBoolean("left second", false);
+        SmartDashboard.putBoolean("left third", false);
     }
         
     

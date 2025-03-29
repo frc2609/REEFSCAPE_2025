@@ -63,6 +63,7 @@ import frc.robot.commands.pcmUtils.MovePCM;
 import frc.robot.commands.pcmUtils.JogPCM;
 
 import frc.robot.commands.reefStuff.Algae.PickAlgaeL3Command;
+import frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command;
 import frc.robot.commands.reefStuff.L4Coral.ScoreL4Command;
 import frc.robot.commands.reefStuff.Algae.AlgaeL2LED;
 import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
@@ -310,7 +311,7 @@ public class RobotContainer {
         algaeknockL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
-                new frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
+                new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
             )
         );
         

@@ -14,9 +14,10 @@ import frc.robot.subsystems.Gripper;
 public class PickAlgaeL3Command extends SequentialCommandGroup{
     public PickAlgaeL3Command(Elevator elevator, Arm arm, Gripper gripper, Trigger confirmTrigger) {
         addCommands(
+
+            new MovePCM(elevator, 23),
             new WaitUntilCommand(confirmTrigger),
             new ParallelCommandGroup(
-            new MovePCM(elevator, 23),
             new GripCommand(gripper),
             new MovePCM(arm, 60)
             ),

@@ -21,6 +21,7 @@ public class Led extends SubsystemBase {
     int coral_in = not_in_position; // led hue
     private static final int LENGTH = 73;
     final int segment_size = (LENGTH / 5);
+    double error = 0.0;
 
     public Led(Trigger coralTrigger) {
         // Init variables here
@@ -188,6 +189,25 @@ public class Led extends SubsystemBase {
         m_ledBuffer.setRGB(sep2, 0, 0, 0);
         m_ledBuffer.setRGB(sep3, 0, 0, 0);
         m_ledBuffer.setRGB(sep4, 0, 0, 0);
+
+        m_led.setData(m_ledBuffer);
+    }
+
+    public void track_PID() {
+        error = SmartDashboard.getNumber("error", 0);
+
+        for (var j = 0; j < LENGTH; j++) {
+            m_ledBuffer.setRGB(j, 0, 0, 0);
+        }
+        double pos = Math.abs(error) * 250.0;
+        int pos2 = (int)pos;
+
+        if (pos2 >70) { pos2 = 70;}
+        int pos3 = 70-pos2;
+
+        m_ledBuffer.setRGB(pos3+2, 0, 255, 0);
+        m_ledBuffer.setRGB(pos3+1, 0, 255, 0);
+        m_ledBuffer.setRGB(pos3, 0, 255, 0);
 
         m_led.setData(m_ledBuffer);
     }

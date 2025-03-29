@@ -47,15 +47,29 @@ public class Robot extends TimedRobot {
         double[] leftPositions = LimelightHelpers.getBotPose_TargetSpace("limelight-intake");
         
         if (rightPositions.length > 4) {
+            SmartDashboard.putNumber("Right X val error", rightPositions[2] - (-0.10));
+            SmartDashboard.putNumber("Right Y val error", rightPositions[0] - (-0.12));
             SmartDashboard.putNumber("Right X val", rightPositions[2]);
             SmartDashboard.putNumber("Right Y val", rightPositions[0]);
             SmartDashboard.putNumber("Right rot val", rightPositions[4]);
+            if(rightPositions[2] != 0){
+                SmartDashboard.putBoolean("right sees", true);
+            }else{
+                SmartDashboard.putBoolean("right sees", false);
+            }
         }
 
         if (leftPositions.length > 4) {
+            SmartDashboard.putNumber("Left X val error", leftPositions[2] - (-0.26));
+            SmartDashboard.putNumber("Left Y val error", leftPositions[0] - (-0.47));
             SmartDashboard.putNumber("Left X val", leftPositions[2]);
             SmartDashboard.putNumber("Left Y val", leftPositions[0]);
             SmartDashboard.putNumber("Left rot val", leftPositions[4]);
+            if(leftPositions[2] != 0){
+                SmartDashboard.putBoolean("left sees", true);
+            }else{
+                SmartDashboard.putBoolean("left sees", false);
+            }
         }
     }
 

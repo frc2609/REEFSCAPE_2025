@@ -72,6 +72,7 @@ import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
 import frc.robot.commands.reefStuff.ScoreL2Command;
 import frc.robot.commands.reefStuff.ScoreL3Command;
 import frc.robot.commands.reefStuff.L4Coral.L4LED;
+import frc.robot.commands.reefStuff.L4Coral.LED_track;
 import frc.robot.commands.reefStuff.NoCoralLED;
 import frc.robot.commands.reefStuff.L1LED;
 import frc.robot.commands.reefStuff.L2LED;
@@ -145,7 +146,7 @@ public class RobotContainer {
     private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
     private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
-    private final Trigger interupTrigger = operatorController.back();
+    //private final Trigger interupTrigger = operatorController.back();
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
     private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
@@ -237,7 +238,7 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
-        interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
+        //interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
         
         confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         
@@ -333,12 +334,13 @@ public class RobotContainer {
         );
         
 
-        operatorController.y().onTrue(new L4LED(led));
-        operatorController.x().onTrue(new L3LED(led));
-        operatorController.b().onTrue(new L2LED(led));
-        operatorController.a().onTrue(new L1LED(led));
-        operatorController.povUp().onTrue(new AlgaeL3LED(led));
-        operatorController.povDown().onTrue(new AlgaeL2LED(led));
+        scoreL4Trigger.onTrue(new L4LED(led));
+        scoreL3Trigger.onTrue(new L3LED(led));
+        scoreL2Trigger.onTrue(new L2LED(led));
+        algaeknockL3Trigger.onTrue(new AlgaeL3LED(led));
+        algaeknockL2Trigger.onTrue(new AlgaeL2LED(led));
+        alignLeftTrigger.whileTrue(new LED_track(led));
+        alignRightTrigger.whileTrue(new LED_track(led));
         
     }
 

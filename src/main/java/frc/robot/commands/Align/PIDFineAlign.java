@@ -19,10 +19,11 @@ public class PIDFineAlign extends Command {
     private SwerveRequest.RobotCentric m_drive = new SwerveRequest.RobotCentric();
     public static Trigger aligned = new Trigger(() -> stopTimer.hasElapsed(0.3) && tagID != -1);
     private String limelightName = "limelight-intake";
+    SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityY(-1);
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
-      xController = new PIDController(2.0, 0.75, 0.0000);  // Vertical movement
-      yController = new PIDController(2.0, 0.75, 0.0000);  // Horitontal movement
+      xController = new PIDController(3, 0.75, 0.0000);  // Vertical movement
+      yController = new PIDController(3, 0.75, 0.0000);  // Horitontal movement
       rotController = new PIDController(0.1, 0.0001, 0.00);  // Rotation
 
       xController.setIZone(0.3);
@@ -42,16 +43,20 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Xsetpoint = -0.29;
-      double Ysetpoint = -0.51;
-      double rotSetPoint = 1.4;
+      double Xsetpoint = -0.26;
+      double Ysetpoint = -0.58;
+      double rotSetPoint = 4.9
+      ;
 
       // Right set points
       if (isLeftScore == false){
         limelightName = "limelight";
-        Xsetpoint = -0.11;
-        Ysetpoint = -0.14;
-        rotSetPoint = 2.12;
+        Xsetpoint = -0.10;
+        Ysetpoint = -0.12;
+        rotSetPoint = 0;
+      }
+      if(isLeftScore && LimelightHelpers.getFiducialID(limelightName) == -1){
+        drivebase.applyRequest(() -> rocDrive);
       }
       
       xController.setSetpoint(Xsetpoint);
@@ -74,12 +79,22 @@ public class PIDFineAlign extends Command {
   
         double[] postions = LimelightHelpers.getBotPose_TargetSpace(limelightName);
         
-        //if (xController.getError() < 0.5) { xController.setP(2.0);} else {xController.setP(4.0);}
-        //if (yController.getError() < 0.5) { yController.setP(2.0);} else {yController.setP(4.0);}
+        if (xController.getError() < 0.5) { 
+          xController.setP(2.0);
+        } else {
+          xController.setP(4.0);
+        }
+
+        if (yController.getError() < 0.5) { 
+          yController.setP(2.0);
+        } else {
+          yController.setP(4.0);
+        }
 
         double xSpeed = xController.calculate(postions[2]);
         double ySpeed = -yController.calculate(postions[0]);
         double rotValue = -rotController.calculate(postions[4]);
+        SmartDashboard.putNumber("error", yController.getError());
 
         // drive!
         drivebase.setControl(m_drive

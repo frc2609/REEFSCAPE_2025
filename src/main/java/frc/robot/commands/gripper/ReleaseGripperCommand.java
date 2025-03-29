@@ -16,7 +16,7 @@ public class ReleaseGripperCommand extends Command {
         System.out.println("ungripping");
         SmartDashboard.putString("is Ungripping", "ungripping");
         SmartDashboard.putString("state", "ungripping");
-        gripper.setSpeed(-0.75);
+        gripper.setSpeed(-0.85);
     }
 
     @Override

@@ -18,6 +18,7 @@ public class PIDFineAlign extends Command {
     private static  double tagID = -1;
     private SwerveRequest.RobotCentric m_drive = new SwerveRequest.RobotCentric();
     public static Trigger aligned = new Trigger(() -> stopTimer.hasElapsed(0.3) && tagID != -1);
+    private String limelightName = "limelight-intake";
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
       xController = new PIDController(2.0, 0.75, 0.0000);  // Vertical movement
@@ -41,15 +42,16 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Xsetpoint = -0.1;
-      double Ysetpoint = -0.365;
-      double rotSetPoint = 0.0;
+      double Xsetpoint = -0.29;
+      double Ysetpoint = -0.51;
+      double rotSetPoint = 1.4;
 
       // Right set points
       if (isLeftScore == false){
-        Xsetpoint = -0.1;
-        Ysetpoint = -0.025;
-        rotSetPoint = 0.0;
+        limelightName = "limelight";
+        Xsetpoint = -0.11;
+        Ysetpoint = -0.14;
+        rotSetPoint = 2.12;
       }
       
       xController.setSetpoint(Xsetpoint);
@@ -61,16 +63,16 @@ public class PIDFineAlign extends Command {
       rotController.setSetpoint(rotSetPoint);
       rotController.setTolerance(1.0);
   
-      tagID = LimelightHelpers.getFiducialID("limelight");
+      tagID = LimelightHelpers.getFiducialID(limelightName);
     }
 
     @Override
     public void execute() {
       System.out.println("fine aligning");
-      if (LimelightHelpers.getTV("limelight") && LimelightHelpers.getFiducialID("limelight") == tagID) {
+      if (LimelightHelpers.getTV(limelightName) && LimelightHelpers.getFiducialID(limelightName) == tagID) {
         PIDFineAlign.dontSeeTagTimer.reset();
   
-        double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
+        double[] postions = LimelightHelpers.getBotPose_TargetSpace(limelightName);
         
         //if (xController.getError() < 0.5) { xController.setP(2.0);} else {xController.setP(4.0);}
         //if (yController.getError() < 0.5) { yController.setP(2.0);} else {yController.setP(4.0);}

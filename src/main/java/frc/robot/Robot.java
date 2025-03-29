@@ -43,12 +43,19 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight");
+        double[] rightPositions = LimelightHelpers.getBotPose_TargetSpace("limelight");
+        double[] leftPositions = LimelightHelpers.getBotPose_TargetSpace("limelight-intake");
         
-        if (postions.length > 4) {
-            SmartDashboard.putNumber("Fine X val", postions[2]);
-            SmartDashboard.putNumber("Fine Y val", postions[0]);
-            SmartDashboard.putNumber("Fine rot val", postions[4]);
+        if (rightPositions.length > 4) {
+            SmartDashboard.putNumber("Right X val", rightPositions[2]);
+            SmartDashboard.putNumber("Right Y val", rightPositions[0]);
+            SmartDashboard.putNumber("Right rot val", rightPositions[4]);
+        }
+
+        if (leftPositions.length > 4) {
+            SmartDashboard.putNumber("Left X val", leftPositions[2]);
+            SmartDashboard.putNumber("Left Y val", leftPositions[0]);
+            SmartDashboard.putNumber("Left rot val", leftPositions[4]);
         }
     }
 

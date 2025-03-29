@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.commands.Align.RightAlign;
 import frc.robot.commands.Align.LeftAlign;
+import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ResetGyro;
 
 import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
@@ -240,8 +241,8 @@ public class RobotContainer {
         
         humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
         
-        alignLeftTrigger.whileTrue(new LeftAlign(drivetrain));
-        alignRightTrigger.whileTrue(new RightAlign(drivetrain));
+        alignLeftTrigger.whileTrue(new PIDFineAlign(true, drivetrain));
+        alignRightTrigger.whileTrue(new PIDFineAlign(false, drivetrain));
         
         coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
         

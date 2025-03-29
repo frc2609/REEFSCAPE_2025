@@ -65,6 +65,8 @@ import frc.robot.commands.pcmUtils.JogPCM;
 import frc.robot.commands.reefStuff.Algae.PickAlgaeL3Command;
 import frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command;
 import frc.robot.commands.reefStuff.L4Coral.ScoreL4Command;
+import frc.robot.commands.reefStuff.L4Coral.ScoreL4KnockAlgaeL2Command;
+import frc.robot.commands.reefStuff.L4Coral.ScoreL4KnockAlgaeL3Command;
 import frc.robot.commands.reefStuff.Algae.AlgaeL2LED;
 import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
 import frc.robot.commands.reefStuff.ScoreL2Command;
@@ -143,10 +145,12 @@ public class RobotContainer {
     private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
     private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
-    private final Trigger interupTrigger = operatorController.povRight();
+    private final Trigger interupTrigger = operatorController.back();
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
     private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
+    private final Trigger scoreL4TriggerL3Algae = operatorController.povLeft();//L4 coral Score
+    private final Trigger scoreL4TriggerL2Algae = operatorController.povRight();//L4 coral Score
     private final Trigger scoreL3Trigger = operatorController.b();//l3 coral score
     private final Trigger scoreL2Trigger = operatorController.a();//L2 coral score
     
@@ -312,6 +316,19 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L2 Algae")),
                 new PickAlgaeL2Command(elevator, arm, gripper, confirmTrigger)
+            )
+        );
+
+        scoreL4TriggerL2Algae.toggleOnTrue(          
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 coral, L2 Algae")),
+                new ScoreL4KnockAlgaeL2Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
+            )
+        );
+        scoreL4TriggerL3Algae.toggleOnTrue(          
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 coral, L3 Algae")),
+                new ScoreL4KnockAlgaeL3Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
             )
         );
         

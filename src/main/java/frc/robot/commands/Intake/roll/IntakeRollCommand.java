@@ -14,4 +14,9 @@ public class IntakeRollCommand extends Command {
     public void execute() {
         roll.setSpeed(0.5);
     }
+
+    @Override
+    public boolean isFinished(){
+        return false;
+    }
 }

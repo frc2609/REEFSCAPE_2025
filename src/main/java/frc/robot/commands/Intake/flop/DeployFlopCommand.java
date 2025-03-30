@@ -13,11 +13,9 @@ public class DeployFlopCommand extends SequentialCommandGroup {
 
     public DeployFlopCommand(IntakeFlop intakeFlop) {
         addCommands(
-            new InstantCommand(() -> intakeFlop.enablePositionControl()),
             new MovePCM(intakeFlop,target),
             new WaitUntilCommand(intakeFlop.deployedTrigger),
-            new InstantCommand(() -> intakeFlop.disablePositionControl()),
-            new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Coast))
+            new InstantCommand(() -> intakeFlop.setNeutralMode(NeutralModeValue.Coast))//,
         );
     }
 }

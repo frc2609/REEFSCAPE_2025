@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -43,6 +44,8 @@ import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ResetGyro;
 
 import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
+import frc.robot.commands.Intake.roll.IntakeRollCommand;
+import frc.robot.commands.Intake.flop.DeployFlopCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
@@ -52,6 +55,7 @@ import frc.robot.commands.Intake.CoralHandOff;
 import frc.robot.commands.auto.General3Auto;
 
 import frc.robot.commands.climber.RetractClimberCommand;
+import frc.robot.commands.climber.StopClimberCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
 
 import frc.robot.commands.elevator.moveElevator;
@@ -140,7 +144,6 @@ public class RobotContainer {
     /* Triggers */
     @SuppressWarnings("unused")
     private final Trigger scoreL1Trigger = operatorController.x();//L2 coral score
-    @SuppressWarnings("unused")
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
@@ -256,10 +259,24 @@ public class RobotContainer {
         
         gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
         
-        climber.climbing.toggleOnTrue(new moveElevator(elevator));
+        climber.climbing.whileTrue(new moveElevator(elevator));
         deployClimberTrigger
-            .whileTrue(new DeployClimberCommand(climber))
-            .whileFalse(new RetractClimberCommand(climber)); 
+            .whileTrue(
+                new SequentialCommandGroup(
+                    climber.runOnce(() -> climber.enablePositionControl()),
+                    new DeployClimberCommand(climber)
+                )
+            )
+            .onFalse(new StopClimberCommand(climber)); 
+
+        retractClimberTrigger
+            .whileTrue(
+                new SequentialCommandGroup(
+                    climber.runOnce(() -> climber.enablePositionControl()),
+                    new RetractClimberCommand(climber)
+                )
+            )
+            .onFalse(new StopClimberCommand(climber));
       
         halfSpeedTrigger
             .whileTrue(Commands.runOnce(()-> {
@@ -271,8 +288,9 @@ public class RobotContainer {
                 currentAngularRate = topAngularRate;
             }));
             
-        intakeGroundTrigger
-            .whileTrue(new DeployIntakeCommand(intakeFlop, intakeRoll))
+        intakeGroundTrigger.debounce(0.1)
+            .whileTrue(new DeployFlopCommand(intakeFlop))
+            .whileTrue(new IntakeRollCommand(intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
 
         intakeFlop.coralTrigger
@@ -280,9 +298,17 @@ public class RobotContainer {
             .onTrue(
                 new SequentialCommandGroup(
                     new PrintCommand("~~~~~ Coral Triggered ~~~~~"),
-                    new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
+                    // new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
+                    new RetractIntakeCommand(intakeFlop, intakeRoll)
+                ).andThen(
+                    new WaitUntilCommand(intakeFlop.retractedTrigger),
+                    new CoralHandOff(elevator, arm, gripper)
                 )
-            );
+            )
+            // .and(intakeFlop.retractedTrigger
+            //     .debounce(0.1)
+            //     .onTrue(new CoralHandOff(elevator, arm, gripper)))
+                ;
 
         scoreL4Trigger.toggleOnTrue(
             new SequentialCommandGroup(

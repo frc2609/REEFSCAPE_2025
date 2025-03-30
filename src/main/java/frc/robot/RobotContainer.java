@@ -25,26 +25,17 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import frc.robot.commands.Align.RightAlign;
-import frc.robot.commands.Align.LeftAlign;
+import frc.robot.commands.GoToAprilTagCommand;
 import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ResetGyro;
 
@@ -52,13 +43,10 @@ import frc.robot.commands.Intake.roll.SlowIntakeRollCommand;
 import frc.robot.commands.Intake.roll.IntakeRollCommand;
 import frc.robot.commands.Intake.flop.DeployFlopCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
-import frc.robot.commands.Intake.DeployIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
-import frc.robot.commands.Intake.RetractAndHandOff;
 import frc.robot.commands.Intake.CoralHandOff;
 
-import frc.robot.commands.auto.General3Auto;
-
+import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.climber.StopClimberCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
@@ -83,7 +71,6 @@ import frc.robot.commands.reefStuff.ScoreL3Command;
 import frc.robot.commands.reefStuff.L4Coral.L4LED;
 import frc.robot.commands.reefStuff.L4Coral.LED_track;
 import frc.robot.commands.reefStuff.NoCoralLED;
-import frc.robot.commands.reefStuff.L1LED;
 import frc.robot.commands.reefStuff.L2LED;
 import frc.robot.commands.reefStuff.L3LED;
 
@@ -179,7 +166,6 @@ public class RobotContainer {
 
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    private double distanceOffsetSmart = 0.25;//SmartDashboard.putNumber("distance offset tele", 0.25);
 
 
 
@@ -188,8 +174,6 @@ public class RobotContainer {
      */
     public RobotContainer() { 
         setSmartDashboard();
-        SmartDashboard.putNumber("distance offset tele", 2);
-        SmartDashboard.putNumber("angle", 0);
 
         boolean jog = false;
         boolean sysid = false;
@@ -267,8 +251,9 @@ public class RobotContainer {
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, mainLimelight, pidgey));
         resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
         
-        driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
-        
+        // driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
+        driverController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));
+
         gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
         
         climber.climbing.whileTrue(new moveElevator(elevator));
@@ -311,7 +296,8 @@ public class RobotContainer {
             new RetractIntakeCommand(intakeFlop, intakeRoll)
         );
 
-        driverController.y().onTrue(getPathCommand(2,0.75, 0.75, SmartDashboard.getNumber("angle", 0), 0.5));
+        driverController.y().whileTrue(new GoToAprilTagCommand(drivetrain, 2));
+        driverController.x().whileTrue(new GoToAprilTagCommand(drivetrain, 8));
 
         intakeFlop.coralTrigger
         .and(intakeFlop.retractedTrigger)
@@ -397,10 +383,21 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new General3Auto(drivetrain, elevator, arm, gripper, 1, IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
+        return new MultiTagPathAuto(drivetrain);
+        // return new General3Auto(drivetrain, elevator, arm, gripper, 1, IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
     }
 
     private void setSmartDashboard(){
+        SmartDashboard.putNumber("TagNav/Tag8/XOffset", 0.5);
+        SmartDashboard.putNumber("TagNav/Tag8/YOffset", 0.5);
+        SmartDashboard.putNumber("TagNav/Tag8/RotationOffset", 180);
+        SmartDashboard.putNumber("TagNav/Tag2/XOffset", 0.5);
+        SmartDashboard.putNumber("TagNav/Tag2/YOffset", 0.5);
+        SmartDashboard.putNumber("TagNav/Tag2/RotationOffset", 180);
+        SmartDashboard.putNumber("TagNav/Tag/XOffset", 0.5);
+        SmartDashboard.putNumber("TagNav/Tag/YOffset", 0.5);
+        SmartDashboard.putNumber("TagNav/Tag/RotationOffset", 180);
+        SmartDashboard.putNumber("TagNav/Tag/id", 10);
         SmartDashboard.putString("Queue:", "None");        
         SmartDashboard.putData("ID Coral Station", IDCoral);
         SmartDashboard.putData("ID Second Reef", IDReef2);
@@ -408,23 +405,5 @@ public class RobotContainer {
         SmartDashboard.putBoolean("left second", false);
         SmartDashboard.putBoolean("left third", false);
     }
-    private Command getPathCommand(int apriltag, double xOffset, double yOffset, double rotationOffset, double distanceOffset) {
-        Pose2d tagPose = fieldLayout.getTagPose(apriltag).get().toPose2d();
-        //distanceOffset = SmartDashboard.getNumber("distance offset tele", 2);
 
-        SmartDashboard.putNumber("xOff cos", xOffset);
-        SmartDashboard.putNumber("yOff sin", yOffset);
-
-        Transform2d offsetTransform = new Transform2d(
-            xOffset, 
-            yOffset,
-            Rotation2d.fromDegrees(rotationOffset)
-        );
-        
-        Pose2d targetPose = tagPose.transformBy(offsetTransform);
-        
-        return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
-    }
-        
-    
 }

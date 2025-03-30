@@ -23,6 +23,11 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -172,13 +177,20 @@ public class RobotContainer {
     SendableChooser<Integer> IDReef2 = SendableChooserUtil.createSequentialChooser();
     SendableChooser<Integer> IDReef3 = SendableChooserUtil.createSequentialChooser();
 
+    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+
+    private double distanceOffsetSmart = 0.25;//SmartDashboard.putNumber("distance offset tele", 0.25);
+
+
 
     /**
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() { 
         setSmartDashboard();
-        
+        SmartDashboard.putNumber("distance offset tele", 2);
+        SmartDashboard.putNumber("angle", 0);
+
         boolean jog = false;
         boolean sysid = false;
 
@@ -299,6 +311,8 @@ public class RobotContainer {
             new RetractIntakeCommand(intakeFlop, intakeRoll)
         );
 
+        driverController.y().onTrue(getPathCommand(2,0.75, 0.75, SmartDashboard.getNumber("angle", 0), 0.5));
+
         intakeFlop.coralTrigger
         .and(intakeFlop.retractedTrigger)
         .and(gripper.coral.negate())
@@ -383,7 +397,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new General3Auto(drivetrain, elevator, arm, gripper, SmartDashboard.getNumber("Distance Offset", 1), IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
+        return new General3Auto(drivetrain, elevator, arm, gripper, 1, IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
     }
 
     private void setSmartDashboard(){
@@ -393,6 +407,23 @@ public class RobotContainer {
         SmartDashboard.putData("ID Third Reef", IDReef3);
         SmartDashboard.putBoolean("left second", false);
         SmartDashboard.putBoolean("left third", false);
+    }
+    private Command getPathCommand(int apriltag, double xOffset, double yOffset, double rotationOffset, double distanceOffset) {
+        Pose2d tagPose = fieldLayout.getTagPose(apriltag).get().toPose2d();
+        //distanceOffset = SmartDashboard.getNumber("distance offset tele", 2);
+
+        SmartDashboard.putNumber("xOff cos", xOffset);
+        SmartDashboard.putNumber("yOff sin", yOffset);
+
+        Transform2d offsetTransform = new Transform2d(
+            xOffset, 
+            yOffset,
+            Rotation2d.fromDegrees(rotationOffset)
+        );
+        
+        Pose2d targetPose = tagPose.transformBy(offsetTransform);
+        
+        return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
     }
         
     

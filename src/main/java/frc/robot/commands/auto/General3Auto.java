@@ -24,7 +24,7 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.utils.LimelightHelpers;
 
 public class General3Auto extends SequentialCommandGroup{
-    SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityX(-3);
+    SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityX(-1);
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     CommandSwerveDrivetrain drivetrain;
     private final String limelightName = "limelight-intake";
@@ -32,7 +32,7 @@ public class General3Auto extends SequentialCommandGroup{
         this.drivetrain = drivetrain;
         addCommands(
             // Start aligning to visible tag
-            new PIDFineAlign(true, drivetrain),
+            new PIDFineAlign(true, drivetrain).withTimeout(2.5),
 
             // Try adding a conditional command aound the rest that uses a trigger checking for a tag
             
@@ -40,18 +40,20 @@ public class General3Auto extends SequentialCommandGroup{
             new ScoreL4CommandAuto(elevator, arm, gripper).withTimeout(2.3),
             new ScoreL4CommandAutoDown(elevator, arm, gripper).withTimeout(0.6),
 
-            // Drive back to reset pose
-            drivetrain.applyRequest(() -> rocDrive).withTimeout(0.25),
+            // Drive back to reset pos
+            drivetrain.applyRequest(() -> rocDrive).withTimeout(0.5),
             new WaitCommand(0.1),
-            resetPoseWithLimelight(limelightName),
+            drivetrain.runOnce(() ->
+            drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))
+        ),
 
             // Path to coralStation and try to get coral
-            getPathCommand(coralStation, 0.5, 0.5, -30),
+            getPathCommand(2, 4*(Math.PI/3), -0.2, -0.2),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(1),
 
             // Try to add a wait until based on a trigger reading the gripper voltage to detect when a coral is in
             // Path to the 8 april tag
-            getPathCommand(secondReef, 1, 1, 180),
+            getPathCommand(8, 7*(Math.PI/6), 2, 1),
 
             // Align and score to the visible tag
             new PIDFineAlign(false, drivetrain),
@@ -64,12 +66,12 @@ public class General3Auto extends SequentialCommandGroup{
             resetPoseWithLimelight(limelightName),
 
             // Path to coralStation and try to get coral
-            getPathCommand(coralStation, 0.5, 0.5, -30),
+            getPathCommand(2, Math.PI/3, 0.1, -0.2),
             new HumanIntakeCommandAuto(arm, gripper, elevator).withTimeout(1),
 
             // Try to add a wait until based on a trigger reading the gripper voltage to detect when a coral is in
             // Path to the 8 april tag
-            getPathCommand(thirdReef, 1, 1, 180),
+            getPathCommand(8,-Math.PI/3, 2, 1),
 
             // Align and score to the visible tag
             new PIDFineAlign(true, drivetrain),
@@ -85,16 +87,34 @@ public class General3Auto extends SequentialCommandGroup{
         );
     }
 
-    private Command getPathCommand(int apriltag, double xOffset, double yOffset, double rotationOffset) {
+    private Command getPathCommand(int apriltag, double rotationOffset, double distanceOffset, double extraOffset) {
         Pose2d tagPose = fieldLayout.getTagPose(apriltag).get().toPose2d();
-        
-        Transform2d offsetTransform = new Transform2d(
-            xOffset, 
-            yOffset,
-            Rotation2d.fromDegrees(rotationOffset)
-        );
-        
-        Pose2d targetPose = tagPose.transformBy(offsetTransform);
+        double xOffset = Math.cos(tagPose.getRotation().getRadians())*distanceOffset;
+        double yOffset = Math.sin(tagPose.getRotation().getRadians())*distanceOffset;
+        double extraXOffset = Math.sin(tagPose.getRotation().getRadians())*extraOffset;
+        double extraYOffset = Math.cos(tagPose.getRotation().getRadians())*extraOffset;
+        // Transform2d offsetTransform = new Transform2d(
+        //     xOffset, 
+        //     yOffset,
+        //     Rotation2d.fromDegrees(rotationOffset)
+        // );
+        Pose2d targetPose;
+        // Pose2d targetPose = tagPose.transformBy(offsetTransform);
+        if(apriltag != 2 || apriltag != 1 || apriltag != 13 || apriltag != 12){
+            targetPose = new Pose2d(
+                tagPose.getX() + xOffset,
+                tagPose.getY() + yOffset,
+                new Rotation2d(rotationOffset)
+                
+            );
+        }else{
+            targetPose = new Pose2d(
+                tagPose.getX() + xOffset + extraXOffset,
+                tagPose.getY() + yOffset + extraYOffset,
+                new Rotation2d(rotationOffset)
+                
+            );
+        }
         
         return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
     }

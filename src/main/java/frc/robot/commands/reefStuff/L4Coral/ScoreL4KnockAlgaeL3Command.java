@@ -38,6 +38,7 @@ public class ScoreL4KnockAlgaeL3Command extends SequentialCommandGroup{
             new WaitUntilCommand(shootTrigger)
 
             ),
+            new MovePCM(elevator, 8.5),
             Commands.idle(elevator, arm, gripper)
         );
     }

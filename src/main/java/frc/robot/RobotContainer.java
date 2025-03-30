@@ -293,22 +293,18 @@ public class RobotContainer {
             .whileTrue(new IntakeRollCommand(intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
 
+        intakeFlop.coralTrigger.debounce(0.1)
+        .and(intakeFlop.deployedTrigger)
+        .onTrue(
+            new RetractIntakeCommand(intakeFlop, intakeRoll)
+        );
+
         intakeFlop.coralTrigger
-            .debounce(0.1)
-            .onTrue(
-                new SequentialCommandGroup(
-                    new PrintCommand("~~~~~ Coral Triggered ~~~~~"),
-                    // new RetractAndHandOff(elevator, arm, gripper, intakeFlop, intakeRoll)
-                    new RetractIntakeCommand(intakeFlop, intakeRoll)
-                ).andThen(
-                    new WaitUntilCommand(intakeFlop.retractedTrigger),
-                    new CoralHandOff(elevator, arm, gripper)
-                )
-            )
-            // .and(intakeFlop.retractedTrigger
-            //     .debounce(0.1)
-            //     .onTrue(new CoralHandOff(elevator, arm, gripper)))
-                ;
+        .and(intakeFlop.retractedTrigger)
+        .and(gripper.coral.negate())
+        .onTrue(
+            new CoralHandOff(elevator, arm, gripper)
+        );
 
         scoreL4Trigger.toggleOnTrue(
             new SequentialCommandGroup(

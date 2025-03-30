@@ -15,7 +15,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 public abstract class PositionControlledMotor extends SubsystemBase {
     protected Boolean debug = false;
     private MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(0);
-
+    private int currentPidSlot = 0;
 
     private final NetworkTable configTable;
     private final NetworkTable fudgeTable;
@@ -442,5 +442,17 @@ public abstract class PositionControlledMotor extends SubsystemBase {
     }
     public void setFudgeFactor(double fudgeFactor){
         this.fudgeFactor += fudgeFactor;
+    }
+
+    public void setActivePidSlot(int slotIndex) {
+        if (slotIndex >= 0 && slotIndex <= 2) {
+            currentPidSlot = slotIndex;
+            motionMagicDutyCycle = new MotionMagicDutyCycle(0).withSlot(currentPidSlot);
+            updatePosition();
+        }
+    }
+    
+    public int getActivePidSlot() {
+        return currentPidSlot;
     }
 }

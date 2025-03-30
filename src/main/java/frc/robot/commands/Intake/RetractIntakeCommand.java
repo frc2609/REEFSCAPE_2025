@@ -10,7 +10,7 @@ public class RetractIntakeCommand extends ParallelCommandGroup{
     public RetractIntakeCommand(IntakeFlop intakeFlop, IntakeRoll intakeRoll) {
         addCommands(
             new RetractFlopCommand(intakeFlop),
-            new StopRollCommand(intakeRoll)//,
+            new StopRollCommand(intakeRoll)
         );
     }
     

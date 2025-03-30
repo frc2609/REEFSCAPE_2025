@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -53,13 +54,11 @@ public class IntakeFlop extends PositionControlledMotor {
             .withSlot0(
                 new Slot0Configs()
                     .withKP(.5)
-                    .withKI(0)
-                    .withKD(0)
-                    .withKS(0)
-                    .withKG(0)
-                    .withKV(0)
-                    .withKA(0)
                     .withGravityType(GravityTypeValue.Arm_Cosine)
+            )
+            .withSlot1(
+                new Slot1Configs()
+                    .withKP(0)
             )
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs()
@@ -89,6 +88,9 @@ public class IntakeFlop extends PositionControlledMotor {
         debug);
 
         setPosition();
+
+        deployedTrigger.onTrue(runOnce(() -> setActivePidSlot(1)));
+        deployedTrigger.onFalse(runOnce(() -> setActivePidSlot(0)));
     }
 
     public double coralDistance() {
@@ -110,5 +112,4 @@ public class IntakeFlop extends PositionControlledMotor {
         SmartDashboard.putBoolean("Retracted trigger", retractedTrigger.getAsBoolean());
         SmartDashboard.putNumber("Coral distance", coralDistance());
     }
-    
 }

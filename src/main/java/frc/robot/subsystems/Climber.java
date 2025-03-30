@@ -30,7 +30,7 @@ public class Climber extends PositionControlledMotor{
     private final static double zeroPosition = 0.837;
 
     
-    public final Trigger climbing = new Trigger(() -> getPosition() > 100);
+    public final Trigger climbing = new Trigger(() -> getPosition() > 30);
     private final static DutyCycleEncoder encoder = new DutyCycleEncoder(encoderID, 1, zeroPosition);
     private static TalonFXConfiguration talonConfig = 
         new TalonFXConfiguration()

@@ -7,10 +7,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utils.Constants;
 
 public class Gripper extends SubsystemBase  {
+    public Trigger coral;
     private final TalonFX gripMotor;
     private final TalonFXConfiguration motorConfig = 
         new TalonFXConfiguration()
@@ -28,12 +31,17 @@ public class Gripper extends SubsystemBase  {
     public Gripper() {
         gripMotor = new TalonFX(8, Constants.CANBUS);
         gripMotor.getConfigurator().apply(motorConfig);
-
+        coral = new Trigger(() -> gripMotor.getMotorVoltage().getValueAsDouble() < 0.5);
      } 
     public void setSpeed(double speed) {
         gripMotor.set(speed);
     }
     public void stop() {
         gripMotor.set(0);
-    }    
+    }   
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Grip Voltage", gripMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putBoolean("Coral in grip", coral.getAsBoolean());
+    }     
 }

@@ -28,7 +28,7 @@ public class General3Auto extends SequentialCommandGroup{
         this.drivetrain = drivetrain;
         addCommands(
             // Start aligning to visible tag
-            new PIDFineAlign(true, drivetrain).withTimeout(2.5),
+            new PIDFineAlign(false, drivetrain).withTimeout(2.5),
 
             // Try adding a conditional command aound the rest that uses a trigger checking for a tag
             
@@ -41,7 +41,7 @@ public class General3Auto extends SequentialCommandGroup{
             new WaitCommand(0.1),
             drivetrain.runOnce(() ->
             drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))
-        ),
+            ),
 
             // Path to coralStation and try to get coral
             getPathCommand(2, 4*(Math.PI/3), -0.2, -0.2),

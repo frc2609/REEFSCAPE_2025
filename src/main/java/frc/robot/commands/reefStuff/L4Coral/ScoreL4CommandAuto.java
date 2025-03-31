@@ -24,7 +24,7 @@ public class ScoreL4CommandAuto extends SequentialCommandGroup{
             new MovePCM(elevator, 39), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
-                new MovePCM(arm, -227), //-227
+                new MovePCM(arm, -230), //-227
                 Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm up")),
                 new WaitUntilCommand(() -> elevator.getPosition() > 37 && arm.getPosition() < -226),
                 new ReleaseGripperCommand(gripper).withTimeout(0.75),

@@ -45,7 +45,7 @@ import frc.robot.commands.Intake.flop.DeployFlopCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
 import frc.robot.commands.Intake.CoralHandOff;
-
+import frc.robot.commands.auto.DchampsWaterloo;
 import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.climber.StopClimberCommand;
@@ -383,7 +383,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new MultiTagPathAuto(drivetrain);
+        return new DchampsWaterloo(drivetrain, elevator, arm, gripper);
         // return new General3Auto(drivetrain, elevator, arm, gripper, 1, IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
     }
 

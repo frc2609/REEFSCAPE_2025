@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.gripper.ReleaseGripperCommand;
 import frc.robot.commands.gripper.SlowGripCommand;
 import frc.robot.commands.pcmUtils.MovePCM;
@@ -24,6 +25,7 @@ public class ScoreL4CommandAuto extends SequentialCommandGroup{
             new MovePCM(elevator, 39), //39
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
+                new WaitUntilCommand(PIDFineAlign.aligned),
                 new MovePCM(arm, -230), //-227
                 Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm up")),
                 new WaitUntilCommand(() -> elevator.getPosition() > 37 && arm.getPosition() < -226),

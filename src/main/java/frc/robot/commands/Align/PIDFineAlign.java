@@ -19,6 +19,7 @@ public class PIDFineAlign extends Command {
     private SwerveRequest.RobotCentric m_drive = new SwerveRequest.RobotCentric();
     public static Trigger aligned = new Trigger(() -> stopTimer.hasElapsed(0.3) && tagID != -1);
     private String limelightName = "limelight-intake";
+    
     SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityY(-1);
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {

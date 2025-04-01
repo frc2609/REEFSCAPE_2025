@@ -45,11 +45,9 @@ public class DchampsWaterloo extends SequentialCommandGroup {
                 // First intake
                 new ParallelCommandGroup(
                     createPathToTag(2, 0.5, 0.3, 0),
-                    new SequentialCommandGroup(
-                        new HumanIntakeCommand(arm, gripper, elevator),
-                        new WaitUntilCommand(gripper.coral).withTimeout(0.75)
-                    )
-                ),
+                    new HumanIntakeCommand(arm, gripper, elevator)
+                    
+                ).withTimeout(2),
 
                 // Second score
                 createPathToTag(8, 1, -0.80, 180),
@@ -59,13 +57,10 @@ public class DchampsWaterloo extends SequentialCommandGroup {
                 new ScoreL4CommandAutoDown(elevator, arm, gripper),
                 resetPoseWithLimelight(),
 
-                // Second intake
                 new ParallelCommandGroup(
                     createPathToTag(2, 0.5, 0.3, 0),
-                    new SequentialCommandGroup(
-                        new HumanIntakeCommand(arm, gripper, elevator),
-                        new WaitUntilCommand(gripper.coral).withTimeout(0.75)
-                    )
+                    new HumanIntakeCommand(arm, gripper, elevator)
+                    
                 ).withTimeout(2),
 
                 // Third coral

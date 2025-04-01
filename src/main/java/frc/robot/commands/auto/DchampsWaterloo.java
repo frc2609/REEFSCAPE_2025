@@ -6,9 +6,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -25,64 +22,59 @@ import frc.robot.utils.LimelightHelpers;
 
 public class DchampsWaterloo extends SequentialCommandGroup {
     private final CommandSwerveDrivetrain drivetrain;
-    private final Elevator elevator;
-    private final Gripper gripper;
-    private final Arm arm;
     private final String limelightName = "limelight-intake";
     private final AprilTagFieldLayout fieldLayout;
     
     public DchampsWaterloo(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
         this.drivetrain = drivetrain;
-        this.elevator = elevator;
-        this.arm = arm;
-        this.gripper = gripper;
         this.fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         
         addCommands(
             // Only proceed if a tag is visible
 
-                // If a tag is visible, execute the sequence
-                new SequentialCommandGroup(
-                    // Reset the robot's pose based on what the limelight sees
-                    
-                    drivetrain.runOnce(() ->
-                    drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))
-                    ),
-                    createPathToTag(9, 1.2, -1, 180),
-                    new PIDFineAlign(true, drivetrain).withTimeout(1.75),
-                    new ScoreL4CommandAuto(elevator, arm, gripper),
-                    new ScoreL4CommandAutoDown(elevator, arm, gripper),
-                    drivetrain.runOnce(() ->
-                    drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))
-                    ),
-                    new ParallelCommandGroup(
-                        createPathToTag(2, 0.5, 0.3, 0),
-                        new SequentialCommandGroup(
-                            new HumanIntakeCommand(arm, gripper, elevator),
-                            new WaitUntilCommand(gripper.coral).withTimeout(0.75)
-                        )
-                    ),
-                    createPathToTag(8, 1, -0.80, 180),
-                    new WaitCommand(0.1),
-                    new PIDFineAlign(true, drivetrain).withTimeout(1.5),
-                    new ScoreL4CommandAuto(elevator, arm, gripper),
-                    new ScoreL4CommandAutoDown(elevator, arm, gripper),
-                    drivetrain.runOnce(() ->
-                    drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))
-                    ),
-                    new ParallelCommandGroup(
-                        createPathToTag(2, 0.5, 0.3, 0),
-                        new SequentialCommandGroup(
-                            new HumanIntakeCommand(arm, gripper, elevator),
-                            new WaitUntilCommand(gripper.coral).withTimeout(0.75)
-                        )
-                    ).withTimeout(2),
-                    createPathToTag(8, 1, -0.80, 180),
-                    new WaitCommand(0.1),
-                    new PIDFineAlign(false, drivetrain).withTimeout(1.5),
-                    new ScoreL4CommandAuto(elevator, arm, gripper),
-                    new ScoreL4CommandAutoDown(elevator, arm, gripper)
-                )
+            // If a tag is visible, execute the sequence
+            new SequentialCommandGroup(                
+                // First score
+                resetPoseWithLimelight(),
+                createPathToTag(9, 1.2, -1, 180),
+                new PIDFineAlign(true, drivetrain).withTimeout(1.75),
+                new ScoreL4CommandAuto(elevator, arm, gripper),
+                new ScoreL4CommandAutoDown(elevator, arm, gripper),
+                resetPoseWithLimelight(),
+
+                // First intake
+                new ParallelCommandGroup(
+                    createPathToTag(2, 0.5, 0.3, 0),
+                    new SequentialCommandGroup(
+                        new HumanIntakeCommand(arm, gripper, elevator),
+                        new WaitUntilCommand(gripper.coral).withTimeout(0.75)
+                    )
+                ),
+
+                // Second score
+                createPathToTag(8, 1, -0.80, 180),
+                new WaitCommand(0.1),
+                new PIDFineAlign(true, drivetrain).withTimeout(1.5),
+                new ScoreL4CommandAuto(elevator, arm, gripper),
+                new ScoreL4CommandAutoDown(elevator, arm, gripper),
+                resetPoseWithLimelight(),
+
+                // Second intake
+                new ParallelCommandGroup(
+                    createPathToTag(2, 0.5, 0.3, 0),
+                    new SequentialCommandGroup(
+                        new HumanIntakeCommand(arm, gripper, elevator),
+                        new WaitUntilCommand(gripper.coral).withTimeout(0.75)
+                    )
+                ).withTimeout(2),
+
+                // Third coral
+                createPathToTag(8, 1, -0.80, 180),
+                new WaitCommand(0.1),
+                new PIDFineAlign(false, drivetrain).withTimeout(1.5),
+                new ScoreL4CommandAuto(elevator, arm, gripper),
+                new ScoreL4CommandAutoDown(elevator, arm, gripper)
+            )
                 
                 // If no tag is visible, do nothing (or could add a search behavior)
                 // new InstantCommand(),
@@ -95,7 +87,7 @@ public class DchampsWaterloo extends SequentialCommandGroup {
         return LimelightHelpers.getTV(limelightName);
     }
     
-    private Command resetPoseWithLimelight(String limelightName) {
+    private Command resetPoseWithLimelight() {
         return drivetrain.runOnce(() ->
             drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(limelightName))
         );

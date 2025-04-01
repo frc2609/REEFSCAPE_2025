@@ -290,7 +290,7 @@ public class RobotContainer {
             .whileTrue(new IntakeRollCommand(intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
 
-        intakeFlop.coralTrigger.debounce(0.1)
+        intakeFlop.coralTrigger
         .and(intakeFlop.deployedTrigger)
         .onTrue(
             new RetractIntakeCommand(intakeFlop, intakeRoll)

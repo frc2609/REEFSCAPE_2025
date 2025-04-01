@@ -31,7 +31,7 @@ public class Gripper extends SubsystemBase  {
     public Gripper() {
         gripMotor = new TalonFX(8, Constants.CANBUS);
         gripMotor.getConfigurator().apply(motorConfig);
-        coral = new Trigger(() -> gripMotor.getMotorVoltage().getValueAsDouble() < 1);
+        coral = new Trigger(() -> gripMotor.getMotorVoltage().getValueAsDouble() < 0.5 && gripMotor.getMotorVoltage().getValueAsDouble() > 0.2).debounce(0.02);
      } 
     public void setSpeed(double speed) {
         gripMotor.set(speed);

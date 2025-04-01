@@ -25,6 +25,9 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -35,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.GoToAprilTagCommand;
+//import frc.robot.commands.GoToAprilTagCommand;
 import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ResetGyro;
 
@@ -46,7 +49,7 @@ import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
 import frc.robot.commands.Intake.CoralHandOff;
 import frc.robot.commands.auto.DchampsWaterloo;
-import frc.robot.commands.auto.MultiTagPathAuto;
+//import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.climber.StopClimberCommand;
 import frc.robot.commands.climber.DeployClimberCommand;
@@ -296,8 +299,6 @@ public class RobotContainer {
             new RetractIntakeCommand(intakeFlop, intakeRoll)
         );
 
-        driverController.y().whileTrue(new GoToAprilTagCommand(drivetrain, 2));
-        driverController.x().whileTrue(new GoToAprilTagCommand(drivetrain, 8));
 
         intakeFlop.coralTrigger
         .and(intakeFlop.retractedTrigger)
@@ -333,7 +334,8 @@ public class RobotContainer {
                 new ScoreL2Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
             )
         );
-
+        
+        //driverController.x().onTrue(createPathToTag(9, 1, 0, 180));
         
         algaeknockL2Trigger.toggleOnTrue(
             new ParallelCommandGroup(
@@ -404,6 +406,19 @@ public class RobotContainer {
         SmartDashboard.putData("ID Third Reef", IDReef3);
         SmartDashboard.putBoolean("left second", false);
         SmartDashboard.putBoolean("left third", false);
+    }
+    private Command createPathToTag(int tagId, double xOffset, double yOffset, double rotationOffset) {
+        Pose2d tagPose = fieldLayout.getTagPose(tagId).get().toPose2d();
+        
+        Transform2d offsetTransform = new Transform2d(
+            xOffset, 
+            yOffset,
+            Rotation2d.fromDegrees(rotationOffset)
+        );
+        
+        Pose2d targetPose = tagPose.transformBy(offsetTransform);
+        
+        return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
     }
 
 }

@@ -36,7 +36,7 @@ public class DchampsWaterloo extends SequentialCommandGroup {
             new SequentialCommandGroup(                
                 // First score
                 resetPoseWithLimelight(),
-                createPathToTag(9, 0.5, -1, 180),
+                createPathToTag(9, 0.75, -0.8, 180),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
                     new ScoreL4CommandAuto(elevator, arm, gripper)
@@ -52,7 +52,7 @@ public class DchampsWaterloo extends SequentialCommandGroup {
                 ).withTimeout(3.25),
 
                 // Second score
-                createPathToTag(8, 0.5, -1, 180),
+                createPathToTag(8, 1, -1, 180),
                 new WaitCommand(0.1),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
@@ -68,7 +68,7 @@ public class DchampsWaterloo extends SequentialCommandGroup {
                 ).withTimeout(2),
 
                 // Third coral
-                createPathToTag(8, 0.5, -1, 180),
+                createPathToTag(8, 0.75, -0.8, 180),
                 new WaitCommand(0.1),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),

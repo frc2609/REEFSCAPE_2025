@@ -88,7 +88,7 @@ public class AlignCommand extends Command {
         // double rot = limelightAimProportional();
         double kpRange = SmartDashboard.getNumber("kpRange", 0.03);
         double kpAim = SmartDashboard.getNumber("kpAim", 0.05);
-        LimelightHelpers.setPipelineIndex("limelight-april", 2);
+        LimelightHelpers.setPipelineIndex("limelight-intake", 2);
         // Store the ID of the AprilTag the Limelight is seeing
          double xSpeed = limelightRangeProportional(kpRange); 
          //use this for the aming if the april tag is able to still see the target
@@ -104,7 +104,7 @@ public class AlignCommand extends Command {
     }
 
     public void end(boolean interrupted){
-        LimelightHelpers.setPipelineIndex("limelight-april", 1);
+        LimelightHelpers.setPipelineIndex("limelight-intake", 1);
     }
 }
 

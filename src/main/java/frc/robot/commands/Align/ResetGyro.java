@@ -98,8 +98,8 @@ public class ResetGyro extends Command {
 
     public void execute(){
 
-        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-april")[5];
-        if(LimelightHelpers.getBotPose("limelight-april") != null){
+        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-intake")[5];
+        if(LimelightHelpers.getBotPose("limelight-intake") != null){
             m_Swerve.setControl(
                 m_driveRequest
                     .withRotationalRate(-tagYaw * 0.06)

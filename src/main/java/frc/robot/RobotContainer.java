@@ -50,6 +50,7 @@ import frc.robot.commands.Intake.HumanIntakeCommand;
 import frc.robot.commands.Intake.CoralHandOff;
 import frc.robot.commands.auto.DchampsBlueLeft;
 import frc.robot.commands.auto.DchampsBlueRight;
+import frc.robot.commands.auto.DchampsRed1;
 import frc.robot.commands.auto.DchampsRedLeft;
 import frc.robot.commands.auto.DchampsRedRight;
 //import frc.robot.commands.auto.MultiTagPathAuto;
@@ -415,6 +416,7 @@ public class RobotContainer {
         autoChooser.addOption("Dchamps Red Right", new DchampsRedRight(drivetrain, elevator, arm, gripper));
         autoChooser.addOption("Dchamps Red Left", new DchampsRedLeft(drivetrain, elevator, arm, gripper));
         autoChooser.addOption("Dchamps Blue Left", new DchampsBlueLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps Red 1", new DchampsRed1(drivetrain, elevator, arm, gripper));
         autoChooser.setDefaultOption("Dchamps Blue Right", new DchampsBlueRight(drivetrain, elevator, arm, gripper));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);

@@ -20,12 +20,12 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.utils.LimelightHelpers;
 
-public class DchampsWaterloo extends SequentialCommandGroup {
+public class DchampsRedLeft extends SequentialCommandGroup {
     private final CommandSwerveDrivetrain drivetrain;
     private final String limelightName = "limelight-intake";
     private final AprilTagFieldLayout fieldLayout;
     
-    public DchampsWaterloo(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
+    public DchampsRedLeft(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
         this.drivetrain = drivetrain;
         this.fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         
@@ -36,7 +36,7 @@ public class DchampsWaterloo extends SequentialCommandGroup {
             new SequentialCommandGroup(                
                 // First score
                 resetPoseWithLimelight(),
-                createPathToTag(9, 0.75, -0.8, 180),
+                createPathToTag(11, 0.75, -0.8, 180),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
                     new ScoreL4CommandAuto(elevator, arm, gripper)
@@ -46,13 +46,13 @@ public class DchampsWaterloo extends SequentialCommandGroup {
 
                 // First intake
                 new ParallelCommandGroup(
-                    createPathToTag(2, 0.5, 0.3, 0),
+                    createPathToTag(1, 0.5, 0.3, 0),
                     new HumanIntakeCommand(arm, gripper, elevator)
                     
                 ).withTimeout(3.25),
 
                 // Second score
-                createPathToTag(8, 1, -1, 180),
+                createPathToTag(6, 1, -1, 180),
                 new WaitCommand(0.1),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
@@ -62,13 +62,13 @@ public class DchampsWaterloo extends SequentialCommandGroup {
                 resetPoseWithLimelight(),
 
                 new ParallelCommandGroup(
-                    createPathToTag(2, 0.5, 0.3, 0),
+                    createPathToTag(1, 0.5, 0.3, 0),
                     new HumanIntakeCommand(arm, gripper, elevator)
                     
                 ).withTimeout(2),
 
                 // Third coral
-                createPathToTag(8, 0.75, -0.8, 180),
+                createPathToTag(6, 0.75, -0.8, 180),
                 new WaitCommand(0.1),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),

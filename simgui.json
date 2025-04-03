@@ -4,6 +4,7 @@
       "/FMSInfo": "FMSInfo",
       "/Pose": "Field2d",
       "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Auto Mode": "String Chooser",
       "/SmartDashboard/Example Auto": "Command",
       "/SmartDashboard/Field": "Field2d",

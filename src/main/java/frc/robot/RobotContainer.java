@@ -48,7 +48,10 @@ import frc.robot.commands.Intake.flop.DeployFlopCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
 import frc.robot.commands.Intake.CoralHandOff;
-import frc.robot.commands.auto.DchampsWaterloo;
+import frc.robot.commands.auto.DchampsBlueLeft;
+import frc.robot.commands.auto.DchampsBlueRight;
+import frc.robot.commands.auto.DchampsRedLeft;
+import frc.robot.commands.auto.DchampsRedRight;
 //import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
 import frc.robot.commands.climber.StopClimberCommand;
@@ -166,6 +169,8 @@ public class RobotContainer {
     SendableChooser<Integer> IDCoral = SendableChooserUtil.createSequentialChooser();
     SendableChooser<Integer> IDReef2 = SendableChooserUtil.createSequentialChooser();
     SendableChooser<Integer> IDReef3 = SendableChooserUtil.createSequentialChooser();
+
+    SendableChooser<Command> autoChooser = new SendableChooser<>(); 
 
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
@@ -385,8 +390,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new DchampsWaterloo(drivetrain, elevator, arm, gripper);
-        // return new General3Auto(drivetrain, elevator, arm, gripper, 1, IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false));    
+        //return new DchampsRedRight(drivetrain, elevator, arm, gripper);
+        // return new General3Auto(drivetrain, elevator, arm, gripper, 1, IDCoral.getSelected(), IDReef2.getSelected(), IDReef3.getSelected(), SmartDashboard.getBoolean("left second", false), SmartDashboard.getBoolean("left third", false)); 
+        return autoChooser.getSelected();   
     }
 
     private void setSmartDashboard(){
@@ -406,6 +412,13 @@ public class RobotContainer {
         SmartDashboard.putData("ID Third Reef", IDReef3);
         SmartDashboard.putBoolean("left second", false);
         SmartDashboard.putBoolean("left third", false);
+        autoChooser.addOption("Dchamps Red Right", new DchampsRedRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps Red Left", new DchampsRedLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps Blue Left", new DchampsBlueLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.setDefaultOption("Dchamps Blue Right", new DchampsBlueRight(drivetrain, elevator, arm, gripper));
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
     }
     private Command createPathToTag(int tagId, double xOffset, double yOffset, double rotationOffset) {
         Pose2d tagPose = fieldLayout.getTagPose(tagId).get().toPose2d();

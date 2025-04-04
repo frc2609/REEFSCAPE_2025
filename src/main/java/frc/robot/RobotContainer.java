@@ -71,6 +71,7 @@ import frc.robot.commands.auto.DChamps1RedMiddleLeft;
 import frc.robot.commands.auto.DChamps1RedMiddleRight;
 import frc.robot.commands.auto.DChamps1RedRightLeft;
 import frc.robot.commands.auto.DChamps1RedRightRight;
+import frc.robot.commands.auto.Dchamps1PIDRight;
 import frc.robot.commands.auto.DchampsRedRight;
 //import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
@@ -486,6 +487,9 @@ public class RobotContainer {
         autoChooser.addOption("Dchamps 1 Blue Middle Right", new DChamps1BlueMiddleRight(drivetrain, elevator, arm, gripper));
         autoChooser.addOption("Dchamps 1 Blue Middle Left", new DChamps1BlueMiddleLeft(drivetrain, elevator, arm, gripper));
 
+        autoChooser.setDefaultOption("RUN THIS!!!!", new Dchamps1PIDRight(drivetrain, elevator, arm, gripper));
+
+        
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
     }

@@ -21,7 +21,7 @@ public class ScoreL1Command extends SequentialCommandGroup{
                 new MovePCM(arm, -60),
             new SequentialCommandGroup(
                 new WaitUntilCommand(arm.aboveIntake),
-                new MovePCM(elevator, 4.14),
+                new MovePCM(elevator, 7.14),
                 new WaitUntilCommand(shootTrigger),
                 new ReleaseGripperCommandL1(gripper),
                 new WaitCommand(0.65)

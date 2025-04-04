@@ -20,32 +20,21 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.utils.LimelightHelpers;
 
-public class DchampsRedPath extends SequentialCommandGroup {
+public class DChamps1BlueLeftLeft extends SequentialCommandGroup {
     private final CommandSwerveDrivetrain drivetrain;
     private final String limelightName = "limelight-intake";
     private final AprilTagFieldLayout fieldLayout;
     
-    public DchampsRedPath(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
+    public DChamps1BlueLeftLeft(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
         this.drivetrain = drivetrain;
         this.fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         
         addCommands(
-            // Only proceed if a tag is visible
-
-            // If a tag is visible, execute the sequence
             new WaitCommand(3),
             resetPoseWithLimelight(),
-            createPathToTag(8, 0.2, 0, 180),
+            createPathToTag(20, 0.2, -0.30, 180),
             new ScoreL4CommandAuto(elevator, arm, gripper),
-
-                
-           new ScoreL4CommandAutoDown(elevator, arm, gripper)
-                
-                
-                // If no tag is visible, do nothing (or could add a search behavior)
-                // new InstantCommand(),
-                // this::isTagVisible
-            
+            new ScoreL4CommandAutoDown(elevator, arm, gripper)  
             
         );
     }

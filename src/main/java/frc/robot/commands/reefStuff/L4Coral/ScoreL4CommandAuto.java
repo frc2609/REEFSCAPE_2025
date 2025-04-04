@@ -19,22 +19,23 @@ public class ScoreL4CommandAuto extends SequentialCommandGroup{
         addCommands(
          new MovePCM(elevator, 8.5),
          new MovePCM(arm, 0),
-         Commands.runOnce(()->SmartDashboard.putString("state", "elevator down starting")),
          new SlowGripCommand(gripper),
-            new ParallelCommandGroup(
+         Commands.runOnce(()->SmartDashboard.putString("state", "elevator -> 8.5 and arm -> 0")),
+        new ParallelCommandGroup(
             new MovePCM(elevator, 39), //39
+            Commands.runOnce(()->SmartDashboard.putString("state", "elevator -> 39 and arm -> 0")),
             new SequentialCommandGroup(
                 new WaitUntilCommand(elevator.aboveIntake),
-                //new WaitUntilCommand(PIDFineAlign.aligned).withTimeout(2),
+                //new WaitUntilCommand(PIDFineAlign.aligned).withTimeout(2),   This one is not gonna be used anymore in auto cuz we are not using PID align
                 new MovePCM(arm, -230), //-227
-                Commands.runOnce(()->SmartDashboard.putString("state", "elevator and arm up")),
+                Commands.runOnce(()->SmartDashboard.putString("state", "elevator -> 39 and arm -> -230")),
                 new WaitUntilCommand(() -> elevator.getPosition() > 37 && arm.getPosition() < -226),
                 new ReleaseGripperCommand(gripper).withTimeout(0.75),
+                Commands.runOnce(()->SmartDashboard.putString("state", "ungripping")),
                 new WaitCommand(0.75)
 
             )
-            ),
-            Commands.runOnce(()->SmartDashboard.putString("state", "elevator down starting"))
+            )
         );
     }
 }

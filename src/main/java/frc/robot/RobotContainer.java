@@ -59,7 +59,18 @@ import frc.robot.commands.auto.DchampsPIT;
 import frc.robot.commands.auto.DchampsPractice;
 import frc.robot.commands.auto.DchampsRed1;
 import frc.robot.commands.auto.DchampsRedLeft;
-import frc.robot.commands.auto.DchampsRedPath;
+import frc.robot.commands.auto.DChamps1BlueLeftLeft;
+import frc.robot.commands.auto.DChamps1BlueLeftRight;
+import frc.robot.commands.auto.DChamps1BlueMiddleLeft;
+import frc.robot.commands.auto.DChamps1BlueMiddleRight;
+import frc.robot.commands.auto.DChamps1BlueRightLeft;
+import frc.robot.commands.auto.DChamps1BlueRightRight;
+import frc.robot.commands.auto.DChamps1RedLeftLeft;
+import frc.robot.commands.auto.DChamps1RedLeftRight;
+import frc.robot.commands.auto.DChamps1RedMiddleLeft;
+import frc.robot.commands.auto.DChamps1RedMiddleRight;
+import frc.robot.commands.auto.DChamps1RedRightLeft;
+import frc.robot.commands.auto.DChamps1RedRightRight;
 import frc.robot.commands.auto.DchampsRedRight;
 //import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
@@ -441,15 +452,30 @@ public class RobotContainer {
         SmartDashboard.putData("ID Third Reef", IDReef3);
         SmartDashboard.putBoolean("left second", false);
         SmartDashboard.putBoolean("left third", false);
-        autoChooser.addOption("Dchamps Red Right", new DchampsRedRight(drivetrain, elevator, arm, gripper));
-        autoChooser.addOption("Dchamps Red Left", new DchampsRedLeft(drivetrain, elevator, arm, gripper));
-        autoChooser.addOption("Dchamps Blue Left", new DchampsBlueLeft(drivetrain, elevator, arm, gripper));
-        autoChooser.setDefaultOption("Dchamps Red 1", new DchampsRed1(drivetrain, elevator, arm, gripper));
-        autoChooser.addOption("Dchamps Blue Right", new DchampsBlueRight(drivetrain, elevator, arm, gripper));
+
+        autoChooser.addOption("Dchamps 2 Red Right", new DchampsRedRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 2 Red Left", new DchampsRedLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 2 Blue Left", new DchampsBlueLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 2 Blue Right", new DchampsBlueRight(drivetrain, elevator, arm, gripper));
+
         autoChooser.addOption("pIT", new DchampsPIT(drivetrain, elevator, arm, gripper));
         autoChooser.addOption("Practice", new DchampsPractice(drivetrain, elevator, arm, gripper));
+
         autoChooser.addOption("L4, Score Barge", new DchampsAlgaeBarge(drivetrain, elevator, arm, gripper));
-        autoChooser.addOption("Dchamps 1 Path", new DchampsRedPath(drivetrain, elevator, arm, gripper));
+
+        autoChooser.addOption("Dchamps 1 Red Right Right", new DChamps1RedRightRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Red Right Left", new DChamps1RedRightLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Red Left Left", new DChamps1RedLeftLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Red Left Right", new DChamps1RedLeftRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Red Middle Right", new DChamps1RedMiddleRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Red Middle Left", new DChamps1RedMiddleLeft(drivetrain, elevator, arm, gripper));
+
+        autoChooser.addOption("Dchamps 1 Blue Right Right", new DChamps1BlueRightRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Blue Right Left", new DChamps1BlueRightLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Blue Left Left", new DChamps1BlueLeftLeft(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Blue Left Right", new DChamps1BlueLeftRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Blue Middle Right", new DChamps1BlueMiddleRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Blue Middle Left", new DChamps1BlueMiddleLeft(drivetrain, elevator, arm, gripper));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 

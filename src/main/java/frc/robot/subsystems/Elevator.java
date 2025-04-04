@@ -11,6 +11,7 @@ import frc.robot.utils.PositionControlledMotor;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
@@ -109,6 +110,10 @@ public class Elevator extends PositionControlledMotor {
         if (followerMotor != null) {
             followerMotor.setPosition(0);
         }    
+    }
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("ElevatorHeight", getPosition());
     }
 
 }

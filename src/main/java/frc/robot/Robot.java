@@ -46,6 +46,8 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         double[] rightPositions = LimelightHelpers.getBotPose_TargetSpace("limelight");
         double[] leftPositions = LimelightHelpers.getBotPose_TargetSpace("limelight-intake");
+
+        //SmartDashboard.putNumber("Elevator Height", RobotContainer.elevator.getPosition());
         
         if (rightPositions.length > 4) {
             SmartDashboard.putNumber("Right X val error", rightPositions[2] - (-0.10));

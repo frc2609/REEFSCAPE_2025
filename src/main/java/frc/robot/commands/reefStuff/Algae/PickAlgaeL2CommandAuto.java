@@ -1,5 +1,6 @@
 package frc.robot.commands.reefStuff.Algae;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -17,15 +18,13 @@ public class PickAlgaeL2CommandAuto extends SequentialCommandGroup{
     public PickAlgaeL2CommandAuto(Elevator elevator, Arm arm, Gripper gripper) {
         addCommands(
             new MovePCM(elevator, 10),//9
-            //new WaitUntilCommand(confirmTrigger),
             new ParallelCommandGroup(
                 new GripCommand(gripper),
-                new MovePCM(arm, 40)
+                new MovePCM(arm, 40),
+                Commands.runOnce(()->SmartDashboard.putString("state", "elevator -> 10 and arm -> 40 and algae in"))
   
-            ).withTimeout(5),
-            //new WaitUntilCommand(confirmTrigger),
-            new ReleaseGripperCommand(gripper),
-            Commands.idle(elevator, arm, gripper)
+            ).withTimeout(5)
+
 
         );
     }

@@ -33,10 +33,11 @@ public class DchampsRedLeft extends SequentialCommandGroup {
             // Only proceed if a tag is visible
 
             // If a tag is visible, execute the sequence
+            new WaitCommand(0.3),
             new SequentialCommandGroup(                
                 // First score
                 resetPoseWithLimelight(),
-                createPathToTag(11, 0.75, -0.8, 180),
+                createPathToTag(11, 1, -1, 180),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
                     new ScoreL4CommandAuto(elevator, arm, gripper)
@@ -49,7 +50,7 @@ public class DchampsRedLeft extends SequentialCommandGroup {
                     createPathToTag(1, 0.5, 0.3, 0),
                     new HumanIntakeCommand(arm, gripper, elevator)
                     
-                ).withTimeout(3.25),
+                ).withTimeout(5),
 
                 // Second score
                 createPathToTag(6, 1, -1, 180),
@@ -65,16 +66,7 @@ public class DchampsRedLeft extends SequentialCommandGroup {
                     createPathToTag(1, 0.5, 0.3, 0),
                     new HumanIntakeCommand(arm, gripper, elevator)
                     
-                ).withTimeout(2),
-
-                // Third coral
-                createPathToTag(6, 0.75, -0.8, 180),
-                new WaitCommand(0.1),
-                new ParallelCommandGroup(
-                    new PIDFineAlign(true, drivetrain),
-                    new ScoreL4CommandAuto(elevator, arm, gripper)
-                ).withTimeout(5),
-                new ScoreL4CommandAutoDown(elevator, arm, gripper)
+                ).withTimeout(5)
             )
                 
                 // If no tag is visible, do nothing (or could add a search behavior)

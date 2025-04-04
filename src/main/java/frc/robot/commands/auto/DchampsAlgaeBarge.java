@@ -6,12 +6,18 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Intake.HumanIntakeCommand;
+import frc.robot.commands.reefStuff.Algae.AlgaeNet;
+import frc.robot.commands.reefStuff.Algae.AlgaeNetAuto;
+import frc.robot.commands.reefStuff.Algae.PickAlgaeL2Command;
+import frc.robot.commands.reefStuff.Algae.PickAlgaeL2CommandAuto;
+import frc.robot.commands.reefStuff.L4Coral.ScoreL4Algae2CommandAuto;
 import frc.robot.commands.reefStuff.L4Coral.ScoreL4CommandAuto;
 import frc.robot.commands.reefStuff.L4Coral.ScoreL4CommandAutoDown;
 import frc.robot.subsystems.Arm;
@@ -20,59 +26,45 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.utils.LimelightHelpers;
 
-public class DchampsRedRight extends SequentialCommandGroup {
+public class DchampsAlgaeBarge extends SequentialCommandGroup {
     private final CommandSwerveDrivetrain drivetrain;
     private final String limelightName = "limelight-intake";
     private final AprilTagFieldLayout fieldLayout;
     
-    public DchampsRedRight(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
+    public DchampsAlgaeBarge(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
         this.drivetrain = drivetrain;
         this.fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         
         addCommands(
             // Only proceed if a tag is visible
 
-            new WaitCommand(0.3),
             // If a tag is visible, execute the sequence
+            //new WaitCommand(3),
             new SequentialCommandGroup(                
                 // First score
+                //resetPoseWithLimelight(),
                 resetPoseWithLimelight(),
-                createPathToTag(9, 1, -1, 180),
-                new ParallelCommandGroup(
-                    new PIDFineAlign(true, drivetrain),
-                    new ScoreL4CommandAuto(elevator, arm, gripper)
-                ).withTimeout(5),
-                new ScoreL4CommandAutoDown(elevator, arm, gripper),
-                resetPoseWithLimelight(),
-
-                // First intake
-                new ParallelCommandGroup(
-                    createPathToTag(2, 0.5, 0.3, 0),
-                    new HumanIntakeCommand(arm, gripper, elevator)
-                    
-                ).withTimeout(5),
-
-                // Second score
-                createPathToTag(8, 1, -1, 180),
-                new WaitCommand(0.1),
-                new ParallelCommandGroup(
-                    new PIDFineAlign(true, drivetrain),
-                    new ScoreL4CommandAuto(elevator, arm, gripper)
-                ).withTimeout(5),
-                new ScoreL4CommandAutoDown(elevator, arm, gripper),
-                resetPoseWithLimelight(),
-
-                new ParallelCommandGroup(
-                    createPathToTag(2, 0.5, 0.3, 0),
-                    new HumanIntakeCommand(arm, gripper, elevator)
-                    
-                ).withTimeout(5)
-
-            )
+                createPathToTag(8, 0.23, -0.1, 180),
+                new WaitCommand(0.2),
+                new ScoreL4Algae2CommandAuto(elevator, arm, gripper),
+                createPathToTag(8, 0.75, -0.4, 180),
+                //new WaitCommand(2),
+                createPathToTag(8, 0.23, -0.4, 180),
+                new PickAlgaeL2CommandAuto(elevator, arm, gripper),
+                //new ScoreL4CommandAutoDown(elevator, arm, gripper),
+                new WaitCommand(2),
+                //new ScoreL4CommandAutoDown(elevator, arm, gripper),
+                //resetPoseWithLimelight(),
+                new WaitCommand(3),
+                new AlgaeNetAuto(elevator, arm, gripper).withTimeout(3),
+                new WaitCommand(5)
+                //Commands.idle(elevator, arm, gripper)
+                
                 
                 // If no tag is visible, do nothing (or could add a search behavior)
                 // new InstantCommand(),
                 // this::isTagVisible
+            )
             
         );
     }

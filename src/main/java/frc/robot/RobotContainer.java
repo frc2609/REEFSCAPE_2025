@@ -28,6 +28,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -37,7 +38,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 //import frc.robot.commands.GoToAprilTagCommand;
 import frc.robot.commands.Align.PIDFineAlign;
 import frc.robot.commands.Align.ResetGyro;
@@ -48,10 +52,14 @@ import frc.robot.commands.Intake.flop.DeployFlopCommand;
 import frc.robot.commands.Intake.RetractIntakeCommand;
 import frc.robot.commands.Intake.HumanIntakeCommand;
 import frc.robot.commands.Intake.CoralHandOff;
+import frc.robot.commands.auto.DchampsAlgaeBarge;
 import frc.robot.commands.auto.DchampsBlueLeft;
 import frc.robot.commands.auto.DchampsBlueRight;
+import frc.robot.commands.auto.DchampsPIT;
+import frc.robot.commands.auto.DchampsPractice;
 import frc.robot.commands.auto.DchampsRed1;
 import frc.robot.commands.auto.DchampsRedLeft;
+import frc.robot.commands.auto.DchampsRedPath;
 import frc.robot.commands.auto.DchampsRedRight;
 //import frc.robot.commands.auto.MultiTagPathAuto;
 import frc.robot.commands.climber.RetractClimberCommand;
@@ -73,6 +81,7 @@ import frc.robot.commands.reefStuff.L4Coral.ScoreL4KnockAlgaeL2Command;
 import frc.robot.commands.reefStuff.L4Coral.ScoreL4KnockAlgaeL3Command;
 import frc.robot.commands.reefStuff.Algae.AlgaeL2LED;
 import frc.robot.commands.reefStuff.Algae.AlgaeL3LED;
+import frc.robot.commands.reefStuff.Algae.AlgaeNet;
 import frc.robot.commands.reefStuff.ScoreL2Command;
 import frc.robot.commands.reefStuff.ScoreL3Command;
 import frc.robot.commands.reefStuff.L4Coral.L4LED;
@@ -87,6 +96,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeRoll;
 import frc.robot.subsystems.IntakeFlop;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.elastic.FieldDisplay;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Gripper;
@@ -142,13 +152,13 @@ public class RobotContainer {
     
     /* Triggers */
     @SuppressWarnings("unused")
-    private final Trigger scoreL1Trigger = operatorController.x();//L2 coral score
+    private final Trigger scoreL1Trigger = operatorController.x();//L1 coral score
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
     private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
-    //private final Trigger interupTrigger = operatorController.back();
+    private final Trigger interupTrigger = operatorController.back();
     private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
     private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
@@ -165,6 +175,8 @@ public class RobotContainer {
     private final Trigger humanTrigger = driverController.leftTrigger();//Human intake
     private final Trigger resetYawTrigger = driverController.start();//Reset yaw
     private final Trigger shootTrigger = driverController.povDown();// Gripper outtake
+
+    private final FieldDisplay fieldDisplay = new FieldDisplay();
     
     /* Auto choosers */
     SendableChooser<Integer> IDCoral = SendableChooserUtil.createSequentialChooser();
@@ -246,8 +258,9 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
-        //interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
+        interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
         
+        //driverController.x().onTrue(createPathToTag(8, 1, -1, 180));
         confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         
         humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
@@ -261,11 +274,11 @@ public class RobotContainer {
         resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
         
         // driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
-        driverController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));
+        //driverController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));
 
         gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
         
-        climber.climbing.whileTrue(new moveElevator(elevator));
+        climber.climbing.onTrue(new moveElevator(elevator));
         deployClimberTrigger
             .whileTrue(
                 new SequentialCommandGroup(
@@ -274,7 +287,7 @@ public class RobotContainer {
                 )
             )
             .onFalse(new StopClimberCommand(climber)); 
-
+            
         retractClimberTrigger
             .whileTrue(
                 new SequentialCommandGroup(
@@ -299,24 +312,39 @@ public class RobotContainer {
             .whileTrue(new IntakeRollCommand(intakeRoll))
             .whileFalse(new RetractIntakeCommand(intakeFlop, intakeRoll));
 
-        intakeFlop.coralTrigger
-        .and(intakeFlop.deployedTrigger)
-        .onTrue(
-            new RetractIntakeCommand(intakeFlop, intakeRoll)
-        );
+        // intakeFlop.coralTrigger
+        // .and(intakeFlop.deployedTrigger)
+        // .onTrue(
+        //     new ConditionalCommand(
+        //         new RetractIntakeCommand(intakeFlop, intakeRoll),
+        //         new InstantCommand(),
+        //         () -> DriverStation.isTeleop()
+        //     )
+        // );
 
 
-        intakeFlop.coralTrigger
-        .and(intakeFlop.retractedTrigger)
-        .and(gripper.coral.negate())
-        .onTrue(
-            new CoralHandOff(elevator, arm, gripper)
-        );
+        // intakeFlop.coralTrigger
+        // .and(intakeFlop.retractedTrigger)
+        // .and(gripper.coral.negate())
+        // .onTrue(
+        //     new ConditionalCommand(
+        //         new CoralHandOff(elevator, arm, gripper),
+        //         new InstantCommand(),
+        //         () -> DriverStation.isTeleop()
+        //     )
+        // );
 
         scoreL4Trigger.toggleOnTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> SmartDashboard.putString("Queue:", "L4 Coral")),
                 new ScoreL4Command(elevator, arm, gripper, shootTrigger, alignRightTrigger, alignLeftTrigger)
+            )
+        );
+
+        scoreL1Trigger.toggleOnTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "Algae Net")),
+                new AlgaeNet(elevator, arm, gripper, confirmTrigger)
             )
         );
 
@@ -416,8 +444,12 @@ public class RobotContainer {
         autoChooser.addOption("Dchamps Red Right", new DchampsRedRight(drivetrain, elevator, arm, gripper));
         autoChooser.addOption("Dchamps Red Left", new DchampsRedLeft(drivetrain, elevator, arm, gripper));
         autoChooser.addOption("Dchamps Blue Left", new DchampsBlueLeft(drivetrain, elevator, arm, gripper));
-        autoChooser.addOption("Dchamps Red 1", new DchampsRed1(drivetrain, elevator, arm, gripper));
-        autoChooser.setDefaultOption("Dchamps Blue Right", new DchampsBlueRight(drivetrain, elevator, arm, gripper));
+        autoChooser.setDefaultOption("Dchamps Red 1", new DchampsRed1(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps Blue Right", new DchampsBlueRight(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("pIT", new DchampsPIT(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Practice", new DchampsPractice(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("L4, Score Barge", new DchampsAlgaeBarge(drivetrain, elevator, arm, gripper));
+        autoChooser.addOption("Dchamps 1 Path", new DchampsRedPath(drivetrain, elevator, arm, gripper));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -435,5 +467,4 @@ public class RobotContainer {
         
         return drivetrain.getPathPlannerCommandToAprilTag(targetPose);
     }
-
 }

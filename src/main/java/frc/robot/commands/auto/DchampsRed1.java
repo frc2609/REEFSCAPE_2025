@@ -33,9 +33,10 @@ public class DchampsRed1 extends SequentialCommandGroup {
             // Only proceed if a tag is visible
 
             // If a tag is visible, execute the sequence
+            new WaitCommand(3),
             new SequentialCommandGroup(                
                 // First score
-                resetPoseWithLimelight(),
+                //resetPoseWithLimelight(),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
                     new ScoreL4CommandAuto(elevator, arm, gripper)

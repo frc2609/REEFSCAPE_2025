@@ -20,60 +20,38 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.utils.LimelightHelpers;
 
-public class DchampsRedRight extends SequentialCommandGroup {
+public class DchampsPIT extends SequentialCommandGroup {
     private final CommandSwerveDrivetrain drivetrain;
     private final String limelightName = "limelight-intake";
     private final AprilTagFieldLayout fieldLayout;
     
-    public DchampsRedRight(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
+    public DchampsPIT(CommandSwerveDrivetrain drivetrain, Elevator elevator, Arm arm, Gripper gripper) {
         this.drivetrain = drivetrain;
         this.fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
         
         addCommands(
             // Only proceed if a tag is visible
 
-            new WaitCommand(0.3),
             // If a tag is visible, execute the sequence
             new SequentialCommandGroup(                
                 // First score
+                new WaitCommand(0.3),
                 resetPoseWithLimelight(),
-                createPathToTag(9, 1, -1, 180),
+                createPathToTag(8, 0.75, -0.8, 180),
                 new ParallelCommandGroup(
                     new PIDFineAlign(true, drivetrain),
                     new ScoreL4CommandAuto(elevator, arm, gripper)
                 ).withTimeout(5),
                 new ScoreL4CommandAutoDown(elevator, arm, gripper),
-                resetPoseWithLimelight(),
+                resetPoseWithLimelight()
 
                 // First intake
-                new ParallelCommandGroup(
-                    createPathToTag(2, 0.5, 0.3, 0),
-                    new HumanIntakeCommand(arm, gripper, elevator)
-                    
-                ).withTimeout(5),
+ 
 
-                // Second score
-                createPathToTag(8, 1, -1, 180),
-                new WaitCommand(0.1),
-                new ParallelCommandGroup(
-                    new PIDFineAlign(true, drivetrain),
-                    new ScoreL4CommandAuto(elevator, arm, gripper)
-                ).withTimeout(5),
-                new ScoreL4CommandAutoDown(elevator, arm, gripper),
-                resetPoseWithLimelight(),
-
-                new ParallelCommandGroup(
-                    createPathToTag(2, 0.5, 0.3, 0),
-                    new HumanIntakeCommand(arm, gripper, elevator)
-                    
-                ).withTimeout(5)
-
-            )
-                
                 // If no tag is visible, do nothing (or could add a search behavior)
                 // new InstantCommand(),
                 // this::isTagVisible
-            
+            )
         );
     }
     

@@ -12,20 +12,18 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 
-public class PickAlgaeL3Command extends SequentialCommandGroup{
-    public PickAlgaeL3Command(Elevator elevator, Arm arm, Gripper gripper, Trigger confirmTrigger) {
+
+public class AlgaeNet extends SequentialCommandGroup{
+    public AlgaeNet(Elevator elevator, Arm arm, Gripper gripper, Trigger confirmTrigger) {
         addCommands(
-
-            new MovePCM(elevator, 20),
+            new MovePCM(elevator, 39.5),//9
             new WaitUntilCommand(confirmTrigger),
-            new ParallelCommandGroup(
-                new GripCommand(gripper),
-                new MovePCM(arm, 60)
-            ),
-            new WaitUntilCommand(confirmTrigger),
-            new ReleaseGripperCommand(gripper),
-
+            new MovePCM(arm, 60),
+            new ReleaseGripperCommand(gripper),       
             Commands.idle(elevator, arm, gripper)
+
         );
     }
+  
+
 }

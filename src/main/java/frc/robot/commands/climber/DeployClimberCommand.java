@@ -13,7 +13,7 @@ public class DeployClimberCommand extends Command {
 
     @Override
     public void execute() {
-        climber.goToPosition(185);
+        climber.goToPosition(130);
     }
 
     @Override

@@ -45,14 +45,14 @@ public class PIDFineAlign extends Command {
 
       // Left set points
       double Xsetpoint = -0.27;
-      double Ysetpoint = -0.55;
+      double Ysetpoint = -0.47;
       double rotSetPoint = 0;     ;
 
       // Right set points
       if (isLeftScore == false){
         limelightName = "limelight";
-        Xsetpoint = -0.16;
-        Ysetpoint = -0.16;
+        Xsetpoint = -0.11;
+        Ysetpoint = -0.15;
         rotSetPoint = 0;
       }
       if(isLeftScore && LimelightHelpers.getFiducialID(limelightName) == -1){
@@ -91,22 +91,27 @@ public class PIDFineAlign extends Command {
           yController.setP(4.0);
         }
 
-        double xSpeed = xController.calculate(postions[2]);
-        double ySpeed = -yController.calculate(postions[0]);
-        double rotValue = -rotController.calculate(postions[4]);
-        SmartDashboard.putNumber("error", yController.getError());
+        double xSpeed;
+        double ySpeed;
+        double rotValue;
+        if(postions.length > 4){
+          xSpeed = xController.calculate(postions[2]);
+          ySpeed = -yController.calculate(postions[0]);
+          rotValue = -rotController.calculate(postions[4]);
+          SmartDashboard.putNumber("error", yController.getError());
 
-        // drive!
-        drivebase.setControl(m_drive
-           .withVelocityX(xSpeed) // Drive forward with negative Y(forward)
-           .withVelocityY(ySpeed) // Drive left with negative X (left)
-           .withRotationalRate(rotValue)
-        );
-  
-        if (!rotController.atSetpoint() || !yController.atSetpoint() || !xController.atSetpoint()) {
-          stopTimer.reset();
+          // drive!
+          drivebase.setControl(m_drive
+            .withVelocityX(xSpeed) // Drive forward with negative Y(forward)
+            .withVelocityY(ySpeed) // Drive left with negative X (left)
+            .withRotationalRate(rotValue)
+          );
+    
+          if (!rotController.atSetpoint() || !yController.atSetpoint() || !xController.atSetpoint()) {
+            stopTimer.reset();
           }
         }
+      }
 
       else {
         drivebase.setControl(m_drive

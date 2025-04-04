@@ -80,6 +80,7 @@ import frc.robot.commands.climber.DeployClimberCommand;
 import frc.robot.commands.elevator.moveElevator;
 
 import frc.robot.commands.gripper.ReleaseGripperCommand;
+import frc.robot.commands.gripper.ReleaseGripperCommandL1;
 import frc.robot.commands.gripper.SlowGripCommand;
 
 import frc.robot.commands.pcmUtils.MovePCM;
@@ -98,6 +99,7 @@ import frc.robot.commands.reefStuff.ScoreL3Command;
 import frc.robot.commands.reefStuff.L4Coral.L4LED;
 import frc.robot.commands.reefStuff.L4Coral.LED_track;
 import frc.robot.commands.reefStuff.NoCoralLED;
+import frc.robot.commands.reefStuff.ScoreL1Command;
 import frc.robot.commands.reefStuff.L2LED;
 import frc.robot.commands.reefStuff.L3LED;
 
@@ -258,6 +260,11 @@ public class RobotContainer {
         
         operatorController.b().and(operatorController.povUp()).onTrue(new JogPCM(intakeFlop, 1));
         operatorController.b().and(operatorController.povDown()).onTrue(new JogPCM(intakeFlop, -1));
+
+
+
+        driverController.x().onTrue(new ReleaseGripperCommandL1(gripper));
+        driverController.a().onTrue(new SlowGripCommand(gripper));
     }
     
     private void configureDefaultCommands() {
@@ -270,6 +277,8 @@ public class RobotContainer {
     
     private void configureBindings() {
         interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
+
+        scoreL1Trigger.onTrue(new ScoreL1Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
         
         //driverController.x().onTrue(createPathToTag(8, 1, -1, 180));
         confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
@@ -287,7 +296,7 @@ public class RobotContainer {
         // driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
         //driverController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));
 
-        gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
+        gripTrigger.toggleOnTrue(new ReleaseGripperCommand(gripper));
         
         climber.climbing.onTrue(new moveElevator(elevator));
         deployClimberTrigger
@@ -352,12 +361,12 @@ public class RobotContainer {
             )
         );
 
-        scoreL1Trigger.toggleOnTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> SmartDashboard.putString("Queue:", "Algae Net")),
-                new AlgaeNet(elevator, arm, gripper, confirmTrigger)
-            )
-        );
+        // scoreL1Trigger.toggleOnTrue(
+        //     new SequentialCommandGroup(
+        //         Commands.runOnce(() -> SmartDashboard.putString("Queue:", "Algae Net")),
+        //         new AlgaeNet(elevator, arm, gripper, confirmTrigger)
+        //     )
+        // );
 
         scoreL3Trigger.toggleOnTrue(
             new ParallelCommandGroup(

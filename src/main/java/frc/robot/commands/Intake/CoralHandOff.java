@@ -18,7 +18,7 @@ public class CoralHandOff extends SequentialCommandGroup{
             new WaitUntilCommand(arm.aboveCoral),
             new MovePCM(elevator, 1),
             new WaitUntilCommand(elevator.handoff),
-            new MovePCM(arm, -20),
+            new MovePCM(arm, -23),
             new GripCommand(gripper),
             new WaitCommand(0.5),
             new StopGripperCommand(gripper)//,

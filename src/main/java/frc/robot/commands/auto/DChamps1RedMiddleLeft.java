@@ -32,7 +32,7 @@ public class DChamps1RedMiddleLeft extends SequentialCommandGroup {
         addCommands(
             new WaitCommand(3),
             resetPoseWithLimelight(),
-            createPathToTag(10, 0.2, -0.30, 180),
+            createPathToTag(10, 0.1, 0, 180),
             new ScoreL4CommandAuto(elevator, arm, gripper),
             new ScoreL4CommandAutoDown(elevator, arm, gripper)  
             

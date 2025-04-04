@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
         Thread m_visionThread = new Thread(
             () -> {
                 UsbCamera camera = CameraServer.startAutomaticCapture();
-                camera.setResolution(640, 480);
+                camera.setResolution(320, 240);
             }
         );
         m_visionThread.setDaemon(true);

@@ -4,9 +4,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Gripper;
 
-public class ReleaseGripperCommand extends Command {
+public class ReleaseGripperCommandL1 extends Command {
     private final Gripper gripper;
-    public ReleaseGripperCommand(Gripper gripper) {
+    public ReleaseGripperCommandL1(Gripper gripper) {
         this.gripper = gripper;
         addRequirements(gripper);
     }
@@ -16,7 +16,7 @@ public class ReleaseGripperCommand extends Command {
         System.out.println("ungripping");
         SmartDashboard.putString("is Ungripping", "ungripping");
         SmartDashboard.putString("state", "ungripping");
-        gripper.setSpeed(-0.85);//-0.85
+        gripper.setSpeed(-0.75);//-0.85
     }
 
     @Override

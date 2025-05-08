@@ -136,7 +136,7 @@ public class RobotContainer {
 
     private double topDriveSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);  
     private double slowDriveSpeed = topDriveSpeed/speedFactor; 
-    private double currentSpeed = topDriveSpeed;   
+    private double currentSpeed = slowDriveSpeed;  // topDriveSpeed
     
     private double topAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond);
     private double slowAngularRate = topAngularRate/speedFactor;
@@ -166,14 +166,14 @@ public class RobotContainer {
     
     /* Triggers */
     @SuppressWarnings("unused")
-    private final Trigger scoreL1Trigger = operatorController.x();//L1 coral score
+    //private final Trigger scoreL1Trigger = operatorController.x();//L1 coral score
     private final Trigger retractClimberTrigger = operatorController.rightTrigger();//Retract climber
     private final Trigger deployClimberTrigger = operatorController.leftTrigger();//Deploy climber
     private final Trigger coralHandoffTrigger = operatorController.rightBumper();//Coral handoff
     private final Trigger algaeknockL2Trigger = operatorController.povDown();//L2 algae
     private final Trigger algaeknockL3Trigger = operatorController.povUp();//L3 algae
     private final Trigger interupTrigger = operatorController.back();
-    private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
+    //private final Trigger resetGyroTrigger = operatorController.start();//rESET GYRO
     private final Trigger gripTrigger = operatorController.leftBumper();//Gripper outake (manual)
     private final Trigger scoreL4Trigger = operatorController.y();//L4 coral Score
     private final Trigger scoreL4TriggerL3Algae = operatorController.povLeft();//L4 coral Score
@@ -279,20 +279,20 @@ public class RobotContainer {
     private void configureBindings() {
         interupTrigger.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
 
-        scoreL1Trigger.onTrue(new ScoreL1Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
+        //scoreL1Trigger.onTrue(new ScoreL1Command(elevator, arm, gripper, shootTrigger, confirmTrigger));
         
         //driverController.x().onTrue(createPathToTag(8, 1, -1, 180));
         confirmTrigger.onTrue(Commands.runOnce(() -> SmartDashboard.putString("Queue:", "None")));
         
         humanTrigger.whileTrue(new HumanIntakeCommand(arm, gripper, elevator));
         
-        alignLeftTrigger.whileTrue(new PIDFineAlign(true, drivetrain));
-        alignRightTrigger.whileTrue(new PIDFineAlign(false, drivetrain));
+        // alignLeftTrigger.whileTrue(new PIDFineAlign(true, drivetrain));
+        // alignRightTrigger.whileTrue(new PIDFineAlign(false, drivetrain));
         
         coralHandoffTrigger.onTrue(new CoralHandOff(elevator, arm, gripper));
         
         resetYawTrigger.onTrue(new ResetGyro(drivetrain, mainLimelight, pidgey));
-        resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
+       // resetGyroTrigger.onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight-intake"))));
         
         // driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
         //driverController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));

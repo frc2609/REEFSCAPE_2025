@@ -1,111 +1,111 @@
-package frc.robot.commands;
+// package frc.robot.commands;
 
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Limelight;
+// import frc.robot.generated.TunerConstants;
+// import frc.robot.subsystems.CommandSwerveDrivetrain;
+// import frc.robot.subsystems.Limelight;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.utils.LimelightHelpers;
+// import com.ctre.phoenix6.hardware.Pigeon2;
+// import com.ctre.phoenix6.swerve.SwerveRequest;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import frc.robot.utils.LimelightHelpers;
 
-public class ResetGyro extends Command {
-    private final CommandSwerveDrivetrain m_Swerve;
-    private final Limelight m_limelight;
-    private final Pigeon2 m_Pigeon2;
+// public class ResetGyro extends Command {
+//     private final CommandSwerveDrivetrain m_Swerve;
+//     private final Limelight m_limelight;
+//     private final Pigeon2 m_Pigeon2;
     
 
-    private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
-   .withDeadband(4.73 * 0.1).withRotationalDeadband(2 * 0.1); // Add a 10% deadband
+//     private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
+//    .withDeadband(4.73 * 0.1).withRotationalDeadband(2 * 0.1); // Add a 10% deadband
 
 
-    public ResetGyro(CommandSwerveDrivetrain swerve, Limelight limelight, Pigeon2 pidgey) {
-        m_Swerve = swerve;
-        m_limelight = limelight;
-        m_Pigeon2 = pidgey;
+//     public ResetGyro(CommandSwerveDrivetrain swerve, Limelight limelight, Pigeon2 pidgey) {
+//         m_Swerve = swerve;
+//         m_limelight = limelight;
+//         m_Pigeon2 = pidgey;
 
-        addRequirements(swerve, limelight);
-    }
+//         addRequirements(swerve, limelight);
+//     }
 
-    private double limelightAimProportional() {
-        // kP (constant of proportionality)
-        // Determines the aggressiveness of the proportional control loop
-        double kP = 0.06;
+//     private double limelightAimProportional() {
+//         // kP (constant of proportionality)
+//         // Determines the aggressiveness of the proportional control loop
+//         double kP = 0.06;
     
-        // Get the "tx" value from the Limelight
-        double targetingAngularVelocity = m_limelight.get_tx() * kP;
+//         // Get the "tx" value from the Limelight
+//         double targetingAngularVelocity = m_limelight.get_tx() * kP;
 
-        SmartDashboard.putNumber("limelightX: ", m_limelight.get_tx());
-
-    
-        // Convert to radians per second for the drivetrain
-        targetingAngularVelocity *= 0.75;
-    
-        // Invert since tx is positive when the target is to the right of the crosshair
-        // targetingAngularVelocity *= 1.0;
-    
-        return targetingAngularVelocity;
-    }
-    
-    // Proportional ranging control with Limelight's "ty" value
-    // Works best if the Limelight's mount height and target mount height are different.
-    private double limelightRangeProportional() {
-        double kP = 0.06;
-    
-        // Get the "ty" value from the Limelight
-        // double targetingForwardSpeed = m_Vision.getTY() * kP;
-        double targetingForwardSpeed = m_limelight.get_ty() * kP;
-
+//         SmartDashboard.putNumber("limelightX: ", m_limelight.get_tx());
 
     
-        // Convert to meters per second for the drivetrain
-        targetingForwardSpeed *= -TunerConstants.kSpeedAt12Volts.magnitude();
+//         // Convert to radians per second for the drivetrain
+//         targetingAngularVelocity *= 0.75;
     
-        // Invert the direction for proper control
-        // targetingForwardSpeed *= 1.0;
+//         // Invert since tx is positive when the target is to the right of the crosshair
+//         // targetingAngularVelocity *= 1.0;
     
-        return targetingForwardSpeed;
-    }
-    // private double limelightRotProportional() {
-    //     double kP = 0.06;
+//         return targetingAngularVelocity;
+//     }
     
-    //     // Get the "ty" value from the Limelight
-    //     // double targetingForwardSpeed = m_Vision.getTY() * kP;
-    //     double targetingForwardSpeed = m_limelight.get_tl() * kP;
-
-    //     //SmartDashboard.putNumber("limelightX", LimelightHelpers.getTY("limelight"));
+//     // Proportional ranging control with Limelight's "ty" value
+//     // Works best if the Limelight's mount height and target mount height are different.
+//     private double limelightRangeProportional() {
+//         double kP = 0.06;
     
-    //     // Convert to meters per second for the drivetrain
-    //     targetingForwardSpeed *= TunerConstants.kSpeedAt12Volts.magnitude();
+//         // Get the "ty" value from the Limelight
+//         // double targetingForwardSpeed = m_Vision.getTY() * kP;
+//         double targetingForwardSpeed = m_limelight.get_ty() * kP;
+
+
     
-    //     // Invert the direction for proper control
-    //     // targetingForwardSpeed *= 1.0;
+//         // Convert to meters per second for the drivetrain
+//         targetingForwardSpeed *= -TunerConstants.kSpeedAt12Volts.magnitude();
     
-    //     return targetingForwardSpeed;
-    // }
+//         // Invert the direction for proper control
+//         // targetingForwardSpeed *= 1.0;
+    
+//         return targetingForwardSpeed;
+//     }
+//     // private double limelightRotProportional() {
+//     //     double kP = 0.06;
+    
+//     //     // Get the "ty" value from the Limelight
+//     //     // double targetingForwardSpeed = m_Vision.getTY() * kP;
+//     //     double targetingForwardSpeed = m_limelight.get_tl() * kP;
 
-    private double LimelightRoation(){
-        double kP = 0.06;
-        double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
+//     //     //SmartDashboard.putNumber("limelightX", LimelightHelpers.getTY("limelight"));
+    
+//     //     // Convert to meters per second for the drivetrain
+//     //     targetingForwardSpeed *= TunerConstants.kSpeedAt12Volts.magnitude();
+    
+//     //     // Invert the direction for proper control
+//     //     // targetingForwardSpeed *= 1.0;
+    
+//     //     return targetingForwardSpeed;
+//     // }
 
-        return angle;
+//     private double LimelightRoation(){
+//         double kP = 0.06;
+//         double angle = m_Pigeon2.getAccumGyroY().getValueAsDouble();
 
-    }
+//         return angle;
+
+//     }
 
 
 
 
-    public void execute(){
+//     public void execute(){
 
-        double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-intake")[5];
+//         double tagYaw = LimelightHelpers.getBotPose_wpiBlue("limelight-intake")[5];
 
-        m_Swerve.setControl(
-            m_driveRequest
-                .withRotationalRate(-tagYaw * 0.06)
-        );
-        SmartDashboard.putNumber("Angle",m_Pigeon2.getAccumGyroY().getValueAsDouble());
-        //m_Swerve.applyRequest(()->m_driveRequest.withVelocityX(xSpeed));
-    }
-}
+//         m_Swerve.setControl(
+//             m_driveRequest
+//                 .withRotationalRate(-tagYaw * 0.06)
+//         );
+//         SmartDashboard.putNumber("Angle",m_Pigeon2.getAccumGyroY().getValueAsDouble());
+//         //m_Swerve.applyRequest(()->m_driveRequest.withVelocityX(xSpeed));
+//     }
+// }
 

@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -297,12 +298,13 @@ public class RobotContainer {
         // driverController.x().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiRed("limelight"))));
         //driverController.back().onTrue(drivetrain.runOnce(() ->drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(mainLimelightName))));
 
-        gripTrigger.toggleOnTrue(new ReleaseGripperCommand(gripper));
+        gripTrigger.whileTrue(new ReleaseGripperCommand(gripper));
         
         climber.climbing.onTrue(new moveElevator(elevator));
         deployClimberTrigger
             .whileTrue(
                 new SequentialCommandGroup(
+                    new PrintCommand("Deploy"),
                     climber.runOnce(() -> climber.enablePositionControl()),
                     new DeployClimberCommand(climber)
                 )
@@ -312,6 +314,7 @@ public class RobotContainer {
         retractClimberTrigger
             .whileTrue(
                 new SequentialCommandGroup(
+                    new PrintCommand("Retract"),
                     climber.runOnce(() -> climber.enablePositionControl()),
                     new RetractClimberCommand(climber)
                 )

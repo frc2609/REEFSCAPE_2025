@@ -20,7 +20,7 @@ import frc.robot.utils.PositionControlledMotor;
 
 
 public class IntakeFlop extends PositionControlledMotor {
-    private final static boolean debug = true;
+    private final static boolean debug = false;
     private final static double zeroPosition = 0.39;
     private final static Double gearRatio = 88.888;
     private final static int motorId = 9;

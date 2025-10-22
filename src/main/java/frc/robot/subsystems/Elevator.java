@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class Elevator extends PositionControlledMotor {
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final static boolean debug = true;
+    private final static boolean debug = false;
     private final static double positionTolerance = 1.0;
     private final static double maxAcceleration = 400;//100
     private final static Boolean invertEncoder = true;

@@ -44,15 +44,15 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Xsetpoint = -0.27;
-      double Ysetpoint = -0.47;
+      double Xsetpoint = -0.49;
+      double Ysetpoint = -0.262;
       double rotSetPoint = 0;     ;
 
       // Right set points
       if (isLeftScore == false){
         limelightName = "limelight";
-        Xsetpoint = -0.11;
-        Ysetpoint = -0.15;
+        Xsetpoint = -0.097;
+        Ysetpoint = -0.159;
         rotSetPoint = 0;
       }
       if(isLeftScore && LimelightHelpers.getFiducialID(limelightName) == -1){

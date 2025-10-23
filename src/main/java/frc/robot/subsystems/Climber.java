@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class Climber extends PositionControlledMotor{
     // Move the following to config and get gear ratios.
     // We changed how the motor is reset please check the position values
-    private final static boolean debug = true;
+    private final static boolean debug = false;
     private final static double positionTolerance = 0.01;
     private final static double maxAcceleration = 250;
     private final static Boolean invertEncoder = false;

@@ -51,8 +51,8 @@ public class PIDFineAlign extends Command {
       // Right set points
       if (isLeftScore == false){
         limelightName = "limelight";
-        Xsetpoint = -0.097;
-        Ysetpoint = -0.159;
+        Xsetpoint = -0.089;
+        Ysetpoint = -0.134;
         rotSetPoint = 0;
       }
       if(isLeftScore && LimelightHelpers.getFiducialID(limelightName) == -1){

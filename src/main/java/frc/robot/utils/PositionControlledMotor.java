@@ -340,6 +340,7 @@ public abstract class PositionControlledMotor extends SubsystemBase {
         return motor.getMotorVoltage().getValueAsDouble();
     }
     protected double getAbsPosition() {
+        SmartDashboard.putNumber("Get abs pos for " + name, encoder.get());
         return encoder.get();
     }
     public double getPositionFollower(){

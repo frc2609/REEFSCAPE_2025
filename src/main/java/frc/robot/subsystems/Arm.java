@@ -28,7 +28,7 @@ public class Arm extends PositionControlledMotor{
     private final static Double gearRatio = 50.0;
     private final static int motorId = 7;
     private final static int encoderId = 1;
-    private final static double zeroPosition = -0.08;// 0.64;
+    private final static double zeroPosition =-0.1; // 0.64;
 
     public final Trigger aboveIntake = new Trigger(() -> getPosition() < -20);
     public final Trigger belowIntake = new Trigger(() -> getPosition() > -20);

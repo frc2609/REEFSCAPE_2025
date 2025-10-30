@@ -16,11 +16,11 @@ public class ScoreL3Command extends SequentialCommandGroup{
         addCommands(
             new ParallelCommandGroup(
 
-                new MovePCM(elevator, 12),
+                new MovePCM(elevator, 11.29),
                 new SequentialCommandGroup(
                     new WaitUntilCommand(confirm2Trigger.or(confirmTrigger)),
                     new WaitUntilCommand(elevator.aboveIntake),
-                    new MovePCM(arm, -222),
+                    new MovePCM(arm, -224),
                     new WaitUntilCommand(shootTrigger),
                     new ReleaseGripperCommand(gripper),
                     new WaitCommand(0.5)

@@ -32,7 +32,7 @@ public class Dchamps1PIDRight extends SequentialCommandGroup {
         addCommands(
             // Only proceed if a tag is visible
             new WaitCommand(3),
-            new PIDFineAlign(false, drivetrain).withTimeout(8),
+            new PIDFineAlign(true, drivetrain).withTimeout(8),
             new ScoreL4CommandAuto(elevator, arm, gripper)
 
             );

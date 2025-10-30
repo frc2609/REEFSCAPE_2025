@@ -21,6 +21,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -118,7 +119,7 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Led;
 
-import frc.robot.utils.SendableChooserUtil;
+// import frc.robot.utils.SendableChooserUtil;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Telemetry;
 
@@ -194,11 +195,11 @@ public class RobotContainer {
     private final FieldDisplay fieldDisplay = new FieldDisplay();
     
     /* Auto choosers */
-    SendableChooser<Integer> IDCoral = SendableChooserUtil.createSequentialChooser();
-    SendableChooser<Integer> IDReef2 = SendableChooserUtil.createSequentialChooser();
-    SendableChooser<Integer> IDReef3 = SendableChooserUtil.createSequentialChooser();
+    // SendableChooser<Integer> IDCoral = SendableChooserUtil.createSequentialChooser();
+    // SendableChooser<Integer> IDReef2 = SendableChooserUtil.createSequentialChooser();
+    // SendableChooser<Integer> IDReef3 = SendableChooserUtil.createSequentialChooser();
 
-    SendableChooser<Command> autoChooser = new SendableChooser<>(); 
+    SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser(); 
 
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
@@ -209,7 +210,10 @@ public class RobotContainer {
      * The container for the robot.f Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() { 
-        setSmartDashboard();
+        // setSmartDashboard();
+        autoChooser.setDefaultOption("RUN THIS!!!!", new Dchamps1PIDRight(drivetrain, elevator, arm, gripper));
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
 
         boolean jog = false;
         boolean sysid = false;
@@ -460,9 +464,9 @@ public class RobotContainer {
         SmartDashboard.putNumber("TagNav/Tag/RotationOffset", 180);
         SmartDashboard.putNumber("TagNav/Tag/id", 10);
         SmartDashboard.putString("Queue:", "None");        
-        SmartDashboard.putData("ID Coral Station", IDCoral);
-        SmartDashboard.putData("ID Second Reef", IDReef2);
-        SmartDashboard.putData("ID Third Reef", IDReef3);
+        // SmartDashboard.putData("ID Coral Station", IDCoral);
+        // SmartDashboard.putData("ID Second Reef", IDReef2);
+        // SmartDashboard.putData("ID Third Reef", IDReef3);
         SmartDashboard.putBoolean("left second", false);
         SmartDashboard.putBoolean("left third", false);
 

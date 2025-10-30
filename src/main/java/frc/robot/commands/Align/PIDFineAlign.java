@@ -23,8 +23,8 @@ public class PIDFineAlign extends Command {
     SwerveRequest.RobotCentric rocDrive = new SwerveRequest.RobotCentric().withVelocityY(-1);
 
     public PIDFineAlign(boolean isLeftScore, CommandSwerveDrivetrain drivebase) {
-      xController = new PIDController(3, 2, 0.0000);  // Vertical movement
-      yController = new PIDController(3, 0.75, 0.0000);  // Horitontal movement
+      xController = new PIDController(2.5, 2, 0.0000);  // Vertical movement
+      yController = new PIDController(2.5, 0.75, 0.0000);  // Horitontal movement
       rotController = new PIDController(0.1, 0.0001, 0.00);  // Rotation
 
       xController.setIZone(0.3);
@@ -44,15 +44,15 @@ public class PIDFineAlign extends Command {
       PIDFineAlign.dontSeeTagTimer.start();
 
       // Left set points
-      double Xsetpoint = -0.49;
-      double Ysetpoint = -0.262;
+      double Xsetpoint = -0.293;
+      double Ysetpoint = -0.478;
       double rotSetPoint = 0;     ;
 
       // Right set points
       if (isLeftScore == false){
         limelightName = "limelight";
-        Xsetpoint = -0.089;
-        Ysetpoint = -0.134;
+        Xsetpoint = -0.09;
+        Ysetpoint = -0.14;
         rotSetPoint = 0;
       }
       if(isLeftScore && LimelightHelpers.getFiducialID(limelightName) == -1){

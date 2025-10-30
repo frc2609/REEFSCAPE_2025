@@ -111,6 +111,7 @@ public class Elevator extends PositionControlledMotor {
             followerMotor.setPosition(0);
         }    
     }
+    
     @Override
     public void periodic() {
         SmartDashboard.putNumber("ElevatorHeight", getPosition());

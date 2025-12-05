@@ -1,0 +1,67 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.1268442622950818,
+        "y": 1.0340676229508199
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.6892557113454287,
+        "y": 2.949708889475496
+      },
+      "isLocked": false,
+      "linkedName": "Coral Station"
+    },
+    {
+      "anchor": {
+        "x": 3.692213114754098,
+        "y": 2.8921618852459017
+      },
+      "prevControl": {
+        "x": 3.125767582931185,
+        "y": 2.252593172157294
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "ID8 Reef"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Align",
+      "waypointRelativePos": 0.340310600945306,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Score L4 new",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 57.17145820858749
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -128.65980825409005
+  },
+  "useDefaultConstraints": true
+}
